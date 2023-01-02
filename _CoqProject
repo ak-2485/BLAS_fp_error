@@ -1,0 +1,7 @@
+-R . Stationary
+op_defs.v
+float_accuracy_lemmas.v
+list_lemmas.v
+real_lemmas.v
+dotprod_models.v
+fma_dotprod_accuracy.v
