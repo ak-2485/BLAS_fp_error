@@ -7,7 +7,20 @@ Require Import Reals.
 Open Scope R.
 
 
-Definition g (t: type) (n: nat) : R := ((1 + (default_rel t ))^n - 1).
+Definition g (t: type) (n: nat) : R := ((1 + (default_rel t )) ^ n - 1).
+
+Lemma le_g_Sn t n : 
+  g t n <= g t (S n).
+Proof. 
+induction n; unfold g; simpl.
+  { field_simplify. apply default_rel_ge_0. }
+  unfold g in IHn. eapply Rplus_le_compat; try nra.
+  eapply Rmult_le_compat_l.
+  apply Rplus_le_le_0_compat; try nra; try apply default_rel_ge_0.
+  rewrite tech_pow_Rmult. apply Rle_pow; try lia.
+  rewrite Rplus_comm. apply Rcomplements.Rle_minus_l.
+  field_simplify; apply default_rel_ge_0. 
+Qed.
 
 Definition error_rel (t: type) (n: nat) (r : R) : R :=
   let e := default_abs t in
@@ -15,7 +28,6 @@ Definition error_rel (t: type) (n: nat) (r : R) : R :=
   if (1 <=? Z.of_nat n) then 
     (g t (n-1)) * (Rabs r + e/d)
   else 0%R.
-
 
 Section NAN.
 Variable NAN: Nans.
@@ -262,6 +274,22 @@ simpl in H1. inversion H1; simpl; split; auto.
 Qed.
 
 
+Lemma dot_prod_combine_map_Rmult a u v r:
+length u = length v ->
+R_dot_prod_rel (combine u v) r -> 
+R_dot_prod_rel (combine (map (Rmult a) u) v) (a * r). 
+Proof. revert u. induction v.
+{ intros. rewrite !combine_nil in *.  
+  inversion H0; subst; rewrite Rmult_0_r; apply R_dot_prod_rel_nil. }
+destruct u.
+  { intros; pose proof Nat.neq_0_succ (length v); try contradiction. }
+  specialize (IHv u).
+Admitted.
+  
+ 
+
+
+
 Lemma fma_dotprod_mixed_error: 
   forall (t: type) (v1 v2: list (ftype t)), 
   length v1 = length v2 -> forall fp rp rp_abs,
@@ -272,25 +300,86 @@ Lemma fma_dotprod_mixed_error:
   (forall xy, In xy (List.combine v1 v2) ->   
       Binary.is_finite _ _ (fst xy) = true /\ Binary.is_finite _ _ (snd xy) = true) ->   
   Binary.is_finite (fprec t) (femax t) fp = true ->
-  exists (u : list (ftype t)) fp' eta,
-    R_dot_prod_rel (map FR2 (List.combine u v2)) fp' /\ 
-    (forall n, exists delta, FT2R (nth n u neg_zero) = FT2R (nth n v1 neg_zero) * (1 + delta) /\ 
-    Rabs delta <= g t (length v1)) /\
-    FT2R fp = fp' + eta /\
-    Rabs eta <= INR (length v1) * default_abs t. 
+  exists (u : list R) (eta : R), length u = length v2 /\
+    R_dot_prod_rel (List.combine u (map FT2R v2)) (FT2R fp - eta) /\ 
+    (forall n, (n <= length v2)%nat -> exists delta, 
+      nth n u 0 = FT2R (nth n v1 neg_zero) * (1 + delta) /\ Rabs delta <= g t (length v2))  /\
+    Rabs eta <= INR (length v2) * default_abs t. 
 Proof.
 intros t v1 v2 Hlen.
 replace (combine (map Rabs (map FT2R v1))
      (map Rabs (map FT2R v2))) with (map Rabsp (map FR2 (combine v1 v2))) in *
  by (clear; revert v2; induction v1; destruct v2; simpl; auto; f_equal; auto).
-revert Hlen; induction v2.
-{ intros. exists nil, 0, 0. rewrite combine_nil in *. repeat split.
-  apply R_dot_prod_rel_nil.
-  intros. exists 0; split. admit.
-  rewrite Hlen. simpl. unfold g. field_simplify. rewrite Rabs_R0; nra.
-  inversion H; simpl; nra.
-  rewrite Hlen; simpl. rewrite Rabs_R0; nra. }
-{ intros Hlen fp rp rp_abs ?  Hfp Hrp Hrpa Hin Hfin.
+revert Hlen. revert v1. induction v2.
+{ intros. exists nil, 0. rewrite combine_nil in *. repeat split.
+  inversion H; subst; rewrite Rminus_0_r; apply R_dot_prod_rel_nil.
+  intros. exists 0; split. replace v1 with (@nil (ftype t)). 
+        destruct n; simpl; nra. rewrite length_zero_iff_nil in Hlen; auto.
+  simpl; simpl in H4; assert (n = 0)%nat by lia; subst; unfold g; field_simplify; rewrite Rabs_R0; nra.
+  simpl; rewrite Rabs_R0; nra. }
+{ intros ? Hlen fp rp rp_abs ?  Hfp Hrp Hrpa Hin Hfin.
+  destruct v1; intros.
+  { pose proof Nat.neq_0_succ (length v2); try contradiction. }
+  (* apply IH *)
+  assert (HIN : (forall xy : ftype t * ftype t,
+        In xy (combine v1 v2) ->
+        Binary.is_finite (fprec t) (femax t) (fst xy) = true /\
+        Binary.is_finite (fprec t) (femax t) (snd xy) = true)).
+  { intros. assert (HIN: In xy (combine (f :: v1) (a :: v2))) by (simpl; auto);
+    specialize (Hin xy HIN); auto. }  
+  assert (length v1 = length v2) by (revert Hlen; simpl; lia).
+  inversion Hfp; inversion Hrp; inversion Hrpa; subst.
+  assert (HFIN: Binary.is_finite (fprec t) (femax t) s = true).
+  { revert Hfin; simpl. 
+    assert (HIN' : In (f, a) (combine (f :: v1) (a :: v2))) by (simpl; auto). 
+    specialize (Hin (f,a) HIN'). destruct Hin as (A & B). 
+    destruct f, a, s; simpl; intros; try discriminate; auto. }
+  specialize (IHv2 v1 H s s0 s1 H3 H7 H11 HIN HFIN).
+  destruct IHv2 as (u  & eta & A & B & C & D ).
+  (* construct u0 *)
+assert (HFINaf:       
+      Binary.is_finite (fprec t) (femax t) f = true /\
+      Binary.is_finite (fprec t) (femax t) a = true).
+  { intros. assert (HIN': In (f,a) (combine (f :: v1) (a :: v2))) by (simpl; auto);
+    specialize (Hin (f,a) HIN'); simpl in Hin; auto. }  
+    destruct HFINaf as (E & F).
+    simpl in Hfin.
+    assert (Hov: fma_no_overflow t (FT2R f) (FT2R a) (@FT2R t s)).
+    { red; fold ov; apply (is_finite_fma_no_overflow t (BFMA f a s)); auto. }
+    pose proof fma_accurate t f E a F s HFIN Hov as HER.
+    destruct HER as (d & e & Hd & He & HER). unfold fst, snd; rewrite HER.
+    exists (FT2R f * (1+d) :: map (Rmult (1+d)) u), (e + eta * (1 + d)).
+    repeat split. 
+    { simpl. rewrite map_length; auto. } 
+    { pose proof dot_prod_combine_map_Rmult (1+d) u (map FT2R v2) (FT2R s - eta).
+      rewrite map_length in H0. specialize (H0 A B).
+          replace  ((FT2R f * FT2R a + FT2R s) * (1 + d) + e - (e + eta * (1 + d))) with
+         (FT2R f * (1 + d) * FT2R a + (FT2R s - eta)*(1+d)). simpl. 
+          apply R_dot_prod_rel_cons. rewrite Rmult_comm; auto. 
+          field_simplify; auto. }
+    { intros. destruct n. { simpl. exists d. split; auto. unfold g. eapply Rle_trans; 
+                                                [apply Hd| ]. admit. }
+ 
+Search ( _ ^ 0).
+
+}
+              simpl. assert ((n <= length v2)%nat) by (revert H0; simpl; lia).
+              specialize (B n H1); destruct B as (delta & B & B'); exists delta; split; auto. 
+              eapply Rle_trans; [apply B'| apply le_g_Sn]. }
+    simpl. rewrite HER. field_simplify. rewrite C .
+
+
+
+
+
+ 
+
+assert (Ncase: (n <= length v2)%nat \/ (n = length (a :: v2))) by
+        (inversion H0; simpl; auto); destruct Ncase; clear H0.
+        { specialize (B n H1); destruct B as (delta & B); exists delta. revert B.
+  simpl.
+
+
 assert (Hl: l = [] \/ l <> []).
 destruct l; auto.
 right.

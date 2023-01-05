@@ -1,0 +1,41 @@
+Require Import vcfloat.VCFloat.
+
+
+Definition rounded t r:=
+(Generic_fmt.round Zaux.radix2 (SpecFloat.fexp (fprec t) (femax t))
+     (BinarySingleNaN.round_mode BinarySingleNaN.mode_NE) r).
+
+
+Definition neg_zero {t: type} := Binary.B754_zero (fprec t) (femax t) true.
+
+Section NAN.
+
+Definition default_rel (t: FPCore.type) : R :=
+  / 2 * Raux.bpow Zaux.radix2 (- fprec t + 1).
+
+Definition default_abs (t: FPCore.type) : R :=
+  / 2 * Raux.bpow Zaux.radix2 (3 - femax t - fprec t).
+
+Lemma default_rel_sep_0 t : 
+  default_rel t <> 0.
+Proof. 
+unfold default_rel; apply Rabs_lt_pos.
+rewrite Rabs_pos_eq; [apply Rmult_lt_0_compat; try nra; apply bpow_gt_0 | 
+  apply Rmult_le_pos; try nra; apply bpow_ge_0].
+Qed.
+
+Lemma default_rel_gt_0 t : 
+  0 < default_rel t.
+Proof. 
+unfold default_rel.
+apply Rmult_lt_0_compat; try nra.
+apply bpow_gt_0.
+Qed.
+
+Lemma default_rel_ge_0 t: 
+  0 <= default_rel t.
+Proof.
+Search (0 < _ -> 0<= _).
+
+
+End NAN.
