@@ -61,3 +61,63 @@ simpl. rewrite <- IHl2.
 rewrite <- combine_app; auto.
 rewrite !rev_length; auto.
 Qed.
+
+From Coq Require Import ZArith Reals Psatz.
+From Coquelicot Require Import Coquelicot.
+
+Lemma length_not_empty {A} l :
+l <> [] -> 
+(1 <= @length A l)%nat.
+Proof.
+intros.
+destruct l; simpl; 
+ try simpl (length (a :: l)); try lia.
+destruct H; auto.
+Qed.
+
+Lemma length_not_empty' {A} l :
+l <> [] -> 
+(1 <= INR (@length A l))%R.
+Proof.
+intros.
+replace 1%R with (INR 1) by (simpl; auto).
+eapply le_INR.
+apply length_not_empty; auto.
+Qed.
+
+Lemma length_not_empty_nat {A} l :
+l <> [] -> 
+(1 <= (@length A l))%nat.
+Proof.
+intros.
+apply INR_le.
+apply length_not_empty';auto.
+Qed.
+
+Lemma length_not_empty_lt {A} l :
+l <> [] -> 
+(0 < INR (@length A l))%R.
+Proof.
+intros.
+destruct l.
+destruct H; auto.
+simpl (length (a:: l)).
+rewrite <- Nat.add_1_r.
+rewrite plus_INR.
+apply Rcomplements.Rlt_minus_l.
+field_simplify.
+simpl.
+eapply Rlt_le_trans with 0;  try nra.
+apply pos_INR.
+Qed.
+
+Lemma length_not_empty_nat' {A} l :
+l <> [] -> 
+(0 <= (@length A l))%nat.
+Proof.
+intros.
+apply INR_le.
+apply Rlt_le.
+apply length_not_empty_lt;auto.
+Qed.
+

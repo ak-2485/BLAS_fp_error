@@ -1,7 +1,11 @@
 -R . Stationary
+common.v
 op_defs.v
-float_accuracy_lemmas.v
+float_acc_lems.v
 list_lemmas.v
 real_lemmas.v
-dotprod_models.v
-fma_dotprod_accuracy.v
+dotprod_model.v
+sum_model.v
+sum_acc.v
+dot_acc.v
+fma_dot_acc.v

@@ -1,29 +1,23 @@
 Require Import vcfloat.VCFloat.
 Require Import List.
 
-Require Import op_defs real_lemmas list_lemmas.
-
-(* we use -0 in order to make use of the following property of fp arithmetic
-  for finite x: (x + (-0) = x) *) 
-Definition neg_zero {t: type} := Binary.B754_zero (fprec t) (femax t) true.
-
-(* vanilla dot-product *)
+Require Import common op_defs real_lemmas list_lemmas.
 
 Section NAN.
-Variable NAN: Nans.
 
+(* vanilla dot-product *)
 Definition dotprod {NAN: Nans} (t: type) (v1 v2: list (ftype t)) : ftype t :=
   fold_left (fun s x12 => BPLUS t (BMULT t (fst x12) (snd x12)) s) 
                 (List.combine v1 v2) neg_zero.
 
-Inductive dot_prod_rel {t : type} : 
+Inductive dot_prod_rel {NAN: Nans} {t : type} : 
             list (ftype t * ftype t) -> ftype t -> Prop :=
 | dot_prod_rel_nil  : dot_prod_rel  nil (neg_zero )
 | dot_prod_rel_cons : forall l (xy : ftype t * ftype t) s,
     dot_prod_rel  l s ->
     dot_prod_rel  (xy::l) (BPLUS t (BMULT t (fst xy) (snd xy)) s).
 
-Lemma fdot_prod_rel_fold_right t :
+Lemma fdot_prod_rel_fold_right {NAN: Nans} t :
 forall (v1 v2: list (ftype t)), 
     dot_prod_rel (rev (List.combine v1 v2)) (dotprod t v1 v2).
 Proof.
@@ -40,7 +34,7 @@ Definition fma_dotprod {NAN: Nans} (t: type) (v1 v2: list (ftype t)) : ftype t :
   fold_left (fun s x12 => BFMA (fst x12) (snd x12) s) 
                 (List.combine v1 v2) neg_zero.
 
-Inductive fma_dot_prod_rel {t : type} : 
+Inductive fma_dot_prod_rel {NAN: Nans} {t : type} : 
             list (ftype t * ftype t) -> ftype t -> Prop :=
 | fma_dot_prod_rel_nil  : fma_dot_prod_rel nil (neg_zero )
 | fma_dot_prod_rel_cons : forall l (xy : ftype t * ftype t) s,
@@ -48,7 +42,7 @@ Inductive fma_dot_prod_rel {t : type} :
     fma_dot_prod_rel  (xy::l) (BFMA (fst xy) (snd xy) s).
 
 
-Lemma fma_dot_prod_rel_fold_right t :
+Lemma fma_dot_prod_rel_fold_right {NAN: Nans} t :
 forall (v1 v2: list (ftype t)), 
     fma_dot_prod_rel (rev (List.combine v1 v2)) (fma_dotprod t v1 v2).
 Proof.
@@ -62,6 +56,9 @@ Qed.
 End NAN.
 
 (* real model *)
+
+Require Import Reals.
+Open Scope R.
 
 Inductive R_dot_prod_rel : 
             list (R * R) -> R -> Prop :=
@@ -120,6 +117,13 @@ inversion H.
 inversion H3; subst; nra.
 Qed.
 
+Lemma R_dot_prod_rel_single' a:
+R_dot_prod_rel [a] (fst a * snd a).
+Proof.
+replace (fst a * snd a) with (fst a * snd a + 0) by nra.
+apply R_dot_prod_rel_cons; apply R_dot_prod_rel_nil.
+Qed.
+
 Lemma R_dot_prod_rel_Rabs_eq :
 forall l s,
 R_dot_prod_rel (map Rabsp l) s -> Rabs s = s.
@@ -172,5 +176,5 @@ rewrite <- (R_dot_prod_rel_Rabs_eq l); auto.
 apply Rabs_pos.
 Qed.
 
-
+Close Scope R.
 
