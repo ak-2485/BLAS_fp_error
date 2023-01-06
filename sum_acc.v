@@ -109,7 +109,7 @@ rewrite HOVfs in HCOR.
 unfold BPLUS, BINOP; destruct HCOR as (_ & HFIN & _); auto.
 }
 pose proof (BPLUS_accurate t a HFINa s HFINs HOVfs) as Hplus.
-destruct Hplus as (d' & e'& Hd'& He'& Hplus); rewrite Hplus; 
+destruct Hplus as (d' & e'& Hz & Hd'& He'& Hplus); rewrite Hplus; 
   clear Hplus HOVfs.
 (* algebra *)
 field_simplify_Rabs.

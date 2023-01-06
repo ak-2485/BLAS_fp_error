@@ -9,6 +9,7 @@ Open Scope R.
 
 Definition g (t: type) (n: nat) : R := ((1 + (default_rel t )) ^ n - 1).
 
+
 Lemma le_g_Sn t n : 
   g t n <= g t (S n).
 Proof. 
@@ -20,6 +21,13 @@ induction n; unfold g; simpl.
   rewrite tech_pow_Rmult. apply Rle_pow; try lia.
   rewrite Rplus_comm. apply Rcomplements.Rle_minus_l.
   field_simplify; apply default_rel_ge_0. 
+Qed.
+
+Lemma g_pos t n: 0<= g t n. Proof. unfold g. induction n.
+simpl; nra. eapply Rle_trans; [apply IHn| apply Rplus_le_compat; try nra].
+simpl. eapply Rle_trans with (1 * (1+default_rel t)^n); try nra.
+apply Rmult_le_compat; try nra. rewrite Rplus_comm. apply Rcomplements.Rle_minus_l.
+field_simplify. apply default_rel_ge_0.
 Qed.
 
 Definition error_rel (t: type) (n: nat) (r : R) : R :=
@@ -93,7 +101,7 @@ assert ( HFINa:
   { split. apply Hin; simpl; auto. simpl; auto. } destruct HFINa as (A & C).
   destruct A as (A & B).
 pose proof fma_accurate t (fst a) A (snd a) B neg_zero C Hov as Hacc; clear Hov A B C.
-destruct Hacc as (e & d & He & Hd & A). rewrite A; clear A.
+destruct Hacc as (e & d & Hz & He & Hd & A). rewrite A; clear A.
 unfold error_rel, g; simpl.
 inversion Hrpa. inversion H3; subst.
 rewrite Rmult_1_r. rewrite !Rplus_0_r.
@@ -135,7 +143,7 @@ assert (Hov: fma_no_overflow t (FT2R (fst a)) (FT2R (snd a)) (FT2R s)).
   red; auto.
 }
 pose proof (fma_accurate t (fst a) A (snd a) B s Hfins Hov) as Hplus.
-destruct Hplus as (d' & e'& Hd'& He'& Hplus); rewrite Hplus; 
+destruct Hplus as (d' & e'& Hz & Hd'& He'& Hplus); rewrite Hplus; 
   clear Hplus Hov.
 (* algebra *)
 destruct a; cbv [ FR2 Rabsp fst snd].
@@ -256,9 +264,18 @@ Qed.
 
 (* mixed error bounds *)
 
-Definition g1 (t: type) (n: nat) (eta: R) (r : R) : R := 
-  INR n * eta * (1  + g t n ).
+Definition g1 (t: type) (n: nat) : R := 
+  INR n * default_abs t * (1 + g t n ).
 
+Lemma g1_pos t n : 0 <= g1 t n.
+Proof. unfold g1.
+apply Rmult_le_pos; try apply pos_INR.
+apply Rmult_le_pos; try apply pos_INR.
+apply default_abs_ge_0. unfold g; field_simplify.
+apply pow_le.
+apply Fourier_util.Rle_zero_pos_plus1.
+apply default_rel_ge_0. 
+Qed.
 
 Lemma FT2R_FR2 t : 
   (forall a a0 : ftype t, (FT2R a, FT2R a0) = FR2 (a, a0)) .
@@ -273,22 +290,33 @@ rewrite H0 in H1. destruct a.
 simpl in H1. inversion H1; simpl; split; auto.
 Qed.
 
-
 Lemma dot_prod_combine_map_Rmult a u v r:
 length u = length v ->
 R_dot_prod_rel (combine u v) r -> 
 R_dot_prod_rel (combine (map (Rmult a) u) v) (a * r). 
-Proof. revert u. induction v.
+Proof. revert u r. induction v.
 { intros. rewrite !combine_nil in *.  
   inversion H0; subst; rewrite Rmult_0_r; apply R_dot_prod_rel_nil. }
 destruct u.
   { intros; pose proof Nat.neq_0_succ (length v); try contradiction. }
-  specialize (IHv u).
-Admitted.
-  
+  intros.   inversion H0. assert (Hlen: length u = length v) by (simpl in H; lia).
+  specialize (IHv u s Hlen H4).
+  simpl. replace (a * (r * a0 + s)) with 
+    (a * r * a0 + a * s) by nra. apply R_dot_prod_rel_cons; auto.
+Qed.
+
+From Coquelicot Require Import Coquelicot.
+
+Lemma one_plus_default_rel_ge t n:
+1 <= (1 + default_rel t) ^ n.
+Proof. induction n; simpl; auto; try nra.
+eapply Rle_trans with (1 * 1); try nra.
+apply Rmult_le_compat; try nra.
+rewrite Rplus_comm. apply Rle_minus_l; field_simplify;
+apply default_rel_ge_0.
+Qed.
+
  
-
-
 
 Lemma fma_dotprod_mixed_error: 
   forall (t: type) (v1 v2: list (ftype t)), 
@@ -305,7 +333,7 @@ Lemma fma_dotprod_mixed_error:
     R_dot_prod_rel (List.combine u (map FT2R v2)) (FT2R fp - eta) /\ 
     (forall n, (n <= length v2)%nat -> exists delta, 
       nth n u 0 = FT2R (nth n v1 neg_zero) * (1 + delta) /\ Rabs delta <= g t (length v2))  /\
-    Rabs eta <= INR (length v2) * default_abs t. 
+    Rabs eta <= g1 t (length v2). 
 Proof.
 intros t v1 v2 Hlen.
 replace (combine (map Rabs (map FT2R v1))
@@ -316,8 +344,8 @@ revert Hlen. revert v1. induction v2.
   inversion H; subst; rewrite Rminus_0_r; apply R_dot_prod_rel_nil.
   intros. exists 0; split. replace v1 with (@nil (ftype t)). 
         destruct n; simpl; nra. rewrite length_zero_iff_nil in Hlen; auto.
-  simpl; simpl in H3; assert (n = 0)%nat by lia; subst; unfold g; field_simplify; rewrite Rabs_R0; nra.
-  simpl; rewrite Rabs_R0; nra. }
+  simpl; simpl in H3; assert (n = 0)%nat by lia; subst; unfold g1, g; field_simplify; rewrite Rabs_R0; nra.
+  unfold g1, g; simpl; rewrite Rabs_R0; nra. }
 { intros ? Hlen fp rp ?  Hfp Hrp Hin Hfin.
   destruct v1; intros.
   { pose proof Nat.neq_0_succ (length v2); try contradiction. }
@@ -348,7 +376,7 @@ assert (HFINaf:
     assert (Hov: fma_no_overflow t (FT2R f) (FT2R a) (@FT2R t s)).
     { red; fold ov; apply (is_finite_fma_no_overflow t (BFMA f a s)); auto. }
     pose proof fma_accurate t f E a F s HFIN Hov as HER.
-    destruct HER as (d & e & Hd & He & HER). unfold fst, snd; rewrite HER.
+    destruct HER as (d & e & Hz & Hd & He & HER). unfold fst, snd; rewrite HER.
     exists (FT2R f * (1+d) :: map (Rmult (1+d)) u), (e + eta * (1 + d)).
     repeat split. 
     { simpl. rewrite map_length; auto. } 
@@ -359,39 +387,76 @@ assert (HFINaf:
           apply R_dot_prod_rel_cons. rewrite Rmult_comm; auto. 
           field_simplify; auto. }
     { intros. destruct n. simpl. exists d; split; auto.
-unfold g. admit.
+unfold g. 
+{ eapply Rle_trans. apply Hd. simpl.
+set (x:= (default_rel t)). rewrite Rle_minus_r.
+rewrite Rplus_comm. eapply Rle_trans with ((1+x) * 1); try nra.
+eapply Rmult_le_compat; try nra. 
+apply Fourier_util.Rle_zero_pos_plus1.
+unfold x. apply default_rel_ge_0. 
+subst x. apply one_plus_default_rel_ge.
+}
 assert (n<=length v2)%nat by (simpl in H0; lia); clear H0.
-        specialize (C n H1); destruct C as (delta & C & HC). 
-exists ((1+d)*(1+delta) -1).
+        specialize (C n H1); destruct C as (delta & C & HC). simpl.
 simpl. replace 0 with (Rmult (1 + d) 0) by nra. rewrite map_nth.
-rewrite C. split; [nra | ].
+rewrite C.
+exists ( (1+d) * (1+delta) -1).
+split; [nra | ]. 
+field_simplify_Rabs.
+eapply Rle_trans; [apply Rabs_triang | ].
+eapply Rle_trans; [apply Rplus_le_compat; [ apply Rabs_triang | apply HC] | ].
+eapply Rle_trans; [apply Rplus_le_compat_r; [rewrite Rabs_mult] | ].
+apply Rplus_le_compat; [apply Rmult_le_compat;  try apply Rabs_pos | ].
+apply Hd.
+apply HC.
+apply Hd.
 unfold g.
-apply Rabs_le_inv in Hd.
-assert (1 - default_rel t <= 1 + d <= 1 + default_rel t) by nra.
+set (x:= (1 + default_rel t) ^ length v2).
+field_simplify.
+replace (default_rel t * x + x - 1) with 
+  (x * (1 + default_rel t) - 1) by nra.
+simpl. fold x. apply Req_le; nra.
+}
+unfold g.
+set (n:= length v2).
+replace (INR (length (a :: v2))) with (INR n + 1)%R. simpl.
+eapply Rle_trans. apply Rabs_triang.
+eapply Rle_trans. apply Rplus_le_compat.
+apply He. rewrite Rabs_mult. apply Rmult_le_compat;
+try apply Rabs_pos. apply D.
+apply Rabs_triang. 
+eapply Rle_trans. apply Rplus_le_compat_l.
 
-rewrite Rabs_pos_eq.
-apply Rplus_le_compat; try nra.
-rewrite <- tech_pow_Rmult.
-
-apply Rmult_le_compat; try nra.
-(* 0 <= 1 + d *)
-assert (0<= 1 - default_rel t).
-unfold default_rel. 
-pose proof fprec_gt_one t.
-eapply Rle_trans with (1 - / 2 * bpow Zaux.radix2 (- 1 + 1)).
-simpl; nra.
-apply Rplus_le_compat_l.
-apply Ropp_le_contravar.
-apply Rmult_le_compat_l; try nra.
-apply bpow_le.
-lia.
-eapply Rle_trans; [apply H2 | nra].
-
-(* 0 <= 1 + delta *)
-admit.
-
-
-Admitted.
+apply Rmult_le_compat_l. 
+apply Rmult_le_pos; try apply pos_INR.
+apply Rmult_le_pos; try apply pos_INR.
+apply default_abs_ge_0.
+apply Fourier_util.Rle_zero_pos_plus1.
+apply g_pos.
+apply Rplus_le_compat_l. apply Hd.
+fold n.
+rewrite Rabs_R1.
+unfold g1, g. 
+field_simplify. rewrite <- tech_pow_Rmult.
+replace (INR (S n)) with (INR n +1) by (rewrite S_INR; auto).
+field_simplify.
+rewrite !Rplus_assoc.
+apply Rplus_le_compat. apply Req_le; nra.
+apply Rplus_le_compat. apply Req_le; nra.
+replace (default_abs t * (1 + default_rel t) ^ n * default_rel t +
+default_abs t * (1 + default_rel t) ^ n) with
+(default_abs t * (1 + default_rel t) ^ n * (default_rel t + 1)) by nra.
+eapply Rle_trans with (default_abs t * 1); try nra.
+apply Rmult_le_compat; try nra. apply default_abs_ge_0.
+eapply Rle_trans with (default_abs t * 1); try nra.
+apply Rmult_le_compat; try nra. apply default_abs_ge_0.
+apply one_plus_default_rel_ge.
+pose proof one_plus_default_rel_ge t 1.
+rewrite pow_1 in H0; rewrite Rplus_comm; auto.
+unfold n. replace (length (a :: v2)) with (length v2 + 1)%nat. 
+rewrite plus_INR; simpl; auto. simpl; lia.
+}
+Qed.
 
 
 End NAN.

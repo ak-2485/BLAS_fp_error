@@ -33,9 +33,22 @@ Lemma default_rel_ge_0 t :
   0 <= default_rel t.
 Proof. apply Rlt_le; apply default_rel_gt_0; auto. Qed.
 
+Lemma default_abs_gt_0 t : 
+  0 < default_abs t.
+Proof. 
+unfold default_abs.
+apply Rmult_lt_0_compat; try nra.
+apply bpow_gt_0.
+Qed.
+
+Lemma default_abs_ge_0 t :
+  0 <= default_abs t.
+Proof. apply Rlt_le; apply default_abs_gt_0; auto. Qed.
+
 Lemma generic_round_property:
   forall (t: type) (x: R),
 exists delta epsilon : R,
+   delta * epsilon = 0 /\
   (Rabs delta <= default_rel t)%R /\
   (Rabs epsilon <= default_abs t)%R /\
    Generic_fmt.round Zaux.radix2
@@ -58,6 +71,7 @@ Lemma fma_accurate {NAN: Nans} :
              z (FINz: Binary.is_finite (fprec t) (femax t) z = true)
           (FIN: fma_no_overflow t (FT2R x) (FT2R y) (FT2R z)), 
   exists delta, exists epsilon,
+   delta * epsilon = 0 /\
    Rabs delta <= default_rel t /\
    Rabs epsilon <= default_abs t /\ 
    (FT2R (BFMA x y z) = (FT2R x * FT2R y + FT2R z) * (1+delta) + epsilon)%R.
@@ -89,6 +103,7 @@ Qed.
 Lemma BMULT_accurate {NAN: Nans}: 
    forall (t: type) x y (FIN: Bmult_no_overflow t (FT2R x) (FT2R y)), 
   exists delta, exists epsilon,
+   delta * epsilon = 0 /\
    Rabs delta <= default_rel t /\
    Rabs epsilon <= default_abs t /\ 
    (FT2R (BMULT t x y) = (FT2R x * FT2R y) * (1+delta) + epsilon)%R.
@@ -187,6 +202,7 @@ Lemma BPLUS_accurate {NAN: Nans} (t : type) :
              y (FINy: Binary.is_finite (fprec t) (femax t) y = true) 
           (FIN: Bplus_no_overflow t (FT2R x) (FT2R y)), 
   exists delta, exists epsilon,
+   delta * epsilon = 0 /\
    Rabs delta <= default_rel t /\
    Rabs epsilon <= default_abs t /\ 
    (FT2R (BPLUS t x y ) = (FT2R x + FT2R y) * (1+delta) + epsilon)%R.
