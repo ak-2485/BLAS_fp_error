@@ -316,13 +316,11 @@ rewrite Rplus_comm. apply Rle_minus_l; field_simplify;
 apply default_rel_ge_0.
 Qed.
 
- 
 
 Lemma fma_dotprod_mixed_error: 
   forall (t: type) (v1 v2: list (ftype t)), 
   length v1 = length v2 -> 
   forall (fp : ftype t) (rp : R),
-  let ov := bpow Zaux.radix2 (femax t) in
   fma_dot_prod_rel (List.combine v1 v2) fp -> 
   R_dot_prod_rel (map FR2 (List.combine v1 v2)) rp -> 
   (forall xy, In xy (List.combine v1 v2) ->   
@@ -346,7 +344,7 @@ revert Hlen. revert v1. induction v2.
         destruct n; simpl; nra. rewrite length_zero_iff_nil in Hlen; auto.
   simpl; simpl in H3; assert (n = 0)%nat by lia; subst; unfold g1, g; field_simplify; rewrite Rabs_R0; nra.
   unfold g1, g; simpl; rewrite Rabs_R0; nra. }
-{ intros ? Hlen fp rp ?  Hfp Hrp Hin Hfin.
+{ intros ? Hlen fp rp  Hfp Hrp Hin Hfin.
   destruct v1; intros.
   { pose proof Nat.neq_0_succ (length v2); try contradiction. }
   (* apply IH *)
@@ -374,7 +372,7 @@ assert (HFINaf:
     destruct HFINaf as (E & F).
     simpl in Hfin.
     assert (Hov: fma_no_overflow t (FT2R f) (FT2R a) (@FT2R t s)).
-    { red; fold ov; apply (is_finite_fma_no_overflow t (BFMA f a s)); auto. }
+    { red; apply (is_finite_fma_no_overflow t (BFMA f a s)); auto. }
     pose proof fma_accurate t f E a F s HFIN Hov as HER.
     destruct HER as (d & e & Hz & Hd & He & HER). unfold fst, snd; rewrite HER.
     exists (FT2R f * (1+d) :: map (Rmult (1+d)) u), (e + eta * (1 + d)).
