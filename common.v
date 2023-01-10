@@ -43,6 +43,15 @@ apply Rcomplements.Rle_minus_l; field_simplify.
 apply default_rel_ge_0.
 Qed.
 
+Lemma default_rel_plus_1_ge_1' t n:
+1 <= (1 + default_rel t) ^ n.
+Proof. 
+induction n; simpl; auto; try nra.
+eapply Rle_trans with (1 * 1); try nra.
+apply Rmult_le_compat; try nra.
+apply default_rel_plus_1_ge_1.
+Qed.
+
 Lemma default_abs_gt_0 t : 
   0 < default_abs t.
 Proof. 

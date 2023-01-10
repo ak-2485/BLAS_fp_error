@@ -424,46 +424,6 @@ Qed.
 
 (* mixed error bounds *)
 
-
-Lemma FT2R_FR2 t : 
-  (forall a a0 : ftype t, (FT2R a, FT2R a0) = FR2 (a, a0)) .
-Proof. intros. unfold FR2; simpl; auto. Qed.
-
-Lemma combine_single A v1 v2 (a : A * A) : 
-  length v1 = length v2 -> 
-  combine v1 v2 = [a] -> v1 = [fst a] /\ v2 = [snd a].
-Proof.
-intros. pose proof combine_split v1 v2 H.
-rewrite H0 in H1. destruct a. 
-simpl in H1. inversion H1; simpl; split; auto.
-Qed.
-
-Lemma dot_prod_combine_map_Rmult a u v r:
-length u = length v ->
-R_dot_prod_rel (combine u v) r -> 
-R_dot_prod_rel (combine (map (Rmult a) u) v) (a * r). 
-Proof. revert u r. induction v.
-{ intros. rewrite !combine_nil in *.  
-  inversion H0; subst; rewrite Rmult_0_r; apply R_dot_prod_rel_nil. }
-destruct u.
-  { intros; pose proof Nat.neq_0_succ (length v); try contradiction. }
-  intros.   inversion H0. assert (Hlen: length u = length v) by (simpl in H; lia).
-  specialize (IHv u s Hlen H4).
-  simpl. replace (a * (r * a0 + s)) with 
-    (a * r * a0 + a * s) by nra. apply R_dot_prod_rel_cons; auto.
-Qed.
-
-From Coquelicot Require Import Coquelicot.
-
-Lemma one_plus_default_rel_ge t n:
-1 <= (1 + default_rel t) ^ n.
-Proof. induction n; simpl; auto; try nra.
-eapply Rle_trans with (1 * 1); try nra.
-apply Rmult_le_compat; try nra.
-rewrite Rplus_comm. apply Rle_minus_l; field_simplify;
-apply default_rel_ge_0.
-Qed.
-
 Lemma fma_dotprod_mixed_error: 
   forall (t: type) (v1 v2: list (ftype t)), 
   length v1 = length v2 -> 
@@ -532,8 +492,7 @@ assert (HFINaf:
           apply R_dot_prod_rel_cons. rewrite Rmult_comm; auto. 
           field_simplify; auto. }
     { intros. destruct n. simpl.
-    { simpl. exists d; split; auto.
-       eapply Rle_trans; [apply Hd| ]. apply d_le_g_1. apply le_n_S; lia.  }
+    { simpl. exists d; split; auto. eapply Rle_trans; [apply Hd| ]. apply d_le_g_1. apply le_n_S; lia. }
 assert (n<=length v2)%nat by (simpl in H0; lia); clear H0.
         specialize (C n H1); destruct C as (delta & C & HC). simpl.
 simpl. replace 0 with (Rmult (1 + d) 0) by nra. rewrite map_nth.
@@ -588,9 +547,9 @@ eapply Rle_trans with (default_abs t * 1); try nra.
 apply Rmult_le_compat; try nra. apply default_abs_ge_0.
 eapply Rle_trans with (default_abs t * 1); try nra.
 apply Rmult_le_compat; try nra. apply default_abs_ge_0.
-apply one_plus_default_rel_ge.
-pose proof one_plus_default_rel_ge t 1.
-rewrite pow_1 in H0; rewrite Rplus_comm; auto.
+apply default_rel_plus_1_ge_1'.
+rewrite Rplus_comm;
+apply default_rel_plus_1_ge_1.
 unfold n. replace (length (a :: v2)) with (length v2 + 1)%nat. 
 rewrite plus_INR; simpl; auto. simpl; lia.
 }

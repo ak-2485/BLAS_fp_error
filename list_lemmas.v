@@ -62,6 +62,15 @@ rewrite <- combine_app; auto.
 rewrite !rev_length; auto.
 Qed.
 
+Lemma combine_single A v1 v2 (a : A * A) : 
+  length v1 = length v2 -> 
+  combine v1 v2 = [a] -> v1 = [fst a] /\ v2 = [snd a].
+Proof.
+intros. pose proof combine_split v1 v2 H.
+rewrite H0 in H1. destruct a. 
+simpl in H1. inversion H1; simpl; split; auto.
+Qed.
+
 From Coq Require Import ZArith Reals Psatz.
 From Coquelicot Require Import Coquelicot.
 
@@ -120,4 +129,5 @@ apply INR_le.
 apply Rlt_le.
 apply length_not_empty_lt;auto.
 Qed.
+
 

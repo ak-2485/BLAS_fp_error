@@ -53,6 +53,7 @@ induction (rev (List.combine v1 v2)).
 simpl. apply fma_dot_prod_rel_cons. auto.
 Qed.
 
+
 End NAN.
 
 (* real model *)
@@ -82,6 +83,10 @@ rewrite <- fold_left_Rplus_0; f_equal; nra.
 Qed.
 
 Definition FR2 {t: type} (x12: ftype t * ftype t) := (FT2R (fst x12), FT2R (snd x12)).
+
+Lemma FT2R_FR2 t : 
+  (forall a a0 : ftype t, (FT2R a, FT2R a0) = FR2 (a, a0)) .
+Proof. intros. unfold FR2; simpl; auto. Qed.
 
 Lemma R_dot_prod_rel_fold_right t :
 forall (v1 v2: list (ftype t)) , 
@@ -174,6 +179,21 @@ apply Rmult_le_pos;
 apply Rabs_pos.
 rewrite <- (R_dot_prod_rel_Rabs_eq l); auto.
 apply Rabs_pos.
+Qed.
+
+Lemma dot_prod_combine_map_Rmult a u v r:
+length u = length v ->
+R_dot_prod_rel (combine u v) r -> 
+R_dot_prod_rel (combine (map (Rmult a) u) v) (a * r). 
+Proof. revert u r. induction v.
+{ intros. rewrite !combine_nil in *.  
+  inversion H0; subst; rewrite Rmult_0_r; apply R_dot_prod_rel_nil. }
+destruct u.
+  { intros; pose proof Nat.neq_0_succ (length v); try contradiction. }
+  intros.   inversion H0. assert (Hlen: length u = length v) by (simpl in H; lia).
+  specialize (IHv u s Hlen H4).
+  simpl. replace (a * (r * a0 + s)) with 
+    (a * r * a0 + a * s) by nra. apply R_dot_prod_rel_cons; auto.
 Qed.
 
 Close Scope R.
