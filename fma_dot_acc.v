@@ -531,16 +531,9 @@ assert (HFINaf:
          (FT2R f * (1 + d) * FT2R a + (FT2R s - eta)*(1+d)). simpl. 
           apply R_dot_prod_rel_cons. rewrite Rmult_comm; auto. 
           field_simplify; auto. }
-    { intros. destruct n. simpl. exists d; split; auto.
-unfold g. 
-{ eapply Rle_trans. apply Hd. simpl.
-set (x:= (default_rel t)). rewrite Rle_minus_r.
-rewrite Rplus_comm. eapply Rle_trans with ((1+x) * 1); try nra.
-eapply Rmult_le_compat; try nra. 
-apply Fourier_util.Rle_zero_pos_plus1.
-unfold x. apply default_rel_ge_0. 
-subst x. apply one_plus_default_rel_ge.
-}
+    { intros. destruct n. simpl.
+    { simpl. exists d; split; auto.
+       eapply Rle_trans; [apply Hd| ]. apply d_le_g_1. apply le_n_S; lia.  }
 assert (n<=length v2)%nat by (simpl in H0; lia); clear H0.
         specialize (C n H1); destruct C as (delta & C & HC). simpl.
 simpl. replace 0 with (Rmult (1 + d) 0) by nra. rewrite map_nth.

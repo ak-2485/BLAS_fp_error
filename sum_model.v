@@ -136,6 +136,15 @@ inversion H3. subst.
 unfold sum; nra.
 Qed.
 
+Lemma sum_rel_R_single' :
+forall (a : R) , sum_rel_R [a] a.
+Proof.
+intros.
+unfold sum_rel_R.
+replace a with (a + 0) at 2 by nra. 
+apply sum_rel_cons. apply sum_rel_nil.
+Qed. 
+
 Section NAN.
 
 Definition sum_rel_F {NAN: Nans} := @sum_rel (ftype Tsingle) (-0)%F32 (BPLUS Tsingle).
@@ -174,6 +183,20 @@ fold sum_rel_R in H3.
 specialize (IHl s H3).
 subst; simpl.
 unfold sum; auto.
+Qed.
+
+Lemma sum_map_Rmult (l : list R) (s a: R):
+sum_rel_R l s -> 
+sum_rel_R (map (Rmult a) l) (a * s). 
+Proof. 
+revert l s a. induction l.
+{ intros. simpl. inversion H; subst; rewrite Rmult_0_r; auto. }
+intros. inversion H. destruct l.
+{ simpl; unfold sum. inversion H3; subst. rewrite Rplus_0_r.
+  apply sum_rel_R_single'. }
+fold sum_rel_R in H3. specialize (IHl s0 a0 H3).
+unfold sum; simpl. rewrite Rmult_plus_distr_l; apply sum_rel_cons.
+fold sum_rel_R. simpl in IHl; auto.
 Qed.
 
 

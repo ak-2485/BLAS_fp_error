@@ -166,6 +166,14 @@ Definition Bplus_no_overflow (t: type) (x y: R) : Prop :=
               (BinarySingleNaN.round_mode
                  BinarySingleNaN.mode_NE)  (x + y )) < Raux.bpow Zaux.radix2 (femax t))%R.
 
+Lemma BPLUS_neg_zero {NAN: Nans} (t : type) (a : ftype t) :
+  Binary.is_finite _ _ a = true ->
+  BPLUS t a neg_zero = a.
+Proof.
+destruct a; unfold neg_zero; simpl; try discriminate; auto.
+destruct s; auto.
+Qed.
+
 Lemma BPLUS_accurate {NAN: Nans} (t : type) :
  forall      x (FINx: Binary.is_finite (fprec t) (femax t) x = true) 
              y (FINy: Binary.is_finite (fprec t) (femax t) y = true) 
