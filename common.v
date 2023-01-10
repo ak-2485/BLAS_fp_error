@@ -151,6 +151,28 @@ rewrite <- Nat.sub_succ_l; auto.
 simpl; lia.
 Qed.
 
+Lemma plus_e_g1_le t n:
+g1 t n n + default_abs t <= g1 t (S n) n.
+Proof.
+replace (S n) with (n + 1)%nat by lia.
+unfold g1; field_simplify.
+replace (INR (n + 1)) with (INR n + 1).
+rewrite !Rmult_plus_distr_l.
+rewrite !Rmult_1_r. rewrite <- Rplus_assoc.
+apply Rplus_le_compat_r.
+rewrite Rplus_comm.
+rewrite Rmult_comm.
+rewrite Rplus_comm.
+apply Rplus_le_compat_r.
+eapply Rle_trans with (default_abs t * INR n * g t n + 0); try nra.
+apply Rplus_le_compat; try nra.
+apply Rmult_le_pos.
+apply default_abs_ge_0.
+apply g_pos.
+rewrite Nat.add_comm. 
+rewrite S_O_plus_INR. simpl; nra. 
+Qed.
+
 
 Definition error_rel (t: type) (n: nat) (r : R) : R :=
   let e := default_abs t in

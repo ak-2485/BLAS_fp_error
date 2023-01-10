@@ -96,8 +96,7 @@ destruct Hplus as (d' & e'& Hz & Hd'& He'& Hplus); rewrite Hplus;
 destruct a; cbv [ FR2 Rabsp fst snd].
 set (D:= default_rel t);
 set (E:= default_abs t).
-replace (length ((f, f0) :: l))%nat with (length l + 1)%nat by (simpl; lia).
-replace (length l + 1 - 1)%nat with (length l) by lia.
+simpl.
 set (n:= length l).
 field_simplify_Rabs.
 replace (FT2R f * FT2R f0 * d' + FT2R s * d' + FT2R s + e' - s0) with
@@ -132,52 +131,28 @@ fold E D n.
 replace (Rabs (Rabs (FT2R f) * Rabs (FT2R f0) + s1)) with
 (Rabs ( FT2R f *  FT2R f0) +  Rabs s1).
 set (F:=Rabs (FT2R f * FT2R f0)).
-set (S:=Rabs s1).
-set (gS:= (g t n * S)).
-replace (D * F + D * (gS + g1 t n (n - 1) + S) + (gS + g1 t n (n - 1)) + E)
-with ( ( 1 + D) * gS + D * S + D * F + (1 + D) * g1 t n (n - 1) + E) by nra.
-replace (( 1 + D) * gS + D * S) with (g t (n + 1) * S).
+set (Y:=Rabs s1).
+rewrite !Rmult_plus_distr_l.
+replace (D * F + (D * (g t n * Y) + D * g1 t n (n - 1) + D * Y) +
+(g t n * Y + g1 t n (n - 1)) + E) with
+(D * F + ((1 + D) * g t n * Y + D * Y) + g1 t n (n - 1) * (1 + D) + E) by nra.
+unfold D.
+rewrite one_plus_d_mul_g. rewrite one_plus_d_mul_g1.
 rewrite Rplus_assoc.
-eapply Rplus_le_compat.
-rewrite Rmult_plus_distr_l.
-rewrite Rplus_comm.
-eapply Rplus_le_compat_r.
-eapply Rmult_le_compat_r.
+apply Rplus_le_compat.
+apply Rplus_le_compat.
+apply Rmult_le_compat_r.
 unfold F; apply Rabs_pos.
-unfold D; apply d_le_g.
-unfold g1, g, E. field_simplify.
-set (y:= (1 + default_rel t)).
-replace (D * INR n * default_abs t * y ^ (n - 1) + INR n * default_abs t * y ^ (n - 1) +
-default_abs t) with
-(default_abs t  * (D * INR n * y ^ (n - 1) + INR n *  y ^ (n - 1) + 1)) by nra.
-rewrite !Rmult_assoc.
-eapply Rmult_le_compat_l; try apply default_abs_ge_0.
-replace (INR (n + 1)) with (INR (1 + n)) by (f_equal;lia).
-rewrite S_O_plus_INR.
-rewrite Rmult_plus_distr_r.
-simpl; rewrite Rmult_1_l.
-replace (D * (INR n * y ^ (n - 1)) + INR n * y ^ (n - 1)) with
-  ( INR n * (1 + D) *  y ^ (n - 1)) by nra.
-replace (INR n * (1 + D) * y ^ (n - 1)) with (INR n * y ^n).
-rewrite Rplus_comm.
-eapply Rplus_le_compat; try nra.
-unfold y. apply pow_R1_Rle.
-rewrite Rplus_comm.
-apply Rcomplements.Rle_minus_l.
-field_simplify.
-apply default_rel_ge_0.
-rewrite Rmult_assoc.
-f_equal. unfold y, D.
-rewrite tech_pow_Rmult; f_equal.
-pose proof length_not_empty_nat l H. fold n in H0.
-pose proof Nat.nle_succ_0 n. destruct n; try contradiction.
-simpl; lia.
-unfold D, gS. rewrite <- Rmult_assoc.
-rewrite one_plus_d_mul_g; auto.
+apply d_le_g_1; lia.
+apply Rmult_le_compat_r.
+unfold Y; apply Rabs_pos.
+apply Req_le; f_equal; auto; lia.
+unfold E; rewrite Nat.sub_0_r. apply plus_e_g1_le.
+unfold n; apply length_not_empty in H; auto.
 rewrite !Rabs_mult.
 rewrite <- (R_dot_prod_rel_Rabs_eq (map FR2 l) s1) at 2; auto.
 symmetry.
-rewrite Rabs_pos_eq. f_equal.
+rewrite Rabs_pos_eq; auto. 
 apply Rplus_le_le_0_compat; try apply Rabs_pos.
 apply Rmult_le_pos; try apply Rabs_pos.
 unfold FR2; simpl; auto.
