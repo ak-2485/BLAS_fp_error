@@ -35,6 +35,14 @@ Lemma default_rel_ge_0 t :
   0 <= default_rel t.
 Proof. apply Rlt_le; apply default_rel_gt_0; auto. Qed.
 
+Lemma default_rel_plus_1_ge_1 t :
+1 <= 1 + default_rel t.
+Proof. 
+rewrite Rplus_comm. 
+apply Rcomplements.Rle_minus_l; field_simplify.
+apply default_rel_ge_0.
+Qed.
+
 Lemma default_abs_gt_0 t : 
   0 < default_abs t.
 Proof. 
@@ -47,11 +55,15 @@ Lemma default_abs_ge_0 t :
   0 <= default_abs t.
 Proof. apply Rlt_le; apply default_abs_gt_0; auto. Qed.
 
+
 End NAN.
 
 Definition g (t: type) (n: nat) : R := ((1 + (default_rel t )) ^ n - 1).
 
-Lemma g_pos t n: 0<= g t n. Proof. unfold g. induction n.
+Lemma g_pos t n: 
+  0 <= g t n. 
+Proof. 
+unfold g. induction n.
 simpl; nra. eapply Rle_trans; [apply IHn| apply Rplus_le_compat; try nra].
 simpl. eapply Rle_trans with (1 * (1+default_rel t)^n); try nra.
 apply Rmult_le_compat; try nra. rewrite Rplus_comm. apply Rcomplements.Rle_minus_l.
@@ -83,6 +95,17 @@ eapply Rle_trans with ((1 + default_rel t) ^ (n + 1) * 1); try nra.
 eapply Rmult_le_compat; try nra.
 { apply pow_le. apply Fourier_util.Rle_zero_pos_plus1. apply default_rel_ge_0. }
 apply Rcomplements.Rle_minus_l. field_simplify; apply default_rel_ge_0.
+Qed.
+
+Lemma d_le_g_1 t n:
+(1<= n)%nat -> default_rel t <= g t n.
+Proof. 
+intros; unfold g. 
+eapply Rle_trans with ((1 + default_rel t)^1 - 1).
+field_simplify; nra.
+apply Rplus_le_compat; try nra.
+apply Rle_pow; try lia.
+apply default_rel_plus_1_ge_1.
 Qed.
 
 
