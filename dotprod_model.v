@@ -68,12 +68,12 @@ Inductive R_dot_prod_rel :
     R_dot_prod_rel  l s ->
     R_dot_prod_rel  (xy::l)  (fst xy * snd xy + s).
 
-Definition sum: list R -> R := fold_right Rplus 0%R.
+Definition sum_fold: list R -> R := fold_right Rplus 0%R.
 
 Lemma sum_rev l:
-sum l = sum (rev l).
+sum_fold l = sum_fold (rev l).
 Proof.
-unfold sum. 
+unfold sum_fold. 
 rewrite fold_left_rev_right.
 replace (fun x y : R => y + x) with Rplus
  by (do 2 (apply FunctionalExtensionality.functional_extensionality; intro); lra).
@@ -91,7 +91,7 @@ Proof. intros. unfold FR2; simpl; auto. Qed.
 Lemma R_dot_prod_rel_fold_right t :
 forall (v1 v2: list (ftype t)) , 
    let prods := map (uncurry Rmult) (map FR2 (List.combine v1 v2)) in
-    R_dot_prod_rel (rev (map FR2 (List.combine v1 v2))) (sum prods).
+    R_dot_prod_rel (rev (map FR2 (List.combine v1 v2))) (sum_fold prods).
 Proof.
 intros. subst prods. rewrite sum_rev. rewrite <- !map_rev.
 induction (map FR2 (rev (combine v1 v2))).
@@ -104,7 +104,7 @@ Definition Rabsp p : R * R := (Rabs (fst p), Rabs (snd p)).
 Lemma R_dot_prod_rel_fold_right_Rabs t :
 forall (v1 v2: list (ftype t)) , 
    let prods := map (uncurry Rmult) (map Rabsp (map FR2 (List.combine v1 v2))) in
-    R_dot_prod_rel (rev (map Rabsp (map FR2 (List.combine v1 v2)))) (sum prods).
+    R_dot_prod_rel (rev (map Rabsp (map FR2 (List.combine v1 v2)))) (sum_fold prods).
 Proof.
 intros. subst prods. rewrite sum_rev. rewrite <- !map_rev.
 induction (map Rabsp (map FR2 (rev (combine v1 v2)))).
@@ -152,7 +152,7 @@ rewrite <- IHl; try apply Rabs_pos; auto.
 Qed.
 
 
-Lemma sum_rel_R_Rabs :
+Lemma dot_prod_sum_rel_R_Rabs :
 forall l s1 s2,
 R_dot_prod_rel l s1 -> R_dot_prod_rel (map Rabsp l) s2 -> Rabs s1 <= Rabs s2.
 Proof.

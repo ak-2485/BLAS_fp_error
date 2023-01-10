@@ -138,6 +138,19 @@ apply Fourier_util.Rle_zero_pos_plus1.
 apply default_rel_ge_0. 
 Qed.
 
+Lemma one_plus_d_mul_g1 t n:
+(1 <= n )%nat ->
+g1 t n (n - 1) * (1 + default_rel t)  =  g1 t n n.
+Proof.
+intros.
+unfold g1, g; field_simplify.
+symmetry. replace n with (S (n-1)) at 2.
+rewrite <- tech_pow_Rmult.
+field_simplify; nra.
+rewrite <- Nat.sub_succ_l; auto.
+simpl; lia.
+Qed.
+
 
 Definition error_rel (t: type) (n: nat) (r : R) : R :=
   let e := default_abs t in
