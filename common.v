@@ -64,9 +64,6 @@ Lemma default_abs_ge_0 t :
   0 <= default_abs t.
 Proof. apply Rlt_le; apply default_abs_gt_0; auto. Qed.
 
-
-End NAN.
-
 Definition g (t: type) (n: nat) : R := ((1 + (default_rel t )) ^ n - 1).
 
 Lemma g_pos t n: 
@@ -151,9 +148,36 @@ rewrite <- Nat.sub_succ_l; auto.
 simpl; lia.
 Qed.
 
-Lemma plus_d_e_g1_le t n:
+Lemma one_plus_d_mul_g1' t n m:
+g1 t n m * (1 + default_rel t)  =  g1 t n (S m).
+Proof.
+intros.
+unfold g1, g; field_simplify.
+symmetry. 
+rewrite <- tech_pow_Rmult.
+field_simplify; nra.
+Qed.
+
+Lemma e_le_g1 t n:
 (1 <= n )%nat ->
-g1 t n n + (1 + default_rel t) * default_abs t <= g1 t (S n) n.
+default_abs t <= g1 t n n.
+Proof.
+intros; unfold g1. eapply Rle_trans with (1 * default_abs t * 1); try nra.
+apply Rmult_le_compat; try nra.
+rewrite Rmult_1_l.
+apply default_abs_ge_0.
+apply Rmult_le_compat; try nra.
+apply default_abs_ge_0.
+replace 1 with (INR 1) by (simpl; nra).
+apply le_INR; auto.
+rewrite Rplus_comm.
+apply Rcomplements.Rle_minus_l.
+field_simplify; apply g_pos.
+Qed.
+
+Lemma plus_d_e_g1_le' t n m:
+(1 <= n )%nat -> (1 <= m)%nat ->
+g1 t n m + (1 + default_rel t) * default_abs t <= g1 t (S n) m.
 Proof.
 intros; replace (S n) with (n + 1)%nat by lia.
 unfold g1; field_simplify.
@@ -177,6 +201,13 @@ apply default_abs_ge_0.
 apply d_le_g_1; auto.
 rewrite Nat.add_comm. 
 rewrite S_O_plus_INR. simpl; nra.
+Qed.
+
+Lemma plus_d_e_g1_le t n:
+(1 <= n )%nat ->
+g1 t n n + (1 + default_rel t) * default_abs t <= g1 t (S n) n.
+Proof.
+pose proof plus_d_e_g1_le' t n n; auto.
 Qed. 
 
 Lemma plus_e_g1_le t n:
@@ -208,3 +239,5 @@ Definition error_rel (t: type) (n: nat) (r : R) : R :=
   if (1 <=? Z.of_nat n) then 
     (g t (n-1)) * (Rabs r + e/d)
   else 0%R.
+
+End NAN.
