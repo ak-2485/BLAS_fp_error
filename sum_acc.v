@@ -59,7 +59,7 @@ specialize (IHl Hlen1 s s0 s1 H3 H7 H11 Hinl Hfins).
 (* accuracy rewrites *)
 assert (Hov: Bplus_no_overflow t (FT2R a) (FT2R s)).
 { unfold Bplus_no_overflow. pose proof is_finite_sum_no_overflow t.
-  simpl in H0; unfold rounded in H0; eapply H0; auto. auto. }
+  simpl in H0; unfold rounded in H0; eapply H0; auto. }
 pose proof (BPLUS_accurate t a HFINa s Hfins Hov) as Hplus.
 destruct Hplus as (d' & Hd'& Hplus); rewrite Hplus; 
   clear Hplus Hov.
@@ -152,7 +152,7 @@ destruct IHl as (l' & Hlen' & Hsum & Hdel).
 (* construct l'0 *)
 assert (Hov: Bplus_no_overflow t (FT2R a) (FT2R s)).
 { unfold Bplus_no_overflow. pose proof is_finite_sum_no_overflow t.
-  simpl in H0; unfold rounded in H0; eapply H0; auto. auto. }
+  simpl in H0; unfold rounded in H0; eapply H0; auto. }
 pose proof (BPLUS_accurate t a HFINa s Hfins Hov) as Hplus.
 destruct Hplus as (d' & Hd'& Hplus).
 exists (FT2R a * (1+d') :: map (Rmult (1+d')) l'); repeat split.
