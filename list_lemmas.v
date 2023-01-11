@@ -130,4 +130,20 @@ apply Rlt_le.
 apply length_not_empty_lt;auto.
 Qed.
 
+Lemma fold_left_Rplus_Rplus:
+ forall al b c, fold_left Rplus al (b+c) = c + fold_left Rplus al b.
+Proof.
+intros.
+rewrite ! fold_symmetric by (intros; lra).
+induction al; simpl; intros; lra.
+Qed.
+
+Lemma fold_left_Rplus_0:
+ forall al b , fold_left Rplus al b = b + fold_left Rplus al 0.
+Proof.
+intros.
+rewrite ! fold_symmetric by (intros; lra).
+induction al; simpl; intros; lra.
+Qed.
+
 
