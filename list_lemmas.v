@@ -1,3 +1,5 @@
+(* This file contains basic lemmas about lists for this project. *)
+
 Require Import List Arith.
 Import List ListNotations.
 

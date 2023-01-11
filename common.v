@@ -1,5 +1,7 @@
-Require Import vcfloat.VCFloat.
+(* This file contains basic definitions and lemmas common to all other files in 
+  the repository. *)
 
+Require Import vcfloat.VCFloat.
 
 Definition rounded t r:=
 (Generic_fmt.round Zaux.radix2 (SpecFloat.fexp (fprec t) (femax t))

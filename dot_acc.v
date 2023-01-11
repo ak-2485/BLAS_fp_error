@@ -1,3 +1,7 @@
+(*This file contains two theorems: forward and mixed error bounds for 
+  the dot product of two floating point lists; the functional model for
+  the vanilla dot product is defined in dotprod_model.v.*)
+
 Require Import vcfloat.VCFloat.
 Require Import List.
 Import ListNotations.

@@ -1,3 +1,6 @@
+(* This file contains floating point functional models for the summation of
+  two lists, as well as theorems regarding their equivalence. *)
+
 Require Import vcfloat.VCFloat.
 Require Import List.
 Import List ListNotations.

@@ -1,3 +1,7 @@
+(*This file contains two theorems: forward and backward error bounds for 
+  the sum of two floating point lists; the functional model for
+  the summation is defined in sum_model.v.*)
+
 Require Import vcfloat.VCFloat.
 Require Import List.
 Import ListNotations.
