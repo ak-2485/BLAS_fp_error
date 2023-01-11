@@ -1,4 +1,4 @@
-(*This file contains two theorems: forward and mixed error bounds for 
+(*This file contains two main theorems: forward and mixed error bounds for 
   the fused muliply add dot product of two floating point lists; 
   the functional model for the fma dot product is defined in dotprod_model.v.*)
 
