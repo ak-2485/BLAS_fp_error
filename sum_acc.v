@@ -101,9 +101,8 @@ Qed.
 Lemma sum_backward_error :
   forall (t: type) (l: list (ftype t))
   (Hlen: (1 <= length l)%nat)
-  (fs : ftype t) (rs : R)
+  (fs : ftype t)
   (Hfs: sum_rel_Ft t l fs)
-  (Hrs: sum_rel_R (map FT2R l) rs)
   (Hin: forall a, In a l ->  Binary.is_finite _ _ a = true)
   (Hfin: Binary.is_finite (fprec t) (femax t) fs = true),
     exists (l': list R), 
@@ -128,10 +127,9 @@ destruct Hl.
   Binary.is_finite (fprec t) (femax t) fs = true).
   { subst. inversion Hfs. fold (@sum_rel_Ft NAN t) in H2. inversion H2. subst.
   destruct a; simpl; try discriminate; auto. } 
-  inversion Hfs. inversion Hrs; subst. inversion H3. subst. inversion H7; subst.
-  unfold sum in Hrs; simpl in Hrs; rewrite Rplus_0_r in Hrs.
+  inversion Hfs; subst. inversion H3; subst. 
   exists [FT2R a]; repeat split.
-  simpl; auto. unfold sum. rewrite BPLUS_neg_zero; auto.
+  simpl; auto. unfold sum. rewrite BPLUS_neg_zero; auto. apply sum_rel_R_single'.
   intros. exists 0; split; auto. rewrite Rplus_0_r. rewrite Rmult_1_r.
   replace [FT2R a] with (map FT2R [a]) by (simpl; auto).
   replace 0 with (@FT2R t neg_zero) by (unfold neg_zero; simpl; auto).
@@ -140,7 +138,6 @@ destruct Hl.
 }
 (* case non-empty l *)
 inversion Hfs; fold (@sum_rel_Ft NAN t) in H3. 
-inversion Hrs; fold sum_rel_R in H7.
 subst; unfold sum in *.
 assert (HFINa: 
   Binary.is_finite (fprec t) (femax t) a = true) by (apply Hin; simpl; auto).
@@ -151,7 +148,7 @@ assert (Hinl: forall a : ftype t,
 { intros; apply Hin; simpl; auto. }
 assert (Hfins: Binary.is_finite (fprec t) (femax t) s = true).
 { destruct a, s; simpl in *; try discriminate; auto. }
-specialize (IHl Hlen1 s s0 H3 H7 Hinl Hfins).
+specialize (IHl Hlen1 s  H3 Hinl Hfins).
 destruct IHl as (l' & Hlen' & Hsum & Hdel).
 (* construct l'0 *)
 assert (Hov: Bplus_no_overflow t (FT2R a) (FT2R s)).
@@ -187,6 +184,34 @@ replace ((1 + default_rel t) * g t (length l' - 1) + default_rel t) with
 ((1 + default_rel t) * g t (length l' - 1) * 1 + default_rel t * 1) by nra.
 rewrite one_plus_d_mul_g; apply Req_le; rewrite Rmult_1_r. f_equal; lia.
 Qed.
+
+Require Import Sorting Permutation.
+
+
+(* if the forward error of the floating-point dot product of a list respects a bound, then
+  the forward error of a permutation of  that list respects the same bound *)
+Lemma sum_forward_error_permute :
+  forall (t: type) (l l0: list (ftype t))
+  (Hper: Permutation l l0)
+  (Hlen: (1 <= length l)%nat)
+  (fs fs0: ftype t) (rs a: R)
+  (Hfs: sum_rel_Ft t l fs)
+  (Hfs0: sum_rel_Ft t l0 fs0)
+  (Hrs: sum_rel_R (map FT2R l) rs)
+  (Hbound: Rabs (rs - FT2R fs) <= a),
+  Rabs (rs - FT2R fs0) <= a.
+Proof.
+intros ?. induction l.
+{ intros; assert (l0 = []). apply Permutation_nil in Hper; auto. subst; inversion Hfs0; subst; simpl.
+  inversion Hfs; subst; simpl in Hbound; auto. }
+intros; destruct l0. 
+{ admit. }
+Search Permutation cons.
+assert (Permutation l l0) by admit.
+specialize (IHl l0 H).
+inversion Hfs0; subst; simpl. Search Permutation nil cons. admit.
+  inversion Hfs; subst; simpl.
+Admitted.
 
 
 End NAN.
