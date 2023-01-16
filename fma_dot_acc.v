@@ -5,7 +5,7 @@
 Require Import vcfloat.VCFloat.
 Require Import List.
 Import ListNotations.
-Require Import common op_defs dotprod_model sum_model float_acc_lems list_lemmas real_lemmas.
+Require Import common op_defs dotprod_model sum_model float_acc_lems list_lemmas.
 
 Require Import Reals.
 Open Scope R.

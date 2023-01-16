@@ -5,6 +5,8 @@ Require Import vcfloat.VCFloat.
 Require Import List.
 Import List ListNotations.
 
+Require Import Sorting Permutation.
+
 Require Import common.
 
 Require Import Reals.
@@ -147,6 +149,55 @@ unfold sum_rel_R.
 replace a with (a + 0) at 2 by nra. 
 apply sum_rel_cons. apply sum_rel_nil.
 Qed. 
+
+Lemma sum_rel_R_app_cons :
+forall l' l'' a s,
+sum_rel_R (l' ++  l'') s ->
+sum_rel_R (l' ++ a :: l'') (a + s).
+Proof.
+induction l'; simpl.  
+{ intros; apply sum_rel_cons; auto. }
+intros. 
+inversion H; subst; clear H.
+specialize (IHl' l'' a0 s0 H3).
+unfold sum.
+replace (a0 + (a + s0)) with (a + (a0 + s0)) by nra.
+apply sum_rel_cons; auto.
+Qed.
+
+
+Lemma sum_rel_R_permute :
+  forall (l l0: list R)
+  (Hper: Permutation l l0) (rs: R)
+  (Hrs: sum_rel_R l rs),
+  sum_rel_R l0 rs.
+Proof.
+intros ?.
+induction l.
+{ intros; inversion Hrs; subst.
+apply Permutation_nil in Hper; subst; simpl; auto. }
+intros.
+apply Permutation_sym in Hper.
+pose proof Permutation_vs_cons_inv Hper as H.
+destruct H as (l' & l'' & H); subst.
+apply Permutation_sym in Hper.
+pose proof (@Permutation_cons_app_inv R l l' l'' a Hper).
+inversion Hrs; subst. fold sum_rel_R in H3.
+specialize (IHl (l' ++ l'') H s H3).
+unfold sum; clear Hrs.
+apply sum_rel_R_app_cons; auto.
+Qed.
+
+Lemma sum_rel_R_permute_t :
+  forall (t: type) (l l0: list (ftype t))
+  (Hper: Permutation l l0) (rs: R)
+  (Hrs: sum_rel_R (map FT2R l) rs),
+  sum_rel_R (map FT2R l0) rs.
+Proof.
+intros;
+apply sum_rel_R_permute with (map FT2R l); auto.
+apply Permutation_map; auto.
+Qed.
 
 Section NAN.
 

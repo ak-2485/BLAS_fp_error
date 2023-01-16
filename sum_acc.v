@@ -10,6 +10,8 @@ Require Import common sum_model float_acc_lems op_defs list_lemmas.
 Require Import Reals.
 Open Scope R.
 
+Require Import Sorting Permutation.
+
 
 Section NAN.
 Variable NAN: Nans.
@@ -185,8 +187,6 @@ replace ((1 + default_rel t) * g t (length l' - 1) + default_rel t) with
 rewrite one_plus_d_mul_g; apply Req_le; rewrite Rmult_1_r. f_equal; lia.
 Qed.
 
-Require Import Sorting Permutation.
-
 
 (* if the forward error of the floating-point dot product of a list respects a bound, then
   the forward error of a permutation of  that list respects the same bound *)
@@ -194,24 +194,27 @@ Lemma sum_forward_error_permute :
   forall (t: type) (l l0: list (ftype t))
   (Hper: Permutation l l0)
   (Hlen: (1 <= length l)%nat)
-  (fs fs0: ftype t) (rs a: R)
+  (fs fs0: ftype t) (rs rs_abs: R)
   (Hfs: sum_rel_Ft t l fs)
   (Hfs0: sum_rel_Ft t l0 fs0)
   (Hrs: sum_rel_R (map FT2R l) rs)
-  (Hbound: Rabs (rs - FT2R fs) <= a),
-  Rabs (rs - FT2R fs0) <= a.
+  (Hra: sum_rel_R (map Rabs (map FT2R l)) rs_abs)
+  (Hin: forall a, In a l ->  Binary.is_finite _ _ a = true)
+  (Hfin: Binary.is_finite (fprec t) (femax t) fs = true)
+  (Hfin0: Binary.is_finite (fprec t) (femax t) fs0 = true),
+  Rabs (rs - FT2R fs0) <= g t (length l0 -1) * rs_abs.
 Proof.
-intros ?. induction l.
-{ intros; assert (l0 = []). apply Permutation_nil in Hper; auto. subst; inversion Hfs0; subst; simpl.
-  inversion Hfs; subst; simpl in Hbound; auto. }
-intros; destruct l0. 
-{ admit. }
-Search Permutation cons.
-assert (Permutation l l0) by admit.
-specialize (IHl l0 H).
-inversion Hfs0; subst; simpl. Search Permutation nil cons. admit.
-  inversion Hfs; subst; simpl.
-Admitted.
+intros.
+apply sum_forward_error; auto.
+{ apply Permutation_length in Hper; rewrite <- Hper; auto. }
+{ eapply sum_rel_R_permute_t. apply Hper. auto. }
+{ apply (sum_rel_R_permute (map Rabs (map FT2R l)) (map Rabs (map FT2R l0))).
+repeat apply Permutation_map; auto.
+auto. }
+intros. 
+apply Permutation_sym in Hper.
+specialize (Hin a (@Permutation_in (ftype t) l0 l a Hper H)); auto.
+Qed.
 
 
 End NAN.
