@@ -1,7 +1,7 @@
 Require Import vcfloat.VCFloat.
 Require Import List.
 
-Require Import common op_defs real_lemmas list_lemmas.
+Require Import common op_defs list_lemmas.
 
 Section NAN.
 
