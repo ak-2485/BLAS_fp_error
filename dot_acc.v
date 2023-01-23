@@ -67,7 +67,7 @@ assert ( HFINa:
       Binary.is_finite (fprec t) (femax t) neg_zero = true)).
   { destruct (BMULT t (fst a) (snd a)); unfold neg_zero; simpl; auto. }
   destruct HFINa as (A & C).
-rewrite BPLUS_neg_zero; auto.
+rewrite BPLUS_B2R_zero; auto.
 pose proof BMULT_accurate' t (fst a) (snd a) A as Hmula.
 destruct Hmula as (d' & e' & Hed' & Hd' & He' & B); rewrite B; clear B.
 unfold g1, g; simpl.
@@ -238,7 +238,7 @@ inversion H2; inversion H3; subst; clear H2 H3.
  simpl in Hrp, Hfp, Hfin; unfold fst, snd.
 assert (FINmul: Binary.is_finite (fprec t) (femax t) (BMULT t f a) = true).
 { destruct (BMULT t f a); unfold neg_zero in *; simpl; try discriminate; auto. }
-rewrite BPLUS_neg_zero in *; auto.
+rewrite BPLUS_B2R_zero in *; auto.
 pose proof BMULT_accurate' t f a FINmul as Hacc.
 destruct Hacc as (d & e & Hed & Hd & He & Hacc).
 exists [FT2R f * (1  +d)], e; repeat split.

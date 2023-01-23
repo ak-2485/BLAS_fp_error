@@ -62,7 +62,7 @@ destruct Hl.
 subst; simpl.
 rewrite (R_dot_prod_rel_single rp (FR2 a)).
 inversion Hfp. inversion H2. subst.
-pose proof fma_accurate' t (fst a) (snd a) neg_zero Hfin as Hacc.
+pose proof fma_accurate' t (fst a) (snd a) (Zconst t 0) Hfin as Hacc.
 destruct Hacc as (e & d & Hz & He & Hd & A). rewrite A; clear A.
 inversion Hra; inversion H3; subst.
 unfold g1, g; simpl.
@@ -250,10 +250,10 @@ intros.
 inversion Hfp; subst. inversion Hrp; subst.
 inversion H2; inversion H3; subst; clear H2 H3.
  simpl in Hrp, Hfp, Hfin.
-pose proof fma_accurate' t f a neg_zero Hfin as Hacc.
+pose proof fma_accurate' t f a (Zconst t 0) Hfin as Hacc.
 destruct Hacc as (d & e & Hde & Hd & He& Hacc).
 exists [FT2R f * (1  +d)], e; repeat split.
-{ simpl. rewrite Hacc. replace ((FT2R f * FT2R a + FT2R neg_zero) * (1 + d) + e - e) with
+{ simpl. rewrite Hacc. replace ((FT2R f * FT2R a + FT2R (Zconst t 0)) * (1 + d) + e - e) with
   (FT2R f * (1 + d) * FT2R a + 0) by (simpl; nra).
 apply R_dot_prod_rel_cons; apply R_dot_prod_rel_nil. }
 { intros; exists d; split; auto. simpl in H. 
