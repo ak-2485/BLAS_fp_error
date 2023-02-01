@@ -197,6 +197,27 @@ intros.
 pose proof BMULT_accurate t x y (is_finite_BMULT_no_overflow t x y FIN); auto.
 Qed.
 
+Lemma BMULT_finite_e {NAN: Nans} {t: type}:
+ forall (a b : ftype t)
+ (Hfin : Binary.is_finite _ _ (BMULT t a b) = true),
+ Binary.is_finite _ _ a = true  /\ 
+ Binary.is_finite _ _ b = true.
+Proof.
+intros.
+destruct a,b; inversion Hfin; clear Hfin; subst; auto.
+Qed.
+
+Lemma BPLUS_finite_e {NAN: Nans} {t: type}:
+ forall (a b : ftype t)
+ (Hfin : Binary.is_finite _ _ (BPLUS t a b) = true),
+ Binary.is_finite _ _ a = true  /\ 
+ Binary.is_finite _ _ b = true.
+Proof.
+intros.
+destruct a,b; inversion Hfin; clear Hfin; subst; simpl; auto.
+destruct s,s0; discriminate; auto.
+Qed.
+
 
 Definition Bplus_no_overflow (t: type) (x y: R) : Prop :=
   (Rabs ( Generic_fmt.round Zaux.radix2

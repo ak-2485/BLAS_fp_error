@@ -16,26 +16,22 @@ Variable NAN: Nans.
 (* forward error bound *)
 Lemma dotprod_forward_error:
   forall (t: type) (v1 v2: list (ftype t))
-  (Hlen1: (1 <= length v1)%nat)
-  (Hlen2: length v1 = length v2)
+  (Hlen: length v1 = length v2)
   (fp : ftype t) (rp rp_abs : R)
   (Hfp: dot_prod_rel (List.combine v1 v2) fp)
   (Hrp: R_dot_prod_rel (List.combine (map FT2R v1) (map FT2R v2)) rp)
   (Hra: R_dot_prod_rel (List.combine (map Rabs (map FT2R v1))  (map Rabs (map FT2R v2)) ) rp_abs)
-  (Hin: (forall xy, In xy (List.combine v1 v2) ->
-      Binary.is_finite (fprec t) (femax t) (fst xy) = true /\
-      Binary.is_finite _ _ (snd xy) = true))
   (Hfin: Binary.is_finite (fprec t) (femax t) fp = true),
   Rabs (FT2R fp - rp) <=  g t (length v1) * Rabs rp_abs + g1 t (length v1) (length v1 - 1).
 Proof.
-intros ? ? ? ? ?.
+intros ? ? ? ?.
 rewrite (combine_map _ _ FT2R FR2).
 replace (combine (map Rabs (map FT2R v1))
      (map Rabs (map FT2R v2))) with (map Rabsp (map FR2 (combine v1 v2))) in *
  by (clear; revert v2; induction v1; destruct v2; simpl; auto; f_equal; auto).
 assert (Datatypes.length (combine v1 v2) = length v1) by
  (rewrite combine_length; lia).
-rewrite <- H. clear H; revert Hlen1 Hlen2.
+rewrite <- H. clear H; revert Hlen.
 induction (List.combine v1 v2).
 {
 intros;
@@ -86,29 +82,13 @@ apply Rplus_le_compat; try nra.
 (* non-empty l *)
 intros; inversion Hfp;
 inversion Hrp; inversion Hra; subst.
-assert (HFINa:
-        Binary.is_finite (fprec t) (femax t) (fst a) = true /\
-      Binary.is_finite (fprec t) (femax t) (snd a) = true) by (apply Hin; simpl; auto).
+(destruct (BPLUS_finite_e _ _ Hfin) as (A & B)).
 (* IHl *)
-assert (Hinl:forall xy : ftype t * ftype t,
-       In xy l ->
-       Binary.is_finite (fprec t) (femax t) (fst xy) = true /\
-       Binary.is_finite (fprec t) (femax t) (snd xy) = true).
-{ intros; apply Hin; simpl; auto. }
-clear Hin. destruct HFINa as (A & B).
-assert (Hfm: Binary.is_finite _ _ (BMULT t (fst a) (snd a)) = true).
-{ revert Hfin; subst. destruct (BMULT t (fst a) (snd a)), s;
-  simpl; intros; try discriminate; auto. destruct s, s2; try discriminate; auto. }
-assert (Hfins: Binary.is_finite (fprec t) (femax t) s = true).
-{ revert Hfin; subst. destruct (BMULT t (fst a) (snd a)), s;
-  simpl; intros; try discriminate; auto. }
-specialize (IHl Hlen1 Hlen2 s s0 s1 H3 H7 H11 Hinl Hfins).
-pose proof (BPLUS_accurate' t (BMULT t (fst a) (snd a)) s Hfin) as Hplus.
-destruct Hplus as (d' & Hd'& Hplus); rewrite Hplus;
-  clear Hplus.
-pose proof (BMULT_accurate' t (fst a) (snd a) Hfm) as Hmul.
-destruct Hmul as (d & e & Hed & Hd& He& Hmul); rewrite Hmul;
-  clear Hmul.
+specialize (IHl Hlen s s0 s1 H3 H7 H11 B).
+destruct (BPLUS_accurate' t (BMULT t (fst a) (snd a)) s Hfin) as (d' & Hd'& Hplus);
+rewrite Hplus; clear Hplus.
+destruct (BMULT_accurate' t (fst a) (snd a) A) as (d & e & Hed & Hd& He& Hmul); 
+rewrite Hmul; clear Hmul.
 (* algebra *)
 apply length_not_empty_nat in H.
 destruct a; cbv [ FR2 Rabsp fst snd].
@@ -197,14 +177,10 @@ Qed.
 (* mixed error bound *)
 Lemma dotprod_mixed_error:
   forall (t: type) (v1 v2: list (ftype t))
-  (Hlen1: (1 <= length v1)%nat)
-  (Hlen2: length v1 = length v2)
+  (Hlen: length v1 = length v2)
   (fp : ftype t) (rp : R)
   (Hfp: dot_prod_rel (List.combine v1 v2) fp)
   (Hrp: R_dot_prod_rel (List.combine (map FT2R v1) (map FT2R v2)) rp)
-  (Hin: (forall xy, In xy (List.combine v1 v2) ->
-      Binary.is_finite (fprec t) (femax t) (fst xy) = true /\
-      Binary.is_finite _ _ (snd xy) = true))
   (Hfin: Binary.is_finite (fprec t) (femax t) fp = true),
   exists (u : list R) (eta : R),
     length u = length v2 /\
@@ -218,18 +194,22 @@ replace (combine (map Rabs (map FT2R v1))
      (map Rabs (map FT2R v2))) with (map Rabsp (map FR2 (combine v1 v2))) in *
  by (clear; revert v2; induction v1; destruct v2; simpl; auto; f_equal; auto).
 revert Hlen. revert v1. induction v2.
-{ simpl; intros; rewrite Hlen2 in Hlen; pose proof (Nat.nle_succ_0 0); try contradiction. }
+{ simpl; intros.   replace v1 with (@nil (ftype t)) in * by (symmetry; apply length_zero_iff_nil; auto). 
+  exists [], 0; repeat split; 
+  [inversion Hfp; subst; rewrite Rminus_0_r; simpl; auto;
+  apply R_dot_prod_rel_nil  | | rewrite Rabs_R0; unfold g1, g; simpl; nra ]. 
+  intros; exists 0; split; 
+  [ assert (n = 0)%nat by lia; subst; simpl; nra | rewrite Rabs_R0; unfold g; nra].
+}
 intros.
   destruct v1; intros.
-  (* v1 empty is false *)
   { pose proof Nat.neq_0_succ (length v2); try contradiction. }
-  (* v1 non-empty but either (a :: []) or (a :: l) *)
     assert (Hv1: v1 = [] \/ v1 <> []).
-    { destruct v1; auto. right.
-    eapply hd_error_some_nil; simpl; auto. }
-    assert (Hlen1: length v1 = length v2) by (simpl in Hlen2; auto).
+    destruct v1; auto. right.
+    eapply hd_error_some_nil; simpl; auto.
+    assert (Hlen1: length v1 = length v2) by (simpl in Hlen; auto).
     destruct Hv1.
-    assert (v2 = []). { simpl in Hlen2; apply length_zero_iff_nil;  
+    assert (v2 = []). { simpl in Hlen; apply length_zero_iff_nil;  
           apply length_zero_iff_nil in H; rewrite H in Hlen1; auto. }
     subst; clear Hlen1.
 { (* case singleton lists *)
@@ -257,32 +237,16 @@ eapply Rle_trans; [apply He|]. apply e_le_g1; simpl in *; auto.
 pose proof (length_not_empty v1 H) as Hlen3.
 inversion Hfp; inversion Hrp;  subst.
 unfold fst, snd in Hfin, Hrp, Hfp; unfold fst, snd.
-assert (HFINa: Binary.is_finite (fprec t) (femax t) f = true /\
-        Binary.is_finite (fprec t) (femax t) a = true) by 
-        (specialize (Hin (f,a)); apply Hin; simpl; auto).
-destruct HFINa as (A & B).
+destruct (BPLUS_finite_e _ _ Hfin) as (A & B).
+destruct (BMULT_finite_e _ _ A) as (C & D).
 set (l:=(combine v1 v2)).
 (* IHl *)
-assert (Hinl :forall xy : ftype t * ftype t,
-       In xy l ->
-       Binary.is_finite (fprec t) (femax t) (fst xy) = true /\
-       Binary.is_finite (fprec t) (femax t) (snd xy) = true).
-{ intros; apply Hin; simpl; auto. }
-clear Hin.
-assert (Hfm: Binary.is_finite _ _ (BMULT t f a) = true).
-{ revert Hfin; subst. destruct (BMULT t f a), s;
-  simpl; intros; try discriminate; auto. destruct s, s1; try discriminate; auto. }
-assert (Hfins: Binary.is_finite (fprec t) (femax t) s = true).
-{ revert Hfin; subst. destruct (BMULT t f a), s;
-  simpl; intros; try discriminate; auto. }
-specialize (IHv2 v1 Hlen3 Hlen1 s s0 H3 H7 Hinl Hfins).
+specialize (IHv2 v1 Hlen1 s s0 H3 H7 B).
 (* construct u *)
-pose proof (BPLUS_accurate' t (BMULT t f a) s Hfin) as Hplus.
-destruct Hplus as (d' & Hd'& Hplus); rewrite Hplus;
-  clear Hplus.
-pose proof (BMULT_accurate' t f a Hfm) as Hmul.
-destruct Hmul as (d & e & Hed & Hd& He& Hmul); rewrite Hmul;
-  clear Hmul.
+destruct (BPLUS_accurate' t (BMULT t f a) s Hfin) as (d' & Hd'& Hplus); 
+rewrite Hplus; clear Hplus.
+destruct (BMULT_accurate' t f a A) as (d & e & Hed & Hd& He& Hmul); 
+rewrite Hmul; clear Hmul.
 destruct IHv2 as (u & eta & Hlenu & Hurel & Hun & Heta).
 exists (FT2R f * (1+d) * (1 + d') :: map (Rmult (1+d')) u), 
   (e * (1 + d') + eta * (1 + d')).
