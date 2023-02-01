@@ -3,7 +3,7 @@ Require Import List.
 Import ListNotations.
 Require Import common op_defs dotprod_model sum_model.
 Require Import float_acc_lems list_lemmas.
-Require Import fma_dot_acc.
+Require Import fma_dot_acc sum_acc.
 
 Require Import Reals.
 Open Scope R.
@@ -12,6 +12,69 @@ Section NAN.
 Variable NAN: Nans.
 
 Definition fmax (t: type) := bpow Zaux.radix2 (femax t).
+
+Lemma is_finite_sum_no_overflow' (t : type) :
+  forall x y
+  (Hfinx: Binary.is_finite (fprec t) (femax t) x = true)
+  (Hfiny: Binary.is_finite (fprec t) (femax t) y = true)
+  (Hov :   Bplus_no_overflow t (FT2R x) (FT2R y)),
+ Binary.is_finite (fprec t) (femax t) (BPLUS t x y ) = true.
+Proof.
+intros.
+pose proof (Binary.Bplus_correct  (fprec t) (femax t)  (fprec_gt_0 t) (fprec_lt_femax t) (plus_nan t)
+                      BinarySingleNaN.mode_NE x y Hfinx Hfiny ).
+Admitted.
+
+Lemma finite_sum_from_bounded : 
+  forall (t: type) (l: list (ftype t))
+  (fs : ftype t) 
+  (Hfs: sum_rel_Ft t l fs),
+  (forall x, In x l ->   
+      Rabs (FT2R x) < fmax t / (1 + default_abs t) * 1 / (INR (length l) * (g t (length l - 1) - 1))) -> 
+  Binary.is_finite (fprec t) (femax t) fs = true. 
+Proof.
+intros ?.
+induction l.
+{ intros; inversion Hfs. admit. }
+{ intros. inversion Hfs; subst.
+assert ((forall x : ftype t,
+       In x l ->
+       Rabs (FT2R x) <
+       fmax t / (1 + default_abs t) * 1 / (INR (length l) * (g t (length l - 1) - 1)))) by admit.  
+unfold sum.
+  fold (@sum_rel_Ft NAN t) in H3.
+specialize (IHl s H3 H0). 
+apply is_finite_sum_no_overflow'; auto. admit.
+unfold Bplus_no_overflow.
+assert (A: Generic_fmt.generic_format Zaux.radix2
+       (FLT.FLT_exp (SpecFloat.emin (fprec t) (femax t)) (fprec t))
+       (FT2R a) ) by (apply Binary.generic_format_B2R).
+assert (B: Generic_fmt.generic_format Zaux.radix2
+       (FLT.FLT_exp (SpecFloat.emin (fprec t) (femax t)) (fprec t))
+       (FT2R s) ) by (apply Binary.generic_format_B2R).
+pose proof Plus_error.FLT_plus_error_N_ex   Zaux.radix2 (SpecFloat.emin (fprec t) (femax t))
+ (fprec t) (fun x0 : Z => negb (Z.even x0)) (FT2R a) (FT2R s) A B.
+unfold Relative.u_ro in H1. fold (default_rel t) in H1.
+destruct H1 as (d & Hd & Hd').
+assert (  Generic_fmt.round Zaux.radix2 (SpecFloat.fexp (fprec t) (femax t))
+    (BinarySingleNaN.round_mode BinarySingleNaN.mode_NE)
+    (FT2R a + FT2R s)  =  Generic_fmt.round Zaux.radix2
+        (FLT.FLT_exp (SpecFloat.emin (fprec t) (femax t)) (fprec t))
+        (Generic_fmt.Znearest (fun x0 : Z => negb (Z.even x0)))
+        (FT2R a + FT2R s)) by auto.
+rewrite <- H1 in Hd'. clear H1. rewrite Hd'; clear Hd'.
+assert (exists rs, sum_rel_R (map FT2R l) rs) by admit.
+assert (exists rs_abs, sum_rel_R (map Rabs (map FT2R l)) rs_abs) by admit.
+destruct H1 as (rs & Hrs).
+destruct H2 as (rs_abs & Hrs_abs).
+pose proof sum_forward_error NAN t l s rs rs_abs H3 Hrs Hrs_abs IHl.
+
+
+apply is_finite_sum_no_overflow.
+  
+  fold (@sum_rel_Ft NAN t) in H3.
+  specialize (IHl s H3).
+
 
 Definition F' (t: type) := 
     fmax t * (1 -  2 * default_rel t).
