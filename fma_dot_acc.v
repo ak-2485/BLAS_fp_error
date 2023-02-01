@@ -16,26 +16,22 @@ Variable NAN: Nans.
 (* forward error bounds *)
 Lemma fma_dotprod_forward_error:
   forall (t: type) (v1 v2: list (ftype t))
-  (Hlen1: (1 <= length v1)%nat)
-  (Hlen2: length v1 = length v2)
+  (Hlen: length v1 = length v2)
   (fp : ftype t) (rp rp_abs : R)
   (Hfp: fma_dot_prod_rel (List.combine v1 v2) fp)
   (Hrp: R_dot_prod_rel (List.combine (map FT2R v1) (map FT2R v2)) rp)
   (Hra: R_dot_prod_rel (List.combine (map Rabs (map FT2R v1))  (map Rabs (map FT2R v2)) ) rp_abs)
-  (Hin: (forall xy, In xy (List.combine v1 v2) ->
-      Binary.is_finite (fprec t) (femax t) (fst xy) = true /\
-      Binary.is_finite _ _ (snd xy) = true))
   (Hfin: Binary.is_finite (fprec t) (femax t) fp = true),
   Rabs (FT2R fp - rp) <=  g t (length v1) * Rabs rp_abs + g1 t (length v1) (length v1 - 1).
 Proof.
-intros ? ? ? ? ?.
+intros ? ? ? ?.
 rewrite (combine_map _ _ FT2R FR2).
 replace (combine (map Rabs (map FT2R v1))
      (map Rabs (map FT2R v2))) with (map Rabsp (map FR2 (combine v1 v2))) in *
  by (clear; revert v2; induction v1; destruct v2; simpl; auto; f_equal; auto).
 assert (Datatypes.length (combine v1 v2) = length v1) by
  (rewrite combine_length; lia).
-rewrite <- H. clear H; revert Hlen1 Hlen2.
+rewrite <- H. clear H; revert Hlen.
 induction (List.combine v1 v2).
 {
 intros;
@@ -80,19 +76,9 @@ simpl in Hrp; auto.
 (* non-empty l *)
 intros; inversion Hfp;
 inversion Hrp; inversion Hra; subst.
-assert (HFINa:
-        Binary.is_finite (fprec t) (femax t) (fst a) = true /\
-      Binary.is_finite (fprec t) (femax t) (snd a) = true) by (apply Hin; simpl; auto).
+(destruct (BMFA_finite_e _ _ _ Hfin) as (A & B & C)).
 (* IHl *)
-assert (Hinl:forall xy : ftype t * ftype t,
-       In xy l ->
-       Binary.is_finite (fprec t) (femax t) (fst xy) = true /\
-       Binary.is_finite (fprec t) (femax t) (snd xy) = true).
-{ intros; apply Hin; simpl; auto. }
-clear Hin. destruct HFINa as (A & B).
-assert (Hfins: Binary.is_finite (fprec t) (femax t) s = true).
-{ subst; destruct a, s; destruct f; destruct f0; try discriminate; auto. }
-specialize (IHl Hlen1 Hlen2 s s0 s1 H3 H7 H11 Hinl Hfins).
+specialize (IHl Hlen s s0 s1 H3 H7 H11 C).
 pose proof (fma_accurate' t (fst a) (snd a) s Hfin) as Hplus.
 destruct Hplus as (d' & e'& Hz & Hd'& He'& Hplus); rewrite Hplus;
   clear Hplus.
@@ -165,11 +151,7 @@ Qed.
 
 Lemma fma_dotprod_forward_error_2:
   forall (t: type) (v1 v2: list (ftype t))
-  (Hlen1: (1 <= length v1)%nat)
-  (Hlen2: length v1 = length v2)
-  (Hin: (forall xy, In xy (List.combine v1 v2) ->
-      Binary.is_finite (fprec t) (femax t) (fst xy) = true /\
-      Binary.is_finite _ _ (snd xy) = true))
+  (Hlen: length v1 = length v2)
   (Hfin: Binary.is_finite _ _ (fma_dotprod t v1 v2) = true),
   let prods := map (uncurry Rmult) (List.combine (map FT2R v1) (map FT2R v2)) in
   let abs_prods := map (uncurry Rmult) (List.combine (map Rabs (map FT2R v1)) (map Rabs (map FT2R v2))) in  
@@ -179,11 +161,11 @@ intros.
 assert (Datatypes.length (combine v1 v2) = length v1) by
  (rewrite combine_length; lia).
 assert (Hlenr : length (rev v1) = length (rev v2)) by (rewrite !rev_length; auto).
-rewrite <- rev_length in Hlen1.
-pose proof fma_dotprod_forward_error t (rev v1) (rev v2) Hlen1 Hlenr
+rewrite <- rev_length in Hlen.
+pose proof fma_dotprod_forward_error t (rev v1) (rev v2) Hlenr
   (fma_dotprod t v1 v2) (sum_fold prods) (sum_fold abs_prods) as H2.
 rewrite rev_length in H2.
-rewrite combine_rev in H2; auto.
+rewrite combine_rev in H2; rewrite rev_length in Hlen; auto.
 assert (Hrel:      R_dot_prod_rel
        (combine (map Rabs (map FT2R (rev v1))) (map Rabs (map FT2R (rev v2))))
        (sum_fold abs_prods) ).
@@ -203,7 +185,6 @@ subst prods.
 rewrite (combine_map _ _ FT2R FR2); try simpl; auto.
 pose proof R_dot_prod_rel_fold_right t v1 v2 as HRrel; simpl in HRrel; auto.
 rewrite !map_length; auto. }
-{ intros. apply in_rev in H0. specialize (Hin xy H0); auto. }
 symmetry.
 apply (R_dot_prod_rel_Rabs_eq (combine (map FT2R (rev v1)) (map FT2R (rev v2))) (sum_fold abs_prods)).
 rewrite <- (combine_map R R Rabs Rabsp); auto.
@@ -213,14 +194,10 @@ Qed.
 (* mixed error bounds *)
 Lemma fma_dotprod_mixed_error:
   forall (t: type) (v1 v2: list (ftype t))
-  (Hlen1: (1 <= length v1)%nat)
-  (Hlen2: length v1 = length v2)
+  (Hlen: length v1 = length v2)
   (fp : ftype t) (rp : R)
   (Hfp: fma_dot_prod_rel (List.combine v1 v2) fp)
   (Hrp: R_dot_prod_rel (List.combine (map FT2R v1) (map FT2R v2)) rp)
-  (Hin: (forall xy, In xy (List.combine v1 v2) ->
-      Binary.is_finite (fprec t) (femax t) (fst xy) = true /\
-      Binary.is_finite _ _ (snd xy) = true))
   (Hfin: Binary.is_finite (fprec t) (femax t) fp = true),
   exists (u : list R) (eta : R),
     length u = length v2 /\
@@ -234,16 +211,22 @@ replace (combine (map Rabs (map FT2R v1))
      (map Rabs (map FT2R v2))) with (map Rabsp (map FR2 (combine v1 v2))) in *
  by (clear; revert v2; induction v1; destruct v2; simpl; auto; f_equal; auto).
 revert Hlen. revert v1. induction v2.
-{ simpl; intros; rewrite Hlen2 in Hlen; pose proof (Nat.nle_succ_0 0); try contradiction. }
+{ simpl; intros.   replace v1 with (@nil (ftype t)) in * by (symmetry; apply length_zero_iff_nil; auto). 
+  exists [], 0; repeat split; 
+  [inversion Hfp; subst; rewrite Rminus_0_r; simpl; auto;
+  apply R_dot_prod_rel_nil  | | rewrite Rabs_R0; unfold g1, g; simpl; nra ]. 
+  intros; exists 0; split; 
+  [ assert (n = 0)%nat by lia; subst; simpl; nra | rewrite Rabs_R0; unfold g; nra].
+}
 intros.
   destruct v1; intros.
   { pose proof Nat.neq_0_succ (length v2); try contradiction. }
     assert (Hv1: v1 = [] \/ v1 <> []).
     destruct v1; auto. right.
     eapply hd_error_some_nil; simpl; auto.
-    assert (Hlen1: length v1 = length v2) by (simpl in Hlen2; auto).
+    assert (Hlen1: length v1 = length v2) by (simpl in Hlen; auto).
     destruct Hv1.
-    assert (v2 = []). { simpl in Hlen2; apply length_zero_iff_nil;  
+    assert (v2 = []). { simpl in Hlen; apply length_zero_iff_nil;  
           apply length_zero_iff_nil in H; rewrite H in Hlen1; auto. }
     subst; clear Hlen1.
 {
@@ -264,20 +247,10 @@ eapply Rle_trans; [apply Hd| apply d_le_g_1; simpl; auto].
 eapply Rle_trans; [apply He|]. unfold g1, g; simpl; nra.
 }
  (* apply IH *)
-pose proof (length_not_empty v1 H) as Hlen3.
-assert (HIN : (forall xy : ftype t * ftype t,
-  In xy (combine v1 v2) ->
-  Binary.is_finite (fprec t) (femax t) (fst xy) = true /\
-  Binary.is_finite (fprec t) (femax t) (snd xy) = true)).
-  { intros. assert (HIN: In xy (combine (f :: v1) (a :: v2))) by (simpl; auto);
-  specialize (Hin xy HIN); auto. }  
+pose proof (length_not_empty v1 H) as Hlen3. 
 inversion Hfp; inversion Hrp; subst.
-assert (HFIN: Binary.is_finite (fprec t) (femax t) s = true).
-  { revert Hfin; simpl.
-  assert (HIN' : In (f, a) (combine (f :: v1) (a :: v2))) by (simpl; auto).
-  specialize (Hin (f,a) HIN'). destruct Hin as (A & B).
-  destruct f, a, s; simpl; intros; try discriminate; auto. }
-specialize (IHv2 v1 Hlen3 Hlen1 s s0 H3 H7 HIN HFIN).
+(destruct (BMFA_finite_e _ _ _ Hfin) as (A' & B' & C')).
+specialize (IHv2 v1 Hlen1 s s0 H3 H7 C').
 destruct IHv2 as (u & eta & Hlenu & A & B & C ).
 (* construct u0 *)
 simpl in Hfin.

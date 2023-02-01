@@ -118,6 +118,19 @@ apply fma_accurate; auto.
 apply is_finite_fma_no_overflow; auto.
 Qed.
 
+Lemma BMFA_finite_e {NAN: Nans} {t: type}:
+ forall (a u f : ftype t)
+ (Hfin : Binary.is_finite _ _ (BFMA a f u) = true),
+ Binary.is_finite _ _ a = true  /\ 
+ Binary.is_finite _ _ f = true /\ 
+ Binary.is_finite _ _ u = true.
+Proof.
+intros.
+destruct a,f,u; inversion Hfin; clear Hfin; subst; 
+ try solve [split; [ | split]; simpl; auto; constructor; auto].
+all: try solve [destruct s,s0,s1; discriminate].
+Qed.
+
 
 Lemma BMULT_accurate {NAN: Nans}: 
    forall (t: type) x y (FIN: Bmult_no_overflow t (FT2R x) (FT2R y)), 
