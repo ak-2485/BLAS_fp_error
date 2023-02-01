@@ -18,17 +18,16 @@ Variable NAN: Nans.
 
 Lemma sum_forward_error :
   forall (t: type) (l: list (ftype t))
-  (Hlen: (1 <= length l)%nat)
   (fs : ftype t) (rs rs_abs : R)
   (Hfs: sum_rel_Ft t l fs)
   (Hrs: sum_rel_R (map FT2R l) rs)
   (Hra: sum_rel_R (map Rabs (map FT2R l)) rs_abs)
-  (Hin: forall a, In a l ->  Binary.is_finite _ _ a = true)
   (Hfin: Binary.is_finite (fprec t) (femax t) fs = true),
   Rabs (rs - FT2R fs) <= g t (length l -1) * rs_abs.
 Proof.
 induction l.
-{ simpl; intros; pose proof (Nat.nle_succ_0 0); try contradiction. } 
+{ intros; unfold g; inversion Hfs; inversion Hrs; subst; simpl;
+  rewrite Rminus_0_r, Rabs_R0; nra.  } 
 (* case a::l *)
 intros.
 assert (Hl: l = [] \/ l <> []).
@@ -37,38 +36,25 @@ right.
 eapply hd_error_some_nil; simpl; auto.
 destruct Hl.
 (* case empty l *)
-{ assert (HFINa: 
-  Binary.is_finite (fprec t) (femax t) a = true) by (apply Hin; simpl; auto).
-  assert (HFINfs: 
-  Binary.is_finite (fprec t) (femax t) fs = true).
-  { subst. inversion Hfs. fold (@sum_rel_Ft NAN t) in H2. inversion H2. subst.
-  destruct a; simpl; try discriminate; auto. } 
-  subst; simpl; pose proof (sum_rel_Ft_single t fs a HFINfs Hfs); subst.
-  rewrite (sum_rel_R_single (FT2R a) rs Hrs); subst.
-  unfold g; simpl; field_simplify_Rabs;
-  rewrite Rabs_R0; nra. }
+{ subst. inversion Hfs; inversion Hrs.
+inversion H2; inversion H6; unfold sum, g; simpl; subst.
+destruct (BPLUS_finite_e _ _ Hfin) as (A & B).
+rewrite BPLUS_neg_zero; auto.
+field_simplify_Rabs; rewrite Rabs_R0; nra. }
 (* case non-empty l *)
 inversion Hfs; fold (@sum_rel_Ft NAN t) in H3. 
 inversion Hrs; fold sum_rel_R in H7.
 inversion Hra; fold sum_rel_R in H11.
 subst; unfold sum in *.
-assert (HFINa: 
-  Binary.is_finite (fprec t) (femax t) a = true) by (apply Hin; simpl; auto).
+destruct (BPLUS_finite_e _ _ Hfin) as (A & B).
 (* IHl *)
-pose proof (length_not_empty_nat l H) as Hlen1.
-assert (Hinl: forall a : ftype t,
-       In a l -> Binary.is_finite (fprec t) (femax t) a = true).
-{ intros; apply Hin; simpl; auto. }
-assert (Hfins: Binary.is_finite (fprec t) (femax t) s = true).
-{ destruct a, s; simpl in *; try discriminate; auto. }
-specialize (IHl Hlen1 s s0 s1 H3 H7 H11 Hinl Hfins).
+specialize (IHl s s0 s1 H3 H7 H11 B).
 (* accuracy rewrites *)
 assert (Hov: Bplus_no_overflow t (FT2R a) (FT2R s)).
 { unfold Bplus_no_overflow. pose proof is_finite_sum_no_overflow t.
   simpl in H0; unfold rounded in H0; eapply H0; auto. }
-pose proof (BPLUS_accurate t a HFINa s Hfins Hov) as Hplus.
-destruct Hplus as (d' & Hd'& Hplus); rewrite Hplus; 
-  clear Hplus Hov.
+destruct (BPLUS_accurate t a A s B Hov) as (d' & Hd'& Hplus); 
+rewrite Hplus; clear Hplus Hov.
 (* algebra *)
 field_simplify_Rabs.
 replace (- FT2R a * d' + s0 - FT2R s * d' - FT2R s) with
@@ -93,19 +79,19 @@ apply (sum_rel_R_Rabs (map FT2R l)); auto; apply H11.
 rewrite (sum_rel_R_Rabs_eq (map FT2R l)); auto.
 rewrite one_plus_d_mul_g. simpl.
 rewrite Rplus_comm.
+apply length_not_empty in H; auto.
 apply Rplus_le_compat.
 apply Rmult_le_compat; try apply Rabs_pos; 
   try apply default_rel_ge_0; try nra.
-apply d_le_g_1; try lia.
-apply Req_le; f_equal. f_equal; lia.
+apply d_le_g_1; rewrite Nat.sub_0_r; auto.
+rewrite Nat.sub_0_r; apply Req_le; f_equal. 
+rewrite Nat.sub_add; auto. 
 Qed.
 
 Lemma sum_backward_error :
   forall (t: type) (l: list (ftype t))
-  (Hlen: (1 <= length l)%nat)
   (fs : ftype t)
   (Hfs: sum_rel_Ft t l fs)
-  (Hin: forall a, In a l ->  Binary.is_finite _ _ a = true)
   (Hfin: Binary.is_finite (fprec t) (femax t) fs = true),
     exists (l': list R), 
     length l' = length l /\
@@ -114,7 +100,11 @@ Lemma sum_backward_error :
         nth n l' 0 = FT2R (nth n l neg_zero) * (1 + delta) /\ Rabs delta <= g t (length l' - 1)).
 Proof.
 intros ? ?. induction l.
-{ simpl; intros; pose proof (Nat.nle_succ_0 0); try contradiction. } 
+{ intros; exists []; repeat split; auto. 
+  inversion Hfs; subst; simpl. apply sum_rel_nil.
+  intros. simpl in H; assert (n = 0)%nat by lia; subst.
+  exists 0; split; [simpl; nra| unfold g; rewrite Rabs_R0; simpl; nra].
+}
 (* case a::l *)
 intros.
 assert (Hl: l = [] \/ l <> []).
@@ -123,40 +113,27 @@ right.
 eapply hd_error_some_nil; simpl; auto.
 destruct Hl.
 (* case empty l *)
-{ assert (HFINa: 
-  Binary.is_finite (fprec t) (femax t) a = true) by (apply Hin; simpl; auto).
-  assert (HFINfs: 
-  Binary.is_finite (fprec t) (femax t) fs = true).
-  { subst. inversion Hfs. fold (@sum_rel_Ft NAN t) in H2. inversion H2. subst.
-  destruct a; simpl; try discriminate; auto. } 
-  inversion Hfs; subst. inversion H3; subst. 
-  exists [FT2R a]; repeat split.
-  simpl; auto. unfold sum. rewrite BPLUS_neg_zero; auto. apply sum_rel_R_single'.
-  intros. exists 0; split; auto. rewrite Rplus_0_r. rewrite Rmult_1_r.
-  replace [FT2R a] with (map FT2R [a]) by (simpl; auto).
-  replace 0 with (@FT2R t neg_zero) by (unfold neg_zero; simpl; auto).
-  rewrite map_nth; auto.
-  unfold g. simpl. rewrite Rabs_R0; nra.
+{ subst; inversion Hfs; subst; unfold sum in *. 
+  destruct (BPLUS_finite_e _ _ Hfin).
+  inversion H2; subst. exists [FT2R a]; split; [ simpl; auto | split ; 
+  [unfold sum; rewrite BPLUS_neg_zero; [apply sum_rel_R_single'| auto]|] ].  
+  intros. exists 0; simpl in H1; split; 
+  [assert ((n = 1)%nat \/ (n = 0)%nat) by lia; destruct H3; subst; simpl; nra|].
+  rewrite Rabs_R0; simpl; unfold g; nra.
 }
 (* case non-empty l *)
 inversion Hfs; fold (@sum_rel_Ft NAN t) in H3. 
 subst; unfold sum in *.
-assert (HFINa: 
-  Binary.is_finite (fprec t) (femax t) a = true) by (apply Hin; simpl; auto).
+  destruct (BPLUS_finite_e _ _ Hfin) as (A & B).
 (* IHl *)
 pose proof (length_not_empty_nat l H) as Hlen1.
-assert (Hinl: forall a : ftype t,
-       In a l -> Binary.is_finite (fprec t) (femax t) a = true).
-{ intros; apply Hin; simpl; auto. }
-assert (Hfins: Binary.is_finite (fprec t) (femax t) s = true).
-{ destruct a, s; simpl in *; try discriminate; auto. }
-specialize (IHl Hlen1 s  H3 Hinl Hfins).
+specialize (IHl s H3 B).
 destruct IHl as (l' & Hlen' & Hsum & Hdel).
 (* construct l'0 *)
 assert (Hov: Bplus_no_overflow t (FT2R a) (FT2R s)).
 { unfold Bplus_no_overflow. pose proof is_finite_sum_no_overflow t.
   simpl in H0; unfold rounded in H0; eapply H0; auto. }
-pose proof (BPLUS_accurate t a HFINa s Hfins Hov) as Hplus.
+pose proof (BPLUS_accurate t a A s B Hov) as Hplus.
 destruct Hplus as (d' & Hd'& Hplus).
 exists (FT2R a * (1+d') :: map (Rmult (1+d')) l'); repeat split.
 { simpl; auto. rewrite map_length; auto. }
@@ -193,27 +170,21 @@ Qed.
 Lemma sum_forward_error_permute :
   forall (t: type) (l l0: list (ftype t))
   (Hper: Permutation l l0)
-  (Hlen: (1 <= length l)%nat)
   (fs fs0: ftype t) (rs rs_abs: R)
   (Hfs: sum_rel_Ft t l fs)
   (Hfs0: sum_rel_Ft t l0 fs0)
   (Hrs: sum_rel_R (map FT2R l) rs)
   (Hra: sum_rel_R (map Rabs (map FT2R l)) rs_abs)
-  (Hin: forall a, In a l ->  Binary.is_finite _ _ a = true)
   (Hfin: Binary.is_finite (fprec t) (femax t) fs = true)
   (Hfin0: Binary.is_finite (fprec t) (femax t) fs0 = true),
   Rabs (rs - FT2R fs0) <= g t (length l0 -1) * rs_abs.
 Proof.
 intros.
 apply sum_forward_error; auto.
-{ apply Permutation_length in Hper; rewrite <- Hper; auto. }
 { eapply sum_rel_R_permute_t. apply Hper. auto. }
-{ apply (sum_rel_R_permute (map Rabs (map FT2R l)) (map Rabs (map FT2R l0))).
+apply (sum_rel_R_permute (map Rabs (map FT2R l)) (map Rabs (map FT2R l0))).
 repeat apply Permutation_map; auto.
-auto. }
-intros. 
-apply Permutation_sym in Hper.
-specialize (Hin a (@Permutation_in (ftype t) l0 l a Hper H)); auto.
+auto.
 Qed.
 
 
