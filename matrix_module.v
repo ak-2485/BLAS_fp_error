@@ -3,7 +3,7 @@ From mathcomp Require Import rat interval zmodp vector fieldext falgebra.
 From mathcomp Require Import boolp classical_sets functions.
 From mathcomp Require Import cardinality set_interval mathcomp_extra.
 From mathcomp Require Import ereal reals signed topology prodnormedzmodule. 
-From mathcomp Require Import normedtype sequences.
+From mathcomp Require Import normedtype sequences mxalgebra.
 
 Import Order.Theory GRing.Theory Num.Def Num.Theory.
 Import numFieldTopology.Exports.
@@ -72,12 +72,32 @@ Qed.
 
 End Inverse.
 
+
+Section MatrixFacts.
+
+Variables (m n : nat) (R: realType).
+
+Variable g : {linear 'rV[R]_m.+1 -> 'rV[R]_n.+1}.
+
+Lemma trmxeq (m' n' : nat) (A B : 'M[R]_(m',n')) : A = B -> A^T = B^T.
+Proof. by move => H; rewrite H. Qed.
+
+Lemma trmx_mul_rV_lin1 u : (u *m lin1_mx g)^T = (g u)^T.
+Proof. by apply trmxeq; apply mul_rV_lin1. Qed.
+
+Lemma trmxZ a (A : 'M[R]_n) : (a *: A)^T = a *: (A^T).
+Proof. by apply/matrixP => k i /[!mxE]. Qed.
+
+End MatrixFacts. 
+
+
 Section Maps.
 
 (** Notes: 
  contractive maps are defined in sequences *)
 Variables (m n : nat) (R: realType).
 Variables (Sv : set 'cV[R]_(m.+1)).
+
 
 Definition f_app (f : 'rV[R]_m -> 'rV[R]_m)
         (u: 'rV[R]_m)  := fun n => iter n f u.
@@ -93,22 +113,18 @@ rewrite/f_app/iter //. Qed.
 Canonical mat_R_CompleteNormedModule (m' n' : nat) :=
   [completeNormedModType R of (matrix R m'.+1 n'.+1)].
 
-Lemma Banach_test : forall (f : {fun Sv >-> Sv}) ,
-  is_contraction f -> closed Sv -> (Sv !=set0)%classic ->
-        exists2 x:'cV_m.+1, Sv x & x = f x .
+Lemma Banach_test : forall (f' : {fun Sv >-> Sv}) ,
+  is_contraction f' -> closed Sv -> (Sv !=set0)%classic ->
+        exists2 x:'cV_m.+1, Sv x & x = f' x .
 Proof.
-move => f A B C; apply banach_fixed_point => //.
+move => f' A B C; apply banach_fixed_point => //.
 Qed.
 
-Definition lin2_mx (f: 'cV[R]_n.+1 -> 'cV[R]_m.+1) : 'M[R]_(m.+1, n.+1) := 
-   \matrix[lin1_mx_key]_(j, i) f (delta_mx i 0) j 0.
-
-Definition lin2_mx' (f: {fun Sv >-> Sv}) : 'M[R]_(m.+1) := 
+Definition lin2_mx {m' n' : nat} (f: 'cV[R]_n'.+1 -> 'cV[R]_m'.+1) : 'M[R]_(m'.+1, n'.+1) := 
    \matrix[lin1_mx_key]_(j, i) f (delta_mx i 0) j 0.
 
 Variable f : {linear 'cV[R]_n.+1 -> 'cV[R]_m.+1}.
 Variable g : {linear 'rV[R]_m.+1 -> 'rV[R]_n.+1}.
-
 
 Lemma mul_cV_lin2 (u : 'cV_n.+1): 
    lin2_mx f *m u = f u.
@@ -117,91 +133,44 @@ by rewrite {2}[u]matrix_sum_delta linear_sum; apply/colP=> i;
 rewrite mxE summxE; apply eq_bigr => j _; rewrite big_ord1 linearZ !mxE mulrC.
 Qed.
 
-Lemma mul_cV_lin2' (u : 'cV_n.+1): 
-   lin2_mx f *m u = f u.
+Variable fs : {fun Sv >-> Sv}.
+Axiom linear_fs : linear fs.
+
+Canonical fs' := Linear linear_fs.
+
+
+Lemma mul_cV_lin2'  (u : 'cV_m.+1): 
+   lin2_mx fs *m u = fs' u.
 Proof.
 by rewrite {2}[u]matrix_sum_delta linear_sum; apply/colP=> i;
 rewrite mxE summxE; apply eq_bigr => j _; rewrite big_ord1 linearZ !mxE mulrC.
 Qed.
 
-Lemma trmxeq (m' n' : nat) (A B : 'M[R]_(m',n')) : A = B -> A^T = B^T.
-Proof. by move => H; rewrite H. Qed.
+Lemma subMultNorm (A: 'M[R]_m.+1) (u : 'cV_m.+1) : 
+  `| A *m u | <= `|A| * `|u|.
+Proof. Admitted.
 
-Lemma trmx_mul_rV_lin1 u : (u *m lin1_mx g)^T = (g u)^T.
-Proof. by apply trmxeq; apply mul_rV_lin1. Qed.
-
-Lemma trmxZ a (A : 'M[R]_n) : (a *: A)^T = a *: (A^T).
-Proof. by apply/matrixP => k i /[!mxE]. Qed.
-
-Variable fs : {fun Sv >-> Sv}.
-
-(*
-Lemma contraction_fixpoint_unique {R2 : realDomainType}
-    {X : normedModType R2} (U : set X) (fg : {fun U >-> U}) (x y : X) :
-  is_contraction fg -> U x -> U y -> x = fg x -> y = fg y -> x = y.
+Lemma mx_norm_is_klipschitz : 
+  forall (k : R) (HBND: `|lin2_mx fs| <= k),   k.-lipschitz_Sv fs.
 Proof.
-case => q [q1 ctrfq] Ux Uy fixx fixy; apply/subr0_eq/normr0_eq0/eqP.
-have [->|xyneq] := eqVneq x y. first by rewrite subrr normr0.
-have xypos : 0 < `|x - y| by rewrite normr_gt0 subr_eq0.
-suff : `|x - y| <= q%:num * `|x - y| by rewrite ler_pmull // leNgt q1.
-by rewrite [in leLHS]fixx [in leLHS]fixy; exact: (ctrfq (_, _)).
-Qed. *)
-(*
-Lemma prime_above (m' : nat) : exists2 p : nat, (m' < p)%nat & prime p.
-Proof.
-have /pdivP[p pr_p p_dv_m1]: (1 < m'`! + 1)%nat.
-by rewrite addn1 ltnS fact_gt0.
-exists p => //. rewrite ltnNge; apply: contraL p_dv_m1 => p_le_m.
-case: (pdivP m1_gt1) => [p pr_p p_dv_m1].
-apply: contraL p_dv_m1 => p_le_m.
-by rewrite dvdn_addr ?dvdn_fact ?prime_gt0 // 
-  gtnNdvd ?prime_gt1.*)
-
-Context {X : completeNormedModType R} (U : set X).
-Variables (fg : {fun U >-> U}).
-Variables (q : {nonneg R}) (ctrf : contraction q fg) (base : X) (Ubase : U base).
-Let C := `|fg base - base| / (1 - q%:num).
-Let y := fun n => iter n fg base.
-
-(*
-Lemma bounded_locally (T : topologicalType)
-    (R1 : numFieldType) (V : normedModType R1) (A : set T) (df : T -> V) :
-  [bounded df x | x in A] -> [locally [bounded df x | x in A]].
-Proof. move=> /sub_boundedr AB x Ax. apply: AB; apply: within_nbhsW. Qed.*)
-
-Lemma mx_norm_is_klipschitz k: 
-`|lin2_mx' fs| < k -> 
-k.-lipschitz_Sv fs.
-Proof.
-move => H . 
-rewrite/dominated_by.
-pose proof sub_boundedr.
-within_nbhsW
-rewrite locallyP.
-pose proof @within_nbhsW (matrix_topologicalType (m.+1) (m.+1) R).
-Locate "`=>`".
-ProperFilter
-rewrite locally_of.
-
-
-Search norm 
-
+move => k HBND. 
+rewrite/dominated_by/globally /= => x Hx.
+rewrite -linearB // .
+rewrite -mul_cV_lin2'.
+eapply le_trans => [ | ].
+apply subMultNorm =>  //.
+Admitted.
 
 Lemma norm_lt_contraction: 
-  `|lin2_mx' fs| < 1 -> is_contraction fs.
+  `|lin2_mx fs| < 1 -> is_contraction fs.
 Proof.
 move => H.
-exists `|lin2_mx' fs|%:nng => // (* see signed.v; x%:nng explicitly casts x to {nonneg R} *).
+exists `|lin2_mx fs|%:nng => // (* see signed.v; x%:nng explicitly casts x to {nonneg R} *).
 unfold contraction; simpl.
 split => [//|].
-apply dominated_by1.
-Search (dominated_by ).
-About lipschitz_on.
-have
-unfold is_contraction, contraction.
-nonneg
-assert (`|lin2_mx' fs| : nonneg).
-have H1:= matrix_norm_positive R m m (lin2_mx' fs).
+apply mx_norm_is_klipschitz => //.
+Qed.
+
 
 (* definition of the matrix condition number *)
 Definition kappa (A : 'M[R]_m.+1) := `|(invmx A)| * `|A|.
