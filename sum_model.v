@@ -165,7 +165,23 @@ replace (a0 + (a + s0)) with (a + (a0 + s0)) by nra.
 apply sum_rel_cons; auto.
 Qed.
 
-
+Lemma sum_rel_bound  :
+  forall (l : list R) (rs a: R)
+  (Hrs : sum_rel_R l rs)
+  (Hin : forall x, In x l -> Rabs x <= a),
+  Rabs rs <= INR (length l) * a.
+Proof.
+induction l; intros.
+{ inversion Hrs; subst; simpl; rewrite Rabs_R0; nra. }
+  inversion Hrs; subst. 
+  unfold sum; eapply Rle_trans; [apply Rabs_triang|].
+  eapply Rle_trans; [apply Rplus_le_compat;
+  [apply Hin; simpl; auto| apply IHl; 
+                        [ apply H2 | intros; apply Hin; simpl; auto ] ] | ].
+  apply Req_le. replace (length (a :: l)) with (length l + 1)%nat by (simpl; lia).
+  rewrite plus_INR; simpl; nra.
+Qed.
+  
 Lemma sum_rel_R_permute :
   forall (l l0: list R)
   (Hper: Permutation l l0) (rs: R)
@@ -201,7 +217,6 @@ Qed.
 
 Section NAN.
 
-Definition sum_rel_F {NAN: Nans} := @sum_rel (ftype Tsingle) (-0)%F32 (BPLUS Tsingle).
 
 From vcfloat Require Import IEEE754_extra.
 
@@ -215,17 +230,40 @@ destruct s;
 cbv; auto.
 Qed.
 
-Lemma sum_rel_F_single {NAN: Nans}:
-forall (a : ftype Tsingle) (fs : ftype Tsingle)
-  (HFIN: Binary.is_finite _ _ a = true),
-  sum_rel_F [a] fs -> fs = a.
+Lemma sum_rel_bound'  :
+  forall (t : type) (l : list (ftype t)) (rs a: R)
+  (Hrs : sum_rel_R (map FT2R l) rs)
+  (Hin : forall x, In x l -> Rabs (FT2R x) <= a),
+  Rabs rs <= INR (length l) * a.
 Proof.
-intros.
-inversion H; auto.
-inversion H3. subst.
-unfold sum.
-apply plus_zero; auto.
+induction l; intros.
+{ inversion Hrs; subst; simpl; rewrite Rabs_R0; nra. }
+  inversion Hrs; subst. 
+  unfold sum; eapply Rle_trans; [apply Rabs_triang|].
+  eapply Rle_trans; [apply Rplus_le_compat;
+  [apply Hin; simpl; auto| apply IHl; 
+                        [ apply H2 | intros; apply Hin; simpl; auto ] ] | ].
+  apply Req_le. replace (length (a :: l)) with (length l + 1)%nat by (simpl; lia).
+  rewrite plus_INR; simpl; nra.
 Qed.
+
+Lemma sum_rel_bound''  :
+  forall (t : type) (l : list (ftype t)) (rs_abs a: R)
+  (Hrs : sum_rel_R (map Rabs (map FT2R l)) rs_abs)
+  (Hin : forall x, In x l -> Rabs (FT2R x) <= a),
+  rs_abs <= INR (length l) * a.
+Proof.
+induction l; intros.
+{ inversion Hrs; subst; simpl; nra. }
+  inversion Hrs; subst.
+  unfold sum. fold sum_rel_R in H2.
+  eapply Rle_trans; [apply Rplus_le_compat;
+  [apply Hin; simpl; auto| apply IHl; 
+                        [ apply H2 | intros; apply Hin; simpl; auto ] ] | ].
+  apply Req_le. replace (length (a :: l)) with (length l + 1)%nat by (simpl; lia).
+  rewrite plus_INR; simpl; nra.
+Qed. 
+
 
 Lemma sum_rel_R_fold : forall l rs, 
    sum_rel_R l rs -> rs = fold_right Rplus 0 l.
@@ -268,7 +306,34 @@ unfold sum, BPLUS; destruct a; try discriminate;
 destruct s; simpl; auto.
 Qed.
 
+Lemma sum_rel_R_exists {NAN: Nans}:
+  forall (t : type) (l : list (ftype t)) (fs : ftype t)
+  (Hfs : sum_rel_Ft t l fs),
+  exists rs, sum_rel_R (map FT2R l) rs.
+Proof.
+intros ?. induction l.
+{ simpl; exists 0. apply sum_rel_nil. }
+intros. inversion Hfs; subst. 
+fold (@sum_rel_Ft NAN t) in H2.
+destruct (IHl s H2) as (rs & Hrs); clear IHl.
+exists (FT2R a + rs); simpl. 
+apply sum_rel_cons; auto.
+Qed.
 
+Lemma sum_rel_R_abs_exists {NAN: Nans}:
+  forall (t : type) (l : list (ftype t)) (fs : ftype t)
+  (Hfs : sum_rel_Ft t l fs),
+  exists rs, sum_rel_R (map Rabs (map FT2R l)) rs.
+Proof.
+intros ?. induction l.
+{ simpl; exists 0. apply sum_rel_nil. }
+intros. inversion Hfs; subst. 
+fold (@sum_rel_Ft NAN t) in H2.
+destruct (IHl s H2) as (rs & Hrs); clear IHl.
+exists (Rabs (FT2R a) + rs); simpl. 
+apply sum_rel_cons; auto.
+Qed.
+ 
 Lemma is_finite_in {NAN: Nans} (t : type) :
   forall (l : list (ftype t)) fs,
   sum_rel_Ft t l fs ->
@@ -311,6 +376,7 @@ specialize (IHl s H3).
 subst; simpl.
 unfold sum; auto.
 Qed.
+
 
 
 End NAN.

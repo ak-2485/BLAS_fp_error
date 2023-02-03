@@ -277,7 +277,6 @@ pose proof Plus_error.FLT_plus_error_N_ex   Zaux.radix2 (SpecFloat.emin (fprec t
  (fprec t) (fun x0 : Z => negb (Z.even x0)) (FT2R x) (FT2R y) A B.
 unfold Relative.u_ro in H1. fold (default_rel t) in H1.
 destruct H1 as (d & Hd & Hd').
- 
 assert (  Generic_fmt.round Zaux.radix2 (SpecFloat.fexp (fprec t) (femax t))
     (BinarySingleNaN.round_mode BinarySingleNaN.mode_NE)
     (FT2R x + FT2R y)  =  Generic_fmt.round Zaux.radix2

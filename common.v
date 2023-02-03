@@ -32,7 +32,7 @@ unfold default_rel.
 apply Rmult_lt_0_compat; try nra.
 apply bpow_gt_0.
 Qed.
-
+ 
 Lemma default_rel_ge_0 t : 
   0 <= default_rel t.
 Proof. apply Rlt_le; apply default_rel_gt_0; auto. Qed.
@@ -43,6 +43,14 @@ Proof.
 rewrite Rplus_comm. 
 apply Rcomplements.Rle_minus_l; field_simplify.
 apply default_rel_ge_0.
+Qed.
+
+Lemma default_rel_plus_1_gt_1 t :
+1 < 1 + default_rel t.
+Proof.
+rewrite Rplus_comm. 
+apply Rcomplements.Rlt_minus_l; field_simplify.
+apply default_rel_gt_0.
 Qed.
 
 Lemma default_rel_plus_1_ge_1' t n:
