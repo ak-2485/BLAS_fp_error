@@ -3,6 +3,8 @@ Require Import List.
 
 Require Import common op_defs list_lemmas.
 
+Require Import FunctionalExtensionality.
+
 Section NAN.
 
 (* vanilla dot-product *)
@@ -67,6 +69,29 @@ Inductive R_dot_prod_rel :
 | R_dot_prod_rel_cons : forall l xy s,
     R_dot_prod_rel  l s ->
     R_dot_prod_rel  (xy::l)  (fst xy * snd xy + s).
+
+Definition dotprodR (v1 v2: list R) : R :=
+  fold_left (fun s x12 => Rplus (fst x12 * snd x12) s) 
+                (List.combine v1 v2) 0%R.
+
+Lemma dotprodR_nil u :
+dotprodR u nil = 0%R. 
+Proof. destruct u; simpl; auto. Qed.
+
+Lemma check : forall u v rp, 
+length u = length v ->
+R_dot_prod_rel (combine u (rev v)) rp -> 
+R_dot_prod_rel (combine (rev u) v) rp. 
+Proof.
+induction u.
+simpl. admit.
+intros.
+destruct v.
+admit.
+Search combine cons.
+simpl in *.
+
+
 
 Definition sum_fold: list R -> R := fold_right Rplus 0%R.
 

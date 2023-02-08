@@ -178,9 +178,8 @@ Qed.
 Lemma dotprod_mixed_error:
   forall (t: type) (v1 v2: list (ftype t))
   (Hlen: length v1 = length v2)
-  (fp : ftype t) (rp : R)
+  (fp : ftype t)
   (Hfp: dot_prod_rel (List.combine v1 v2) fp)
-  (Hrp: R_dot_prod_rel (List.combine (map FT2R v1) (map FT2R v2)) rp)
   (Hfin: Binary.is_finite (fprec t) (femax t) fp = true),
   exists (u : list R) (eta : R),
     length u = length v2 /\
@@ -213,9 +212,9 @@ intros.
           apply length_zero_iff_nil in H; rewrite H in Hlen1; auto. }
     subst; clear Hlen1.
 { (* case singleton lists *)
-clear IHv2. inversion Hfp; subst. inversion Hrp; subst.
-inversion H2; inversion H3; subst; clear H2 H3.
- simpl in Hrp, Hfp, Hfin; unfold fst, snd.
+clear IHv2. inversion Hfp; subst. 
+inversion H2; subst; clear H2.
+ simpl in  Hfp, Hfin; unfold fst, snd.
 assert (FINmul: Binary.is_finite (fprec t) (femax t) (BMULT t f a) = true).
 { destruct (BMULT t f a); unfold neg_zero in *; simpl; try discriminate; auto. }
 rewrite BPLUS_B2R_zero in *; auto.
@@ -235,13 +234,13 @@ eapply Rle_trans; [apply He|]. apply e_le_g1; simpl in *; auto.
 (* case cons lists*)
 (* apply IH *)
 pose proof (length_not_empty v1 H) as Hlen3.
-inversion Hfp; inversion Hrp;  subst.
-unfold fst, snd in Hfin, Hrp, Hfp; unfold fst, snd.
+inversion Hfp;  subst.
+unfold fst, snd in Hfin, Hfp; unfold fst, snd.
 destruct (BPLUS_finite_e _ _ Hfin) as (A & B).
 destruct (BMULT_finite_e _ _ A) as (C & D).
 set (l:=(combine v1 v2)).
 (* IHl *)
-specialize (IHv2 v1 Hlen1 s s0 H3 H7 B).
+specialize (IHv2 v1 Hlen1 s H3 B).
 (* construct u *)
 destruct (BPLUS_accurate' t (BMULT t f a) s Hfin) as (d' & Hd'& Hplus); 
 rewrite Hplus; clear Hplus.
@@ -313,5 +312,32 @@ rewrite Hlen1 in Hlen3.
 pose proof plus_d_e_g1_le' t (length v2) (S (length v2)) Hlen3 Hp as HYP; clear Hp.
 eapply Rle_trans; [| apply HYP]; apply Req_le; nra.
 Qed.
+
+Lemma dotprod_mixed_error':
+  forall (t: type) (v1 v2: list (ftype t))
+  (Hlen: length v1 = length v2)
+  (Hfin: Binary.is_finite (fprec t) (femax t) (dotprod t v1 v2) = true),
+  exists (u : list R) (eta : R),
+    length u = length v2 /\
+    dotprodR u (map FT2R v2) = (FT2R (dotprod t v1 v2)) - eta /\
+    (forall n, (n <= length v2)%nat -> exists delta,
+      nth n u 0 = FT2R (nth n v1 neg_zero) * (1 + delta) /\ Rabs delta <= g t (length v2))  /\
+    Rabs eta <= g1 t (length v2) (length v2).
+Proof.
+intros.
+assert (Datatypes.length (combine v1 v2) = length v1) by
+ (rewrite combine_length; lia).
+assert (Hlenr : length (rev v1) = length (rev v2)) by (rewrite !rev_length; auto).
+rewrite <- rev_length in Hlen.
+pose proof fdot_prod_rel_fold_right t v1 v2 as H1.
+rewrite <- combine_rev in H1. 
+rewrite rev_length in Hlen.
+destruct (dotprod_mixed_error t (rev v1) (rev v2) Hlenr (dotprod t v1 v2) H1 Hfin) as 
+  (u & eta & H2 & H3 & H4 & H5).
+exists (rev u), eta; repeat split; auto.
+rewrite rev_length in H2; rewrite <- rev_length in H2; auto.
+assert (forall
+
+
 
 End NAN.
