@@ -78,20 +78,6 @@ Lemma dotprodR_nil u :
 dotprodR u nil = 0%R. 
 Proof. destruct u; simpl; auto. Qed.
 
-Lemma check : forall u v rp, 
-length u = length v ->
-R_dot_prod_rel (combine u (rev v)) rp -> 
-R_dot_prod_rel (combine (rev u) v) rp. 
-Proof.
-induction u.
-simpl. admit.
-intros.
-destruct v.
-admit.
-Search combine cons.
-simpl in *.
-
-
 
 Definition sum_fold: list R -> R := fold_right Rplus 0%R.
 
