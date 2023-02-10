@@ -70,16 +70,29 @@ Inductive R_dot_prod_rel :
     R_dot_prod_rel  l s ->
     R_dot_prod_rel  (xy::l)  (fst xy * snd xy + s).
 
-Definition dotprodR (v1 v2: list R) : R :=
-  fold_left (fun s x12 => Rplus (fst x12 * snd x12) s) 
-                (List.combine v1 v2) 0%R.
-
-Lemma dotprodR_nil u :
-dotprodR u nil = 0%R. 
-Proof. destruct u; simpl; auto. Qed.
-
+Lemma R_dot_prod_rel_eq :
+  forall l a b 
+  (Ha: R_dot_prod_rel l a)
+  (Hb: R_dot_prod_rel l b), a = b.
+Proof.
+induction l.
+{ intros; inversion Ha; inversion Hb; auto. }
+intros; inversion Ha; inversion Hb; subst; f_equal. 
+apply IHl; auto.
+Qed.
 
 Definition sum_fold: list R -> R := fold_right Rplus 0%R.
+
+Definition dotprodR l1 l2 : R := 
+  fold_left Rplus (map (uncurry Rmult) (List.combine l1 l2)) 0%R.
+
+Lemma dotprodR_nil_l u:
+dotprodR nil u = 0%R. 
+Proof. simpl; auto. Qed.
+
+Lemma dotprodR_nil_r u:
+dotprodR u nil = 0%R. 
+Proof. unfold dotprodR; rewrite combine_nil; simpl; auto. Qed.
 
 Lemma sum_rev l:
 sum_fold l = sum_fold (rev l).
@@ -98,6 +111,46 @@ Definition FR2 {t: type} (x12: ftype t * ftype t) := (FT2R (fst x12), FT2R (snd 
 Lemma FT2R_FR2 t : 
   (forall a a0 : ftype t, (FT2R a, FT2R a0) = FR2 (a, a0)) .
 Proof. intros. unfold FR2; simpl; auto. Qed.
+
+Lemma dotprodR_rel :
+forall (v1 v2: list R) , 
+    R_dot_prod_rel ((List.combine v1 v2)) (dotprodR v1 v2).
+Proof.
+intros; unfold dotprodR;
+induction (((combine v1 v2))).
+{ simpl. apply R_dot_prod_rel_nil. }
+destruct a; simpl. 
+unfold dotprodR. simpl.
+rewrite fold_left_Rplus_Rplus.
+apply R_dot_prod_rel_cons; auto.
+Qed.
+
+Lemma dotprodR_rev : forall (v1 v2: list R) , 
+  length v1 = length v2 -> 
+  dotprodR v1 (rev v2) = dotprodR (rev v1) v2.
+Proof.
+intros; unfold dotprodR.
+replace (combine v1 (rev v2)) with
+  (rev (combine (rev v1) v2)).
+rewrite <- fold_left_rev_right.
+replace (fun x y : R => y + x) with Rplus
+ by (do 2 (apply FunctionalExtensionality.functional_extensionality; intro); lra).
+symmetry.
+induction (combine (rev v1) v2).
+simpl; auto.
+match goal with |- context [?A = ?B] =>
+set (y:= B)
+end. 
+simpl. subst y.
+rewrite fold_left_Rplus_Rplus.
+rewrite IHl.
+Search rev map.
+rewrite !map_rev, !rev_involutive.
+simpl; auto.
+rewrite <- combine_rev, rev_involutive; auto.
+rewrite rev_length; auto.
+Qed.
+
 
 Lemma R_dot_prod_rel_fold_right t :
 forall (v1 v2: list (ftype t)) , 

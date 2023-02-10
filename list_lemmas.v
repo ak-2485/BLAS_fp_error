@@ -48,7 +48,7 @@ simpl; rewrite IHl1; simpl; auto.
 Qed.
 
 Lemma combine_rev (A : Type) (l1 l2: list A) :
-length l1 = length l2 ->  
+length l1 = length l2 ->
 combine (rev l1) (rev l2) = rev (combine l1 l2).
 Proof.
 revert l1.
@@ -56,10 +56,10 @@ induction l2.
 { intros. rewrite !combine_nil; simpl; auto. }
 intros. destruct l1.
 { simpl. auto. }
-assert (Hlen: length l1 = length l2).
-  simpl in H. auto.
+assert (Hlen : length l1 = length l2) by (simpl; auto).
 specialize (IHl2 l1 Hlen).
 simpl. rewrite <- IHl2.
+simpl.
 rewrite <- combine_app; auto.
 rewrite !rev_length; auto.
 Qed.

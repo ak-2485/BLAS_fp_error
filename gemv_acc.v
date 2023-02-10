@@ -77,15 +77,6 @@ apply map_ext_in; intros.
 subst f; simpl. rewrite dotprodF_nil; auto.
 Qed.
 
-Definition dotprodR (v1 v2: vector) : R :=
-  fold_left (fun s x12 => Rplus (fst x12 * snd x12) s) 
-                (List.combine v1 v2) 0%R.
-
-Lemma dotprodR_nil row :
-dotprodR row [] = 0%R. 
-Proof. destruct row; simpl; auto. Qed. 
-
-Definition norm2R (v: vector) : R := dotprodR v v.
 
 Definition mvR  (m: matrix) (v: vector) : vector :=
       map (fun row => dotprodR row v) m.
@@ -96,9 +87,9 @@ intros; unfold mvR.
 set (f:= (fun row : list R => dotprodR row [])).
 replace (map f m) with  (map (fun _ => 0%R) m).
 induction m; simpl; auto.
-{ rewrite IHm; rewrite dotprodR_nil; auto. }
+{ rewrite IHm; auto. }
 apply map_ext_in; intros.
-subst f; simpl. rewrite dotprodR_nil; auto.
+subst f; simpl. rewrite dotprodR_nil_r; auto.
 Qed.
 
 Fixpoint vec_sum {A: Type} (u v : vector) (sum : A -> A -> A)  : @vector A := 
@@ -180,8 +171,15 @@ induction A.
 { intros; simpl.
 assert (Hfin2 :  is_finite_vec (mvF A v)) by admit.
 assert (Hin2 : (forall row : list (ftype t), In row A -> length row = length v)) by admit.
-destruct (IHA Hfin2 Hin2) as (E & eta & IH); clear IHA.
-pose proof dotprod_mixed_error.
+destruct (IHA Hfin2 Hin2) as (E & eta & IH); clear IHA; rewrite IH; clear IH.
+assert (Hlen': length a = length v).
+{ apply Hlen; simpl; auto. }
+assert (Hfin' : Binary.is_finite (fprec t) (femax t) (dotprod t a v) = true) by admit.
+destruct (dotprod_mixed_error' NAN t a v Hlen' Hfin') as (u & ueta & X & Y & Z1 & Z2).
+assert (FT2R (dotprod t a v) = dotprodR u (map FT2R v) + ueta) by nra.
+rewrite H.
+exists (a::(map_matrix FT2R A)), (ueta::eta).
+simpl.
 
 
 { intros; simpl. pose proof mvF_len t A []. rewrite mvF_nil in *.

@@ -20,7 +20,7 @@ Lemma dotprod_forward_error:
   (fp : ftype t) (rp rp_abs : R)
   (Hfp: dot_prod_rel (List.combine v1 v2) fp)
   (Hrp: R_dot_prod_rel (List.combine (map FT2R v1) (map FT2R v2)) rp)
-  (Hra: R_dot_prod_rel (List.combine (map Rabs (map FT2R v1))  (map Rabs (map FT2R v2)) ) rp_abs)
+  (Hra: R_dot_prod_rel (List.combine (map Rabs (map FT2R v1)) (map Rabs (map FT2R v2)) ) rp_abs)
   (Hfin: Binary.is_finite (fprec t) (femax t) fp = true),
   Rabs (FT2R fp - rp) <=  g t (length v1) * Rabs rp_abs + g1 t (length v1) (length v1 - 1).
 Proof.
@@ -184,7 +184,7 @@ Lemma dotprod_mixed_error:
   exists (u : list R) (eta : R),
     length u = length v2 /\
     R_dot_prod_rel (List.combine u (map FT2R v2)) (FT2R fp - eta) /\
-    (forall n, (n <= length v2)%nat -> exists delta,
+    (forall n, (n < length v2)%nat -> exists delta,
       nth n u 0 = FT2R (nth n v1 neg_zero) * (1 + delta) /\ Rabs delta <= g t (length v2))  /\
     Rabs eta <= g1 t (length v2) (length v2).
 Proof.
@@ -226,7 +226,7 @@ exists [FT2R f * (1  +d)], e; repeat split.
 apply R_dot_prod_rel_cons; apply R_dot_prod_rel_nil. }
 { intros; exists d; split; auto. simpl in H. 
   destruct n. { simpl; auto. } 
-  apply le_S_n in H; apply Nat.le_0_r in H; subst; simpl; nra.
+  apply le_S_n in H; apply Nat.le_0_r in H; rewrite H; simpl; nra.
 eapply Rle_trans; [apply Hd| apply d_le_g_1; simpl; auto].
 }
 eapply Rle_trans; [apply He|]. apply e_le_g1; simpl in *; auto.
@@ -276,7 +276,7 @@ apply R_dot_prod_rel_cons; rewrite Rmult_comm; auto. }
     (eapply Rle_trans with 1; try nra; apply (default_rel_plus_1_ge_1)).
      rewrite <- Hlen1; auto. }
 }
-simpl in H0; assert (Hn: (n <= length v2)%nat) by lia.
+simpl in H0; assert (Hn: (n < length v2)%nat) by lia.
 specialize (Hun n Hn);
    destruct Hun as (delta & Hun & Hdelta). simpl;
 replace 0 with (Rmult  (1+d') 0) by nra. rewrite map_nth.
@@ -313,6 +313,8 @@ pose proof plus_d_e_g1_le' t (length v2) (S (length v2)) Hlen3 Hp as HYP; clear 
 eapply Rle_trans; [| apply HYP]; apply Req_le; nra.
 Qed.
 
+
+
 Lemma dotprod_mixed_error':
   forall (t: type) (v1 v2: list (ftype t))
   (Hlen: length v1 = length v2)
@@ -320,7 +322,7 @@ Lemma dotprod_mixed_error':
   exists (u : list R) (eta : R),
     length u = length v2 /\
     dotprodR u (map FT2R v2) = (FT2R (dotprod t v1 v2)) - eta /\
-    (forall n, (n <= length v2)%nat -> exists delta,
+    (forall n, (n < length v2)%nat -> exists delta,
       nth n u 0 = FT2R (nth n v1 neg_zero) * (1 + delta) /\ Rabs delta <= g t (length v2))  /\
     Rabs eta <= g1 t (length v2) (length v2).
 Proof.
@@ -332,12 +334,40 @@ rewrite <- rev_length in Hlen.
 pose proof fdot_prod_rel_fold_right t v1 v2 as H1.
 rewrite <- combine_rev in H1. 
 rewrite rev_length in Hlen.
-destruct (dotprod_mixed_error t (rev v1) (rev v2) Hlenr (dotprod t v1 v2) H1 Hfin) as 
+pose proof (dotprod_mixed_error t (rev v1) (rev v2) Hlenr (dotprod t v1 v2) H1 Hfin) as 
   (u & eta & H2 & H3 & H4 & H5).
 exists (rev u), eta; repeat split; auto.
 rewrite rev_length in H2; rewrite <- rev_length in H2; auto.
-assert (forall
-
+pose proof dotprodR_rel u (map FT2R (rev v2)).
+eapply R_dot_prod_rel_eq; eauto.
+rewrite <- dotprodR_rev, <- map_rev; auto.
+rewrite rev_length in H2; rewrite map_length; auto.
+rewrite !rev_length in H4. 
+intros. 
+assert ((length u - S n < length v2)%nat).
+{ rewrite rev_length in H2. 
+rewrite H2. 
+apply Nat.sub_lt; try lia.
+}
+specialize (H4 (length u - S n)%nat H6).
+rewrite rev_nth in H4.
+rewrite rev_nth.
+destruct H4 as (delta & Hn & HD).
+exists delta; split.
+rewrite Hn; repeat f_equal.
+rewrite rev_length in H2. 
+rewrite Hlen.
+rewrite H2. 
+rewrite <- Nat.sub_succ_l.
+simpl. lia.
+apply Arith_prebase.lt_le_S_stt; auto.
+apply HD.
+rewrite rev_length in H2. 
+rewrite H2; auto.
+rewrite Hlen; auto.
+rewrite !rev_length in H5; auto.
+rewrite rev_length in Hlen; auto.
+Qed.
 
 
 End NAN.
