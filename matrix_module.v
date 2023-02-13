@@ -120,8 +120,8 @@ Proof.
 move => f' A B C; apply banach_fixed_point => //.
 Qed.
 
-Definition lin2_mx {m' n' : nat} (f: 'cV[R]_n'.+1 -> 'cV[R]_m'.+1) : 'M[R]_(m'.+1, n'.+1) := 
-   \matrix[lin1_mx_key]_(j, i) f (delta_mx i 0) j 0.
+Definition lin2_mx {m' n' : nat} (f: 'cV[R]_n'.+1 -> 'cV[R]_m'.+1) : 
+  'M[R]_(m'.+1, n'.+1) := \matrix[lin1_mx_key]_(j, i) f (delta_mx i 0) j 0.
 
 Variable f : {linear 'cV[R]_n.+1 -> 'cV[R]_m.+1}.
 Variable g : {linear 'rV[R]_m.+1 -> 'rV[R]_n.+1}.
@@ -138,6 +138,13 @@ Axiom linear_fs : linear fs.
 
 Canonical fs' := Linear linear_fs.
 
+Lemma Banach_tests :
+  is_contraction fs' -> closed Sv -> (Sv !=set0)%classic ->
+        exists2 x:'cV_m.+1, Sv x & x = fs' x .
+Proof.
+move => A B C; apply banach_fixed_point => //.
+Qed.
+
 
 Lemma mul_cV_lin2'  (u : 'cV_m.+1): 
    lin2_mx fs *m u = fs' u.
@@ -146,9 +153,20 @@ by rewrite {2}[u]matrix_sum_delta linear_sum; apply/colP=> i;
 rewrite mxE summxE; apply eq_bigr => j _; rewrite big_ord1 linearZ !mxE mulrC.
 Qed.
 
+(* Search normr matrix_normedZmodType *)
+
+Lemma linear_exists (m' n' : nat) (A: 'M[R]_(m'.+1,n'.+1)) : 
+  exists f, forall u : 'cV_(n'.+1) , f u = A *m u /\ linear f.
+Proof. 
+Admitted.
+
 Lemma subMultNorm (A: 'M[R]_m.+1) (u : 'cV_m.+1) : 
   `| A *m u | <= `|A| * `|u|.
-Proof. Admitted.
+Proof.
+rewrite /normr /= !mx_normE.
+Search normr.
+Search BigOp.bigop normr.
+Admitted.
 
 Lemma mx_norm_is_klipschitz : 
   forall (k : R) (HBND: `|lin2_mx fs| <= k),   k.-lipschitz_Sv fs.
