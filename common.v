@@ -53,6 +53,14 @@ apply Rcomplements.Rlt_minus_l; field_simplify.
 apply default_rel_gt_0.
 Qed.
 
+Lemma default_rel_plus_1_gt_0 t :
+0 < 1 + default_rel t.
+Proof.
+eapply Rlt_trans with 1; [nra | ].
+apply default_rel_plus_1_gt_1.
+Qed.
+
+
 Lemma default_rel_plus_1_ge_1' t n:
 1 <= (1 + default_rel t) ^ n.
 Proof. 
@@ -213,12 +221,47 @@ rewrite Nat.add_comm.
 rewrite S_O_plus_INR. simpl; nra.
 Qed.
 
+Lemma mult_d_e_g1_le' t n m:
+(1 <= n )%nat -> (1 <= m)%nat ->
+g1 t n m * (1 + default_rel t)  + default_abs t <= g1 t (S n) (S m).
+Proof.
+intros; replace (S n) with (n + 1)%nat by lia.
+replace (S m) with (m + 1)%nat by lia.
+unfold g1, g; field_simplify.
+replace (INR (n + 1)) with (INR n + 1) by 
+  (rewrite Nat.add_comm; rewrite S_O_plus_INR; simpl; nra).
+replace (INR (m + 1)) with (INR m + 1) by
+  (rewrite Nat.add_comm; rewrite S_O_plus_INR; simpl; nra).
+rewrite !Rmult_plus_distr_l.
+rewrite !Rmult_1_r. replace
+(INR n * default_abs t * (1 + default_rel t) ^ m * default_rel t +
+INR n * default_abs t * (1 + default_rel t) ^ m) with
+(INR n * default_abs t * (1 + default_rel t) ^ m * (1 + default_rel t)) by nra.
+rewrite !Rmult_plus_distr_r.
+apply Rplus_le_compat.
+rewrite !Rmult_assoc.
+rewrite Rmult_comm.
+rewrite !Rmult_assoc.
+apply Rmult_le_compat_l. 
+apply default_abs_ge_0.
+rewrite <- !Rmult_assoc.
+rewrite Rmult_comm.
+apply Rmult_le_compat_l; [apply pos_INR| ].
+rewrite Rmult_comm.
+rewrite tech_pow_Rmult.
+replace (S m) with (m + 1)%nat by lia; nra.
+replace (default_abs t) with (default_abs t * 1) at 1 by nra.
+apply Rmult_le_compat_l; [apply  default_abs_ge_0 | ].
+apply default_rel_plus_1_ge_1'.
+Qed.
+
 Lemma plus_d_e_g1_le t n:
 (1 <= n )%nat ->
 g1 t n n + (1 + default_rel t) * default_abs t <= g1 t (S n) n.
 Proof.
 pose proof plus_d_e_g1_le' t n n; auto.
 Qed. 
+
 
 Lemma plus_e_g1_le t n:
 g1 t n n + default_abs t <= g1 t (S n) n.
@@ -238,6 +281,59 @@ apply Rplus_le_compat; try nra.
 apply Rmult_le_pos.
 apply default_abs_ge_0.
 apply g_pos.
+rewrite Nat.add_comm. 
+rewrite S_O_plus_INR. simpl; nra. 
+Qed.
+
+Lemma g1n_le_g1Sn t n:
+(1 <= n )%nat ->
+g1 t n (n - 1) <= g1 t (S n) (S (n - 1)).
+Proof.
+intros;
+replace (S n) with (n + 1)%nat by lia.
+unfold g1; field_simplify.
+replace (INR (n + 1)) with (INR n + 1).
+rewrite !Rmult_plus_distr_l.
+rewrite !Rmult_1_r. 
+apply Rplus_le_compat.
+apply Rmult_le_compat; [
+apply Rmult_le_pos; [apply pos_INR | apply default_abs_ge_0 ] | 
+  apply g_pos | | ].
+rewrite Rplus_comm;
+apply Rcomplements.Rle_minus_l; field_simplify; apply default_abs_ge_0.
+replace ((n + 1 - 1))%nat with (S (n-1))%nat by lia.
+apply le_g_Sn. 
+rewrite Rplus_comm;
+apply Rcomplements.Rle_minus_l; field_simplify; apply default_abs_ge_0.
+rewrite Nat.add_comm. 
+rewrite S_O_plus_INR. simpl; nra. 
+Qed.
+
+Lemma Rplus_le_lt_compat a1 a2 b1 b2 :
+ a1 <= a2 -> b1 < b2 ->  a1 + b1 < a2 + b2.
+Proof.  nra. Qed.
+
+Lemma g1n_lt_g1Sn t n:
+(1 <= n )%nat ->
+g1 t n (n - 1) < g1 t (S n) (S (n - 1)).
+Proof.
+intros;
+replace (S n) with (n + 1)%nat by lia.
+unfold g1; field_simplify.
+replace (INR (n + 1)) with (INR n + 1).
+rewrite !Rmult_plus_distr_l.
+rewrite !Rmult_1_r.
+assert (INR n * default_abs t < default_abs t * INR n + default_abs t).
+{ apply Rle_lt_trans with (INR n * default_abs t + 0) ; try nra.
+apply Rplus_le_lt_compat; try nra.
+apply default_abs_gt_0. }
+apply Rplus_le_lt_compat; try nra.
+apply Rmult_le_compat; [
+apply Rmult_le_pos; [apply pos_INR | apply default_abs_ge_0 ] | 
+  apply g_pos | | ].
+rewrite Rplus_comm;
+apply Rcomplements.Rle_minus_l; field_simplify; apply default_abs_ge_0.
+apply le_g_Sn.
 rewrite Nat.add_comm. 
 rewrite S_O_plus_INR. simpl; nra. 
 Qed.
