@@ -9,3 +9,5 @@ sum_acc.v
 dot_acc.v
 fma_dot_acc.v
 fma_is_finite.v
+gem_defs.v
+gemv_acc.v
