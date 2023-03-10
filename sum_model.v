@@ -292,7 +292,7 @@ fold sum_rel_R. simpl in IHl; auto.
 Qed.
 
 
-Definition sum_rel_Ft {NAN: Nans} (t: type) := @sum_rel (ftype t) neg_zero (BPLUS t).
+Definition sum_rel_Ft {NAN: Nans} (t: type) := @sum_rel (ftype t) neg_zero (BPLUS ).
 
 Lemma sum_rel_Ft_single {NAN: Nans} t fs a:
 Binary.is_finite _ _ fs = true ->
@@ -366,7 +366,7 @@ Qed.
 
 
 Lemma sum_rel_Ft_fold {NAN: Nans} : forall t l fs, 
-   sum_rel_Ft t l fs -> fs = fold_right (BPLUS t) neg_zero l.
+   sum_rel_Ft t l fs -> fs = fold_right (BPLUS ) neg_zero l.
 Proof. 
 induction l.
 intros; inversion H; simpl; auto.
