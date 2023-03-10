@@ -301,7 +301,6 @@ apply Rmult_le_pos; [apply pos_INR | apply default_abs_ge_0 ] |
   apply g_pos | | ].
 rewrite Rplus_comm;
 apply Rcomplements.Rle_minus_l; field_simplify; apply default_abs_ge_0.
-replace ((n + 1 - 1))%nat with (S (n-1))%nat by lia.
 apply le_g_Sn. 
 rewrite Rplus_comm;
 apply Rcomplements.Rle_minus_l; field_simplify; apply default_abs_ge_0.
