@@ -6,7 +6,7 @@ Require Import vcfloat.VCFloat.
 Require Import List.
 Import ListNotations.
 Require Import common op_defs dotprod_model sum_model.
-Require Import dot_acc float_acc_lems list_lemmas gemv_defs.
+Require Import dot_acc float_acc_lems list_lemmas gem_defs.
 
 Require Import Reals.
 Open Scope R.
@@ -41,7 +41,7 @@ assert (Hlen': length a = length v).
 { apply Hlen; simpl; auto. }
 assert (Hfin' : Binary.is_finite (fprec t) (femax t) (dotprod t a v) = true).
 { unfold is_finite_vec in *; apply Hfin; simpl; auto. }
-destruct (dotprod_mixed_error' NAN t a v Hlen' Hfin') as (u & ueta & X & Y & Z1 & Z2).
+destruct (dotprod_mixed_error' a v Hlen' Hfin') as (u & ueta & X & Y & Z1 & Z2).
 set (A':= (map FT2R a :: map_mat FT2R A) : matrix).
 assert (Ha: (length u = length (map FT2R a))).
 { rewrite X, map_length; auto. }
