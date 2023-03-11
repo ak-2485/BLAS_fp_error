@@ -5,24 +5,28 @@ Require Import vcfloat.VCFloat.
 Require Import common op_defs.
 
 Section NAN.
+Context {t : type}.
 
-Lemma neg_zero_is_finite t:
+Lemma neg_zero_is_finite:
 Binary.is_finite (fprec t) (femax t) neg_zero = true.
 Proof. simpl; auto. Qed.
 
-Definition fma_no_overflow (t: type) (x y z: R) : Prop :=
+Definition fma_no_overflow (x y z: R) : Prop :=
   (Rabs (rounded t  (x * y + z)) < Raux.bpow Zaux.radix2 (femax t))%R.
 
-Definition Bmult_no_overflow (t: type) (x y: R) : Prop :=
+Definition Bmult_no_overflow (x y: R) : Prop :=
   (Rabs (rounded t  (x * y)) < Raux.bpow Zaux.radix2 (femax t))%R.
 
 
+Notation D := (@default_rel t).
+Notation E := (@default_abs t).
+
 Lemma generic_round_property:
-  forall (t: type) (x: R),
+  forall (x: R),
 exists delta epsilon : R,
    delta * epsilon = 0 /\
-  (Rabs delta <= default_rel t)%R /\
-  (Rabs epsilon <= default_abs t)%R /\
+  (Rabs delta <= D)%R /\
+  (Rabs epsilon <= E)%R /\
    Generic_fmt.round Zaux.radix2
               (SpecFloat.fexp (fprec t) (femax t))
               (BinarySingleNaN.round_mode BinarySingleNaN.mode_NE)
@@ -33,7 +37,7 @@ destruct (Relative.error_N_FLT Zaux.radix2 (SpecFloat.emin (fprec t) (femax t)) 
              (fprec_gt_0 t) (fun x0 : Z => negb (Z.even x0)) x)
   as [delta [epsilon [? [? [? ?]]]]].
 exists delta, epsilon.
-split; [ | split]; auto.
+repeat split; auto.
 Qed.
 
 Lemma fma_accurate {NAN: Nans} : 
