@@ -13,17 +13,19 @@ Open Scope R.
 Require Import Sorting Permutation.
 
 
-Section NAN.
-Variable NAN: Nans.
+Section Error.
+Variable (NAN: Nans) (t: type).
+Notation g := (@g t).
+Notation D := (@default_rel t).
 
 Lemma sum_forward_error :
-  forall (t: type) (l: list (ftype t))
+  forall (l: list (ftype t))
   (fs : ftype t) (rs rs_abs : R)
   (Hfs: sum_rel_Ft t l fs)
   (Hrs: sum_rel_R (map FT2R l) rs)
   (Hra: sum_rel_R (map Rabs (map FT2R l)) rs_abs)
   (Hfin: Binary.is_finite (fprec t) (femax t) fs = true),
-  Rabs (rs - FT2R fs) <= g t (length l -1) * rs_abs.
+  Rabs (rs - FT2R fs) <= g (length l -1) * rs_abs.
 Proof.
 induction l.
 { intros; unfold g; inversion Hfs; inversion Hrs; subst; simpl;
@@ -51,9 +53,9 @@ destruct (BPLUS_finite_e _ _ Hfin) as (A & B).
 specialize (IHl s s0 s1 H3 H7 H11 B).
 (* accuracy rewrites *)
 assert (Hov: Bplus_no_overflow t (FT2R a) (FT2R s)).
-{ unfold Bplus_no_overflow. pose proof is_finite_sum_no_overflow t.
+{ unfold Bplus_no_overflow. pose proof @is_finite_sum_no_overflow t.
   simpl in H0; unfold rounded in H0; eapply H0; auto. }
-destruct (BPLUS_accurate t a A s B Hov) as (d' & Hd'& Hplus); 
+destruct (BPLUS_accurate  a A s B Hov) as (d' & Hd'& Hplus); 
 rewrite Hplus; clear Hplus Hov.
 (* algebra *)
 field_simplify_Rabs.
@@ -70,8 +72,8 @@ eapply Rle_trans;
   eapply Rle_trans; [apply Rabs_triang | apply Rplus_le_compat_r].
   rewrite Rabs_minus_sym in IHl; apply Rabs_le_minus in IHl. apply IHl.
 rewrite !Rmult_plus_distr_l; rewrite <- !Rplus_assoc.
-replace (g t (length l - 1) * s1 + default_rel t * (g t (length l - 1) * s1)) with
-  ((1+ default_rel t) * g t (length l - 1) * s1) by nra.
+replace (g (length l - 1) * s1 + @D * (g (length l - 1) * s1)) with
+  ((1+ @D) * g (length l - 1) * s1) by nra.
 eapply Rle_trans; [apply Rplus_le_compat_r; 
   apply Rplus_le_compat_l; apply Rmult_le_compat_l; try apply Rabs_pos|].
 apply default_rel_ge_0.
@@ -89,7 +91,7 @@ rewrite Nat.sub_add; auto.
 Qed.
 
 Lemma sum_backward_error :
-  forall (t: type) (l: list (ftype t))
+  forall (l: list (ftype t))
   (fs : ftype t)
   (Hfs: sum_rel_Ft t l fs)
   (Hfin: Binary.is_finite (fprec t) (femax t) fs = true),
@@ -97,9 +99,9 @@ Lemma sum_backward_error :
     length l' = length l /\
     sum_rel_R l' (FT2R fs) /\
     (forall n, (n <= length l')%nat -> exists delta, 
-        nth n l' 0 = FT2R (nth n l neg_zero) * (1 + delta) /\ Rabs delta <= g t (length l' - 1)).
+        nth n l' 0 = FT2R (nth n l neg_zero) * (1 + delta) /\ Rabs delta <= g (length l' - 1)).
 Proof.
-intros ? ?. induction l.
+induction l.
 { intros; exists []; repeat split; auto. 
   inversion Hfs; subst; simpl. apply sum_rel_nil.
   intros. simpl in H; assert (n = 0)%nat by lia; subst.
@@ -131,9 +133,9 @@ specialize (IHl s H3 B).
 destruct IHl as (l' & Hlen' & Hsum & Hdel).
 (* construct l'0 *)
 assert (Hov: Bplus_no_overflow t (FT2R a) (FT2R s)).
-{ unfold Bplus_no_overflow. pose proof is_finite_sum_no_overflow t.
+{ unfold Bplus_no_overflow. pose proof @is_finite_sum_no_overflow t.
   simpl in H0; unfold rounded in H0; eapply H0; auto. }
-pose proof (BPLUS_accurate t a A s B Hov) as Hplus.
+pose proof (BPLUS_accurate a A s B Hov) as Hplus.
 destruct Hplus as (d' & Hd'& Hplus).
 exists (FT2R a * (1+d') :: map (Rmult (1+d')) l'); repeat split.
 { simpl; auto. rewrite map_length; auto. }
@@ -159,16 +161,15 @@ apply Rmult_le_compat; try apply Rabs_pos.
 apply Fourier_util.Rle_zero_pos_plus1; try apply Rabs_pos.
 apply Rplus_le_compat_l; apply Hd'.
 apply Hd2. apply Hd'.
-replace ((1 + default_rel t) * g t (length l' - 1) + default_rel t) with
-((1 + default_rel t) * g t (length l' - 1) * 1 + default_rel t * 1) by nra.
+replace ((1 + D) * g (length l' - 1) + D) with
+((1 + D) * g (length l' - 1) * 1 + D * 1) by nra.
 rewrite one_plus_d_mul_g; apply Req_le; rewrite Rmult_1_r. f_equal; lia.
 Qed.
-
 
 (* if the forward error of the floating-point dot product of a list respects a bound, then
   the forward error of a permutation of  that list respects the same bound *)
 Lemma sum_forward_error_permute :
-  forall (t: type) (l l0: list (ftype t))
+  forall (l l0: list (ftype t))
   (Hper: Permutation l l0)
   (fs fs0: ftype t) (rs rs_abs: R)
   (Hfs: sum_rel_Ft t l fs)
@@ -177,7 +178,7 @@ Lemma sum_forward_error_permute :
   (Hra: sum_rel_R (map Rabs (map FT2R l)) rs_abs)
   (Hfin: Binary.is_finite (fprec t) (femax t) fs = true)
   (Hfin0: Binary.is_finite (fprec t) (femax t) fs0 = true),
-  Rabs (rs - FT2R fs0) <= g t (length l0 -1) * rs_abs.
+  Rabs (rs - FT2R fs0) <= g (length l0 -1) * rs_abs.
 Proof.
 intros.
 apply sum_forward_error; auto.
@@ -187,5 +188,4 @@ repeat apply Permutation_map; auto.
 auto.
 Qed.
 
-
-End NAN.
+End Error.

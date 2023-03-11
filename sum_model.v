@@ -337,8 +337,8 @@ Qed.
 Lemma is_finite_in {NAN: Nans} (t : type) :
   forall (l : list (ftype t)) fs,
   sum_rel_Ft t l fs ->
-  let e  := default_abs t in
-  let d  := default_rel t in 
+  let e  := @default_abs t in
+  let d  := @default_rel t in 
   let ov := powerRZ 2 (femax t) in
   Binary.is_finite (fprec t) (femax t) fs = true ->
   forall a, In a l -> Binary.is_finite (fprec t) (femax t) a = true.
