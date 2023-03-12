@@ -2,7 +2,7 @@
   the dot product of two floating point lists; the functional model for
   the vanilla dot product is defined in dotprod_model.v.*)
 
-Require Import vcfloat.VCFloat.
+Require Import vcfloat.VCFloat vcfloat.IEEE754_extra.
 Require Import List.
 Import ListNotations.
 Require Import common dotprod_model float_acc_lems op_defs list_lemmas.
@@ -396,37 +396,58 @@ Context {NAN: Nans} {t : type}.
 Variables (v1 : list (ftype t)).
 Notation v1R := (map FT2R v1).
 
-Notation nnz := (length v1 - @count_occ R Req_EM_T v1R 0%R)%nat.
+Notation Beq_dec_t := (@Beq_dec (fprec t) (femax t)).
+Notation pos_zero := (Binary.B754_zero (fprec t) (femax t) false).
+Definition nnz := (length v1 - @count_occ (ftype t) Beq_dec_t v1 pos_zero)%nat.
 
-Lemma nnz_lemma : nnz = 0%nat -> forall x, In x v1R -> x = 0.
+Lemma nnz_lemma : nnz = 0%nat -> forall x, In x v1 -> x = pos_zero.
 Proof.
-intros.
+unfold nnz; 
 induction v1;
-try contradiction. 
+try contradiction.
+intros;
 destruct H0.
-{ subst. pose proof count_occ_unique Req_EM_T 0%R (map FT2R (a :: l)). 
-eapply repeat_spec.
-rewrite <- H0; [ simpl; auto | ].
-assert (0 + count_occ Req_EM_T (map FT2R (a :: l)) 0%R = length (a :: l))%nat.
+{ subst. pose proof count_occ_unique Beq_dec_t pos_zero (x::l).
+eapply (repeat_spec (length (x :: l))).
+match goal with |- context [In x ?a] =>
+replace a with (x::l)
+end; simpl; auto.
+apply H0. 
+assert (0 + count_occ Beq_dec_t (x :: l) pos_zero  = length (x :: l))%nat.
 {
 rewrite <- H.
 rewrite Nat.sub_add; try lia.
-rewrite <- (map_length FT2R). 
 apply count_occ_bound.
 }
-rewrite map_length;
-lia. }
-eapply repeat_spec.
-pose proof count_occ_unique Req_EM_T 0%R (map FT2R (a :: l)). 
-rewrite <- H1; [ simpl; auto | ].
-rewrite map_length. 
-assert (0 + count_occ Req_EM_T (map FT2R (a :: l)) 0%R = length (a :: l))%nat.
+simpl in H1.
+simpl; auto.
+}
+apply IHl; auto.
+assert (0 + count_occ Beq_dec_t (a :: l) pos_zero  = length (a :: l))%nat.
 {
 rewrite <- H.
 rewrite Nat.sub_add; try lia.
-rewrite <- (map_length FT2R). 
 apply count_occ_bound.
-} lia.
+}
+assert ( a::l = repeat pos_zero (length ((a::l)))).
+eapply (count_occ_unique Beq_dec_t).
+simpl in H1.
+simpl; auto.
+simpl in H2.
+rewrite count_occ_cons_eq in H; auto.
+inversion H2. auto.
+Qed.
+
+Lemma nnz_lemma_R : nnz = 0%nat -> forall x, In x v1R -> x = 0.
+Proof.
+intros H x Hin.
+pose proof nnz_lemma H.
+destruct (@Coqlib.list_in_map_inv (ftype t) R FT2R v1 x Hin) 
+  as (x' & Hx' &Hx'').
+specialize (H0 x' Hx'').
+rewrite H0 in Hx'.
+subst.
+simpl; nra.
 Qed.
 
 Variables (v2 : list (ftype t)).
@@ -435,44 +456,102 @@ Variable (fp : ftype t).
 Hypothesis Hfp : dot_prod_rel (combine v1 v2) fp.
 Hypothesis Hfin: Binary.is_finite (fprec t) (femax t) fp = true.
 
+Lemma dot_prod_rel_nnz :
+nnz = 0%nat -> FT2R fp = 0.
+Proof.
+intros.
+pose proof nnz_lemma H.
+revert H0 H Hfp Hlen Hfin. revert v2 fp.
+induction v1; intros.
+simpl in *; inversion Hfp; auto.
+destruct v2; try discriminate; auto.
+inversion Hfp; subst.
+unfold fst, snd.
+assert (Hin: forall x : ftype t, In x l -> x = pos_zero).
+{ intros. apply H0; simpl; auto. }
+assert (Hlen1:  length l = length l0) by (simpl; auto).
+assert (HFIN: Binary.is_finite (fprec t) (femax t) s = true).
+{ simpl in Hfin. destruct (BMULT a f); destruct s;
+  destruct s0; try discriminate; simpl in *; auto; 
+  destruct s; try discriminate; auto.
+}
+specialize (IHl l0 s Hin H H4 Hlen1 HFIN).
+destruct (@BPLUS_accurate' t NAN (BMULT a f) s Hfin)
+  as (d & _ & Hacc).
+rewrite Hacc; clear Hacc.
+rewrite IHl.
+specialize (H0 a).
+rewrite H0; [|simpl;auto].
+destruct a; destruct f; simpl in *; try discriminate ; try nra.
+Qed.
+
 Variable (rp rp_abs : R).
 Hypothesis Hrp  : R_dot_prod_rel (map FR2 (combine v1 v2)) rp.
 Hypothesis Hra : R_dot_prod_rel (map Rabsp (map FR2 (combine v1 v2))) rp_abs.
+
+Lemma R_dot_prod_rel_nnz :
+nnz = 0%nat -> rp = 0.
+Proof.
+intros H.
+clear Hfin Hfp fp Hra rp_abs.
+pose proof nnz_lemma_R H.
+revert H0 H Hrp  Hlen. revert v2 rp.
+induction v1; intros.
+simpl in *; inversion Hrp; auto.
+destruct v2; try discriminate; auto.
+inversion Hrp; subst.
+unfold FR2, fst, snd.
+assert (Hin: forall x : R, In x (map FT2R l) -> x = 0).
+{ intros. apply H0; simpl; auto. }
+assert (Hlen1:  length l = length l0) by (simpl; auto).
+specialize (IHl l0 s Hin H H4 Hlen1).
+rewrite IHl.
+specialize (H0 (FT2R a)).
+rewrite H0; [|simpl;auto]; nra.
+Qed.
 
 Notation g := (@g t).
 Notation g1 := (@g1 t).
 
 Lemma sparse_dotprod_forward_error:
   Rabs (FT2R fp - rp) <=  g nnz * Rabs rp_abs + g1 nnz (nnz - 1).
+
 Proof.
-pose proof nnz_lemma.
+revert Hlen Hfp Hfin Hrp Hra.
+revert rp rp_abs fp v2.
+induction v1; intros.
+{ simpl in Hlen; symmetry in Hlen; apply length_zero_iff_nil in Hlen; subst. 
+inversion Hfp; inversion Hrp; subst; simpl; field_simplify_Rabs. 
+  rewrite Rabs_R0. 
+  apply Rplus_le_le_0_compat; auto with commonDB.
+  apply Rmult_le_pos;  auto with commonDB.
+  apply Rabs_pos. }
+destruct v2; try discriminate.
+inversion Hfp; inversion Hrp; subst. 
+
+
 induction nnz.
-{ unfold g. }
-intros.
-assert (n = 0%nat \/ (1 <= n)%nat) as H by lia; destruct H.
-{ subst; simpl. unfold g. 
+{ intros; rewrite H, H0; auto.
+  field_simplify; field_simplify_Rabs.
+  rewrite Rabs_R0. 
+  apply Rplus_le_le_0_compat; auto with commonDB.
+  apply Rmult_le_pos;  auto with commonDB.
+  apply Rabs_pos. } 
+clear H H0.
+assert (n = 0%nat \/ (1 <= n)%nat) as Hn by lia; destruct Hn.
+
 eapply Rle_trans. apply IHn.
+subst. unfold g1, g. simpl; field_simplify;
+  apply Rplus_le_le_0_compat; auto with commonDB;
+  apply Rmult_le_pos;  auto with commonDB; apply Rabs_pos.
 apply Rplus_le_compat.
-apply Rmult_le_compat.
-admit. admit. unfold g. admit. admit.
-unfold g1.
-simpl. field_simplify.
-apply Rplus_le_le_0_compat.
-apply Rmult_le_pos. admit. admit. admit.
-}
-eapply Rle_trans. apply IHn.
-apply Rplus_le_compat.
-apply Rmult_le_compat.
-apply g_pos.
-apply Rabs_pos.
-apply le_g_Sn.
+apply Rmult_le_compat;  auto with commonDB. apply Rabs_pos.
 apply Rle_refl.
 eapply Rle_trans.
 apply g1n_le_g1Sn; try lia. 
 unfold g1, g.
-repeat (rewrite Nat.sub_succ_l; try nra).
+repeat (rewrite Nat.sub_succ_l; try nra);
 auto.
 Admitted.
-
 
 End SparseError.
