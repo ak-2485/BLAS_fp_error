@@ -19,14 +19,14 @@ Global Hint Resolve
 Section NonZeros.
 Context {NAN: Nans} {t : type}.
 
-Definition nnz l := (length l - @count_occ (ftype t) Beq_dec_t l pos_zero)%nat.
+Definition nnz l := (length l - @count_occ (ftype t) Beq_dec_t l neg_zero)%nat.
 
 Lemma nnz_zero l :
 nnz l = 0%nat ->
-(length l = @count_occ (ftype t) Beq_dec_t l pos_zero)%nat.
+(length l = @count_occ (ftype t) Beq_dec_t l neg_zero)%nat.
 Proof.
 unfold nnz. intros.
-assert (0 + @count_occ (ftype t) (@Beq_dec_t t) l (@pos_zero t)  = @length (ftype t) l)%nat.
+assert (0 + @count_occ (ftype t) (@Beq_dec_t t) l (@neg_zero t)  = @length (ftype t) l)%nat.
 { rewrite <- H.
 rewrite Nat.sub_add; try lia.
 apply count_occ_bound.
@@ -35,14 +35,14 @@ simpl; auto.
 Qed.
 
 
-Lemma nnz_lemma v1 : nnz v1 = 0%nat -> forall x, In x v1 -> x = pos_zero.
+Lemma nnz_lemma v1 : nnz v1 = 0%nat -> forall x, In x v1 -> x = neg_zero.
 Proof.
 unfold nnz; 
 induction v1;
 try contradiction.
 intros;
 destruct H0.
-{ subst. pose proof count_occ_unique Beq_dec_t pos_zero (x::v1).
+{ subst. pose proof count_occ_unique Beq_dec_t neg_zero (x::v1).
 eapply (repeat_spec (length (x :: v1))).
 match goal with |- context [In x ?a] =>
 replace a with (x::v1)
@@ -50,13 +50,13 @@ end; simpl; auto.
 apply H0. symmetry.
 apply nnz_zero. simpl; auto. }
 apply IHv1; auto.
-assert (0 + count_occ Beq_dec_t (a :: v1) pos_zero  = length (a :: v1))%nat.
+assert (0 + count_occ Beq_dec_t (a :: v1) neg_zero  = length (a :: v1))%nat.
 {
 rewrite <- H.
 rewrite Nat.sub_add; try lia.
 apply count_occ_bound.
 }
-assert ( a::v1 = repeat pos_zero (length ((a::v1)))).
+assert ( a::v1 = repeat neg_zero (length ((a::v1)))).
 eapply (count_occ_unique Beq_dec_t).
 simpl in H1.
 simpl; auto.
@@ -81,7 +81,7 @@ Lemma nnz_cons a l :  nnz (a::l) = 0%nat -> nnz l = 0%nat.
 Proof.
 intros H.
 apply nnz_zero in H; symmetry in H.
-pose proof  (@count_occ_unique (ftype t) Beq_dec_t) pos_zero (a::l) H.
+pose proof  (@count_occ_unique (ftype t) Beq_dec_t) neg_zero (a::l) H.
 unfold nnz. 
 simpl in H0.
 inversion H0.

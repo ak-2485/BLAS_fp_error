@@ -7,6 +7,34 @@ Require Import common op_defs.
 Section GenFloat.
 Context {t : type}.
 
+Lemma Bmult_neg_zero {NAN: Nans} f :
+Binary.is_finite (fprec t) (femax t) (BMULT neg_zero f) = true ->
+(BMULT neg_zero f) = neg_zero \/ (BMULT neg_zero f) = pos_zero.
+Proof. intros; destruct f; simpl; try discriminate;
+destruct s; simpl; auto.
+Qed.
+
+Lemma Bmult_pos_zero {NAN: Nans} f :
+Binary.is_finite (fprec t) (femax t) (BMULT pos_zero f) = true ->
+(BMULT neg_zero f) = neg_zero \/ (BMULT neg_zero f) = pos_zero.
+Proof. intros; destruct f; simpl; try discriminate;
+destruct s; simpl; auto.
+Qed.
+
+Lemma Bplus_neg_zero_r {NAN: Nans} f :
+Binary.is_finite (fprec t) (femax t) (BPLUS f neg_zero) = true ->
+(BPLUS f neg_zero) = f.
+Proof. intros; destruct f; simpl; try discriminate;
+destruct s; simpl; auto.
+Qed.
+
+Lemma Bplus_neg_zero_l {NAN: Nans} f :
+Binary.is_finite (fprec t) (femax t) (BPLUS f neg_zero) = true ->
+(BPLUS neg_zero f) = f.
+Proof. intros; destruct f; simpl; try discriminate;
+destruct s; simpl; auto.
+Qed.
+
 Lemma neg_zero_is_finite:
 Binary.is_finite (fprec t) (femax t) neg_zero = true.
 Proof. simpl; auto. Qed.

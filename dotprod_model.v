@@ -14,11 +14,11 @@ Context {NAN : Nans} {t : type}.
 (* vanilla dot-product *)
 Definition dotprod (v1 v2: list (ftype t)) : ftype t :=
   fold_left (fun s x12 => BPLUS (BMULT (fst x12) (snd x12)) s) 
-                (List.combine v1 v2) (Zconst t 0).
+                (List.combine v1 v2) neg_zero.
 
 Inductive dot_prod_rel : 
             list (ftype t * ftype t) -> ftype t -> Prop :=
-| dot_prod_rel_nil  : dot_prod_rel  nil (Zconst t 0)
+| dot_prod_rel_nil  : dot_prod_rel  nil neg_zero
 | dot_prod_rel_cons : forall l (xy : ftype t * ftype t) s,
     dot_prod_rel  l s ->
     dot_prod_rel  (xy::l) (BPLUS (BMULT  (fst xy) (snd xy)) s).
@@ -368,7 +368,7 @@ simpl in *; inversion Hfp; auto.
 destruct v2; try discriminate; auto.
 inversion Hfp; subst.
 unfold fst, snd.
-assert (Hin: forall x : ftype t, In x l -> x = pos_zero).
+assert (Hin: forall x : ftype t, In x l -> x = neg_zero).
 { intros. apply H0; simpl; auto. }
 assert (Hlen1:  length l = length l0) by (simpl; auto).
 assert (HFIN: Binary.is_finite (fprec t) (femax t) s = true).
@@ -385,6 +385,67 @@ rewrite IHl.
 specialize (H0 a).
 rewrite H0; [|simpl;auto].
 destruct a; destruct f; simpl in *; try discriminate ; try nra.
+Qed.
+
+Lemma dot_prod_rel_nnz' :
+nnz v1 = 0%nat -> fp = neg_zero.
+Proof.
+intros.
+pose proof nnz_lemma v1 H.
+revert H0 H Hfp Hlen Hfin. revert v2 fp.
+induction v1; intros.
+{ 
+simpl in *; inversion Hfp; simpl; auto. }  
+destruct v2; try discriminate; auto.
+inversion Hfp; subst.
+unfold fst, snd.
+assert (Hin: forall x : ftype t, In x l -> x = neg_zero).
+{ intros. apply H0; simpl; auto. }
+assert (Hlen1:  length l = length l0) by (simpl; auto).
+assert (HFIN: Binary.is_finite (fprec t) (femax t) s = true).
+{ simpl in Hfin. destruct (BMULT a f); destruct s;
+  destruct s0; try discriminate; simpl in *; auto; 
+  destruct s; try discriminate; auto.
+}
+pose proof nnz_cons a l H as H1.
+specialize (IHl l0 s Hin H1 H4 Hlen1 HFIN).
+rewrite IHl.
+specialize (H0 a); rewrite H0 in *; try (simpl; auto).
+simpl in Hfin.
+assert (HFIN': Binary.is_finite (fprec t) (femax t) (BMULT neg_zero f) = true).
+{ destruct f; simpl in *; try discriminate; auto. } 
+rewrite BPLUS_neg_zero.
+pose proof Bmult_neg_zero f HFIN' as H2; destruct H2; rewrite H2; simpl; auto.
+Qed.
+
+Lemma dot_prod_rel_nnz' :
+nnz v1 = 0%nat -> fp = pos_zero.
+Proof.
+intros.
+pose proof nnz_lemma v1 H.
+revert H0 H Hfp Hlen Hfin. revert v2 fp.
+induction v1; intros.
+{ 
+simpl in *; inversion Hfp; simpl; auto. }  
+destruct v2; try discriminate; auto.
+inversion Hfp; subst.
+unfold fst, snd.
+assert (Hin: forall x : ftype t, In x l -> x = neg_zero).
+{ intros. apply H0; simpl; auto. }
+assert (Hlen1:  length l = length l0) by (simpl; auto).
+assert (HFIN: Binary.is_finite (fprec t) (femax t) s = true).
+{ simpl in Hfin. destruct (BMULT a f); destruct s;
+  destruct s0; try discriminate; simpl in *; auto; 
+  destruct s; try discriminate; auto.
+}
+pose proof nnz_cons a l H as H1.
+specialize (IHl l0 s Hin H1 H4 Hlen1 HFIN).
+rewrite IHl.
+specialize (H0 a); rewrite H0 in *; try (simpl; auto).
+simpl in Hfin.
+assert (HFIN': Binary.is_finite (fprec t) (femax t) (BMULT neg_zero f) = true).
+{ destruct f; simpl in *; try discriminate; auto. } 
+pose proof Bmult_neg_zero f HFIN' as H2; destruct H2; rewrite H2; simpl; auto.
 Qed.
 
 Variable (rp rp_abs : R).
