@@ -549,7 +549,22 @@ inversion Hfp; inversion Hrp; subst; simpl; field_simplify_Rabs.
   apply Rplus_le_le_0_compat; auto with commonDB.
   apply Rmult_le_pos;  auto with commonDB.
   apply Rabs_pos. }
+
+
 destruct v2; try discriminate.
+
+set (n2:= (length l - @count_occ (ftype t) Beq_dec_t l pos_zero)%nat) in *.
+rewrite !count_occ_cons_neq; auto.
+set (n1:= (length (a :: l) - @count_occ (ftype t) Beq_dec_t l pos_zero)%nat).
+assert (n1 = S n2).
+{ unfold n1, n2. pose proof @count_occ_bound (ftype t) Beq_dec_t pos_zero l.
+simpl. destruct (@count_occ (ftype t) Beq_dec_t l pos_zero); try lia. }
+
+
+assert ((n2 = 0)%nat \/ (1<=n2)%nat) by lia.
+destruct H0.
+{ rewrite H0 in *. rewrite H.
+
 inversion Hfp; inversion Hrp;  inversion Hra; subst.
 unfold FR2, Rabsp, fst, snd. 
 assert (Hlen1:  length l = length l0) by (simpl; auto).
@@ -560,28 +575,58 @@ assert (HFIN: Binary.is_finite (fprec t) (femax t) s = true).
 assert (HFIN2: Binary.is_finite (fprec t) (femax t) (BMULT a f) = true).
 { simpl in Hfin. destruct (BMULT a f); destruct s;
    try discriminate; simpl in *; auto. } 
-specialize (IHl s0 s1 s l0 Hlen1 H2 HFIN H6 H10). 
+
+
+specialize (IHl s0 s1 s l0 Hlen1 H4 HFIN H8 H12). 
 simpl in Hfin.
 destruct (Beq_dec_t a pos_zero); subst.
-pose proof Bmult_pos_zero f HFIN2 as H; auto .
-destruct H; rewrite H in *.
+pose proof Bmult_pos_zero f HFIN2 as HP; auto .
+destruct HP. rewrite H1 in *.
 { simpl; rewrite Rabs_R0; rewrite !Rmult_0_l; rewrite !Rplus_0_l. 
-rewrite Bplus_pos_zero; auto. }
+rewrite Bplus_pos_zero; auto.
+eapply Rle_trans. apply IHl.
+apply Rplus_le_compat.
+apply Rmult_le_compat; auto with commonDB.
+apply Rabs_pos.
+apply Rle_refl.
+simpl.
+apply Rmult_le_compat. simpl; nra. 
+auto with commonDB.
+apply Fourier_util.Rle_zero_pos_plus1; try nra; auto with commonDB.
+apply Rmult_le_compat. simpl; nra. auto with commonDB.
+simpl; nra.
+nra.
+nra. }
 { simpl; rewrite Rabs_R0; rewrite !Rmult_0_l; rewrite !Rplus_0_l. 
-rewrite Bplus_neg_zero; auto. }
+rewrite H1.
+rewrite Bplus_neg_zero; auto. 
+eapply Rle_trans. apply IHl.
+apply Rplus_le_compat.
+apply Rmult_le_compat; auto with commonDB.
+apply Rabs_pos.
+apply Rle_refl.
+simpl.
+apply Rmult_le_compat. simpl; nra. 
+auto with commonDB.
+apply Fourier_util.Rle_zero_pos_plus1; try nra; auto with commonDB.
+apply Rmult_le_compat. simpl; nra. auto with commonDB.
+simpl; nra.
+nra.
+nra.
+rewrite H1 in Hfin; auto.
+}
+
+unfold g1, g in IHl. simpl in IHl.
+field_simplify in IHl.
+(* in this case a is only nonzero element; use this fact *)
 destruct (@BPLUS_accurate' t NAN (BMULT a f) s Hfin)
   as (d' & Hd' & Hacc).
 rewrite Hacc; clear Hacc.
 destruct (@BMULT_accurate' t NAN a f HFIN2)
   as (d & e & Hed & Hd & He & Hacc).
-rewrite Hacc; clear Hacc.
+rewrite Hacc; clear Hacc. 
+simpl.
 
-rewrite !count_occ_cons_neq; auto.
-set (n1:= (length (a :: l) - @count_occ (ftype t) Beq_dec_t l pos_zero)%nat).
-set (n2:= (length l - @count_occ (ftype t) Beq_dec_t l pos_zero)%nat).
-assert (n1 = S n2).
-{ unfold n1, n2. pose proof @count_occ_bound (ftype t) Beq_dec_t pos_zero l.
-simpl. destruct (@count_occ (ftype t) Beq_dec_t l pos_zero); try lia. }
 
 set (F:= FT2R a * FT2R f ).
 field_simplify_Rabs.
@@ -602,23 +647,42 @@ apply Rplus_le_compat_l; rewrite Rabs_mult; rewrite Rmult_comm;
 { apply Rabs_le_minus in IHl. 
 assert (Hs: Rabs (FT2R s) <=
       g n2 * Rabs s1 + g1 n2 (n2 - 1) + Rabs s1).
-{ eapply Rle_trans. apply IHl. apply Rplus_le_compat_l.
+{ eapply Rle_trans. apply IHl. 
+apply Rplus_le_compat.
+apply Rplus_le_compat.
+apply Rmult_le_compat; auto with commonDB.
+apply Rabs_pos. rewrite H0.
+apply Rle_refl.
+apply Rle_refl.
+rewrite H0.
+apply Rle_refl.
+
 apply (dot_prod_sum_rel_R_Rabs (map FR2 (combine l l0))); auto. }
 apply Hs. }
 field_simplify.
+unfold g1, g in IHl. simpl in IHl.
+field_simplify in IHl.
 set (D:= default_rel).
 set (E:= default_abs).
+rewrite H0 .
+unfold g1, g. simpl .
+field_simplify.
+replace (Rabs (Rabs (FT2R a) * Rabs (FT2R f) + s1)) with
+(Rabs ( FT2R a *  FT2R f) +  Rabs s1).
+fold F.
 rewrite !Rplus_assoc.
-fold n2.
 match goal with |-context[?A<= ?B] =>
-replace A with (Rabs (F * d * d' + (F * d + F * d')) + ((1+ D) * g n2 * Rabs s1 + D * Rabs s1) +
- (D * g1 n2 (n2 - 1) + (g1 n2 (n2 - 1) + Rabs (1 + d') * E))) by nra
-end. 
+replace A with (Rabs (F * d * d' + (F * d + F * d')) + ((1+ D) * g 0 * Rabs s1 + D * Rabs s1) +
+ (D * g1 0 (0 - 1) + (g1 0 (0 -1) + Rabs (1 + d') * E))) by (rewrite H0; nra)
+end.
+simpl. 
 apply Rplus_le_compat.
 replace (Rabs (Rabs (FT2R a) * Rabs (FT2R f) + s1)) with
 (Rabs ( FT2R a *  FT2R f) +  Rabs s1).
 rewrite !Rmult_plus_distr_l.
 apply Rplus_le_compat.
+fold F.
+unfold g.
 eapply Rle_trans;
   [ apply Rabs_triang | ].
 eapply Rle_trans;
