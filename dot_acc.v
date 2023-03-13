@@ -2,7 +2,7 @@
   the dot product of two floating point lists; the functional model for
   the vanilla dot product is defined in dotprod_model.v.*)
 
-Require Import vcfloat.VCFloat vcfloat.IEEE754_extra.
+Require Import vcfloat.VCFloat.
 Require Import List.
 Import ListNotations.
 Require Import common dotprod_model float_acc_lems op_defs list_lemmas.
@@ -393,128 +393,30 @@ End ErrorExtra.
 Section SparseError. 
 Context {NAN: Nans} {t : type}.
 
-Variables (v1 : list (ftype t)).
-Notation v1R := (map FT2R v1).
-
-Notation Beq_dec_t := (@Beq_dec (fprec t) (femax t)).
-Notation pos_zero := (Binary.B754_zero (fprec t) (femax t) false).
-Definition nnz := (length v1 - @count_occ (ftype t) Beq_dec_t v1 pos_zero)%nat.
-
-Lemma nnz_lemma : nnz = 0%nat -> forall x, In x v1 -> x = pos_zero.
-Proof.
-unfold nnz; 
-induction v1;
-try contradiction.
-intros;
-destruct H0.
-{ subst. pose proof count_occ_unique Beq_dec_t pos_zero (x::l).
-eapply (repeat_spec (length (x :: l))).
-match goal with |- context [In x ?a] =>
-replace a with (x::l)
-end; simpl; auto.
-apply H0. 
-assert (0 + count_occ Beq_dec_t (x :: l) pos_zero  = length (x :: l))%nat.
-{
-rewrite <- H.
-rewrite Nat.sub_add; try lia.
-apply count_occ_bound.
-}
-simpl in H1.
-simpl; auto.
-}
-apply IHl; auto.
-assert (0 + count_occ Beq_dec_t (a :: l) pos_zero  = length (a :: l))%nat.
-{
-rewrite <- H.
-rewrite Nat.sub_add; try lia.
-apply count_occ_bound.
-}
-assert ( a::l = repeat pos_zero (length ((a::l)))).
-eapply (count_occ_unique Beq_dec_t).
-simpl in H1.
-simpl; auto.
-simpl in H2.
-rewrite count_occ_cons_eq in H; auto.
-inversion H2. auto.
-Qed.
-
-Lemma nnz_lemma_R : nnz = 0%nat -> forall x, In x v1R -> x = 0.
-Proof.
-intros H x Hin.
-pose proof nnz_lemma H.
-destruct (@Coqlib.list_in_map_inv (ftype t) R FT2R v1 x Hin) 
-  as (x' & Hx' &Hx'').
-specialize (H0 x' Hx'').
-rewrite H0 in Hx'.
-subst.
-simpl; nra.
-Qed.
-
-Variables (v2 : list (ftype t)).
+Variables (v1 v2 : list (ftype t)).
 Hypothesis (Hlen : length v1 = length v2).
+
 Variable (fp : ftype t).
 Hypothesis Hfp : dot_prod_rel (combine v1 v2) fp.
 Hypothesis Hfin: Binary.is_finite (fprec t) (femax t) fp = true.
 
-Lemma dot_prod_rel_nnz :
-nnz = 0%nat -> FT2R fp = 0.
-Proof.
-intros.
-pose proof nnz_lemma H.
-revert H0 H Hfp Hlen Hfin. revert v2 fp.
-induction v1; intros.
-simpl in *; inversion Hfp; auto.
-destruct v2; try discriminate; auto.
-inversion Hfp; subst.
-unfold fst, snd.
-assert (Hin: forall x : ftype t, In x l -> x = pos_zero).
-{ intros. apply H0; simpl; auto. }
-assert (Hlen1:  length l = length l0) by (simpl; auto).
-assert (HFIN: Binary.is_finite (fprec t) (femax t) s = true).
-{ simpl in Hfin. destruct (BMULT a f); destruct s;
-  destruct s0; try discriminate; simpl in *; auto; 
-  destruct s; try discriminate; auto.
-}
-specialize (IHl l0 s Hin H H4 Hlen1 HFIN).
-destruct (@BPLUS_accurate' t NAN (BMULT a f) s Hfin)
-  as (d & _ & Hacc).
-rewrite Hacc; clear Hacc.
-rewrite IHl.
-specialize (H0 a).
-rewrite H0; [|simpl;auto].
-destruct a; destruct f; simpl in *; try discriminate ; try nra.
-Qed.
+Notation v1R := (map FT2R v1).
 
 Variable (rp rp_abs : R).
 Hypothesis Hrp  : R_dot_prod_rel (map FR2 (combine v1 v2)) rp.
 Hypothesis Hra : R_dot_prod_rel (map Rabsp (map FR2 (combine v1 v2))) rp_abs.
 
-Lemma R_dot_prod_rel_nnz :
-nnz = 0%nat -> rp = 0.
-Proof.
-intros H.
-clear Hfin Hfp fp Hra rp_abs.
-pose proof nnz_lemma_R H.
-revert H0 H Hrp  Hlen. revert v2 rp.
-induction v1; intros.
-simpl in *; inversion Hrp; auto.
-destruct v2; try discriminate; auto.
-inversion Hrp; subst.
-unfold FR2, fst, snd.
-assert (Hin: forall x : R, In x (map FT2R l) -> x = 0).
-{ intros. apply H0; simpl; auto. }
-assert (Hlen1:  length l = length l0) by (simpl; auto).
-specialize (IHl l0 s Hin H H4 Hlen1).
-rewrite IHl.
-specialize (H0 (FT2R a)).
-rewrite H0; [|simpl;auto]; nra.
-Qed.
-
 Notation g := (@common.g t).
 Notation g1 := (@common.g1 t).
 
-
 Lemma Bmult_pos_zero f :
+Binary.is_finite (fprec t) (femax t) (BMULT pos_zero f) = true ->
+(BMULT pos_zero f) = pos_zero \/ (BMULT pos_zero f) = neg_zero.
+Proof. intros; destruct f; simpl; try discriminate;
+destruct s; simpl; auto.
+Qed.
+
+Lemma Bplus_pos_zero f :
 Binary.is_finite (fprec t) (femax t) (BMULT pos_zero f) = true ->
 (BMULT pos_zero f) = pos_zero \/ (BMULT pos_zero f) = neg_zero.
 Proof. intros; destruct f; simpl; try discriminate;
@@ -535,6 +437,7 @@ Proof. intros; destruct f; simpl; try discriminate;
 destruct s; simpl; auto.
 Qed.
 
+Notation nnz := (nnz v1).
 
 Lemma sparse_dotprod_forward_error:
   Rabs (FT2R fp - rp) <=  g nnz * Rabs rp_abs + g1 nnz (nnz - 1).
@@ -549,23 +452,55 @@ inversion Hfp; inversion Hrp; subst; simpl; field_simplify_Rabs.
   apply Rplus_le_le_0_compat; auto with commonDB.
   apply Rmult_le_pos;  auto with commonDB.
   apply Rabs_pos. }
-
-
 destruct v2; try discriminate.
-
+assert (Hlen1 : length l = length l0) by (simpl; auto).
 set (n2:= (length l - @count_occ (ftype t) Beq_dec_t l pos_zero)%nat) in *.
+inversion Hrp. inversion Hfp. inversion Hra; subst. 
+assert (HFIN: Binary.is_finite (fprec t) (femax t) s0 = true).
+{ simpl in Hfin. destruct (BMULT a f); destruct s0;
+   try discriminate; simpl in *; auto;
+  destruct s0; destruct s2; try discriminate; auto. }
+assert (HFIN2: Binary.is_finite (fprec t) (femax t) (BMULT a f) = true).
+{ simpl in Hfin. destruct (BMULT a f); destruct s0;
+   try discriminate; simpl in *; auto. } 
+destruct (Beq_dec_t a pos_zero); subst. (* case on head of list *)
+(* head of list is zero *)
+{ simpl. fold n2. 
+replace (FT2R (BPLUS (BMULT pos_zero f) s0)) with (FT2R s0).
+field_simplify_Rabs. 
+specialize (IHl s s1 s0 l0 Hlen1 H6 HFIN H2 H10).
+eapply Rle_trans; [apply IHl|]. 
+apply Req_le; f_equal; try nra.
+rewrite Rabs_R0, Rmult_0_l, Rplus_0_l; nra.
+pose proof Bmult_pos_zero f HFIN2 as H; destruct H; rewrite H;
+try rewrite Bplus_pos_zero; try rewrite Bplus_neg_zero; auto;
+repeat (destruct s0; simpl; auto). } 
+(* head of list is non-zero *)
 rewrite !count_occ_cons_neq; auto.
 set (n1:= (length (a :: l) - @count_occ (ftype t) Beq_dec_t l pos_zero)%nat).
 assert (n1 = S n2).
 { unfold n1, n2. pose proof @count_occ_bound (ftype t) Beq_dec_t pos_zero l.
 simpl. destruct (@count_occ (ftype t) Beq_dec_t l pos_zero); try lia. }
-
-
-assert ((n2 = 0)%nat \/ (1<=n2)%nat) by lia.
-destruct H0.
+assert (H0: (n2 = 0)%nat \/ (1<=n2)%nat) by lia; destruct H0. (* case on nnz *)
+(* head is only nz *)
 { rewrite H0 in *. rewrite H.
-
-inversion Hfp; inversion Hrp;  inversion Hra; subst.
+pose proof R_dot_prod_rel_nnz l l0 Hlen1 s H2 H0; subst.
+pose proof dot_prod_rel_nnz l l0 Hlen1 s0 H6 HFIN H0.
+simpl; field_simplify_Rabs.
+destruct (@BPLUS_accurate' t NAN (BMULT a f) s0 Hfin)
+  as (d' & Hd' & Hacc).
+rewrite Hacc; clear Hacc.
+destruct (@BMULT_accurate' t NAN a f HFIN2)
+  as (d & e & Hed & Hd & He & Hacc).
+rewrite Hacc; clear Hacc. 
+rewrite H1; simpl; field_simplify_Rabs.
+replace (Rabs (Rabs (FT2R a) * Rabs (FT2R f) + s1)) with
+  (Rabs (FT2R a * FT2R f)).
+set (F:= FT2R a * FT2R f).
+rewrite Rplus_assoc.
+eapply  Rle_trans; [apply Rabs_triang | ].
+apply Rplus_le_compat.
+unfold g.
 unfold FR2, Rabsp, fst, snd. 
 assert (Hlen1:  length l = length l0) by (simpl; auto).
 assert (HFIN: Binary.is_finite (fprec t) (femax t) s = true).
@@ -580,6 +515,7 @@ assert (HFIN2: Binary.is_finite (fprec t) (femax t) (BMULT a f) = true).
 specialize (IHl s0 s1 s l0 Hlen1 H4 HFIN H8 H12). 
 simpl in Hfin.
 destruct (Beq_dec_t a pos_zero); subst.
+
 pose proof Bmult_pos_zero f HFIN2 as HP; auto .
 destruct HP. rewrite H1 in *.
 { simpl; rewrite Rabs_R0; rewrite !Rmult_0_l; rewrite !Rplus_0_l. 
@@ -619,6 +555,7 @@ rewrite H1 in Hfin; auto.
 unfold g1, g in IHl. simpl in IHl.
 field_simplify in IHl.
 (* in this case a is only nonzero element; use this fact *)
+pose proof R_dot_prod_rel_nnz.
 destruct (@BPLUS_accurate' t NAN (BMULT a f) s Hfin)
   as (d' & Hd' & Hacc).
 rewrite Hacc; clear Hacc.
