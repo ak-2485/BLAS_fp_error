@@ -513,12 +513,28 @@ Qed.
 Notation g := (@g t).
 Notation g1 := (@g1 t).
 
+Lemma nnz_cons1 a l :
+a = pos_zero ->
+(length (a :: l) - count_occ Beq_dec_t (a :: l) pos_zero = 
+length l - count_occ Beq_dec_t l pos_zero)%nat.
+Proof.
+Admitted.
+
+Lemma nnz_cons2 a l :
+a <> pos_zero ->
+(length (a :: l) - count_occ Beq_dec_t (a :: l) pos_zero = 
+length (a :: l) - count_occ Beq_dec_t l pos_zero)%nat.
+Proof.
+Admitted.
+
+
 Lemma sparse_dotprod_forward_error:
   Rabs (FT2R fp - rp) <=  g nnz * Rabs rp_abs + g1 nnz (nnz - 1).
 
 Proof.
 revert Hlen Hfp Hfin Hrp Hra.
 revert rp rp_abs fp v2.
+unfold nnz.
 induction v1; intros.
 { simpl in Hlen; symmetry in Hlen; apply length_zero_iff_nil in Hlen; subst. 
 inversion Hfp; inversion Hrp; subst; simpl; field_simplify_Rabs. 
@@ -527,7 +543,22 @@ inversion Hfp; inversion Hrp; subst; simpl; field_simplify_Rabs.
   apply Rmult_le_pos;  auto with commonDB.
   apply Rabs_pos. }
 destruct v2; try discriminate.
-inversion Hfp; inversion Hrp; subst. 
+inversion Hfp; inversion Hrp;  inversion Hra; subst.
+unfold FR2, Rabsp, fst, snd. 
+assert (Hlen1:  length l = length l0) by (simpl; auto).
+assert (HFIN: Binary.is_finite (fprec t) (femax t) s = true).
+{ simpl in Hfin. destruct (BMULT a f); destruct s;
+   try discriminate; simpl in *; auto;
+  destruct s; destruct s2; try discriminate; auto.
+}
+specialize (IHl s0 s1 s l0 Hlen1 H2 HFIN H6 H10). 
+destruct (@BPLUS_accurate' t NAN (BMULT a f) s Hfin)
+  as (d & _ & Hacc).
+rewrite Hacc; clear Hacc.
+assert (a = pos_zero \/ a <> pos_zero) by admit.
+destruct H.
+}
+simpl.
 
 
 induction nnz.
