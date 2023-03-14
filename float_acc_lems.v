@@ -7,33 +7,40 @@ Require Import common op_defs.
 Section GenFloat.
 Context {t : type}.
 
-Lemma Bmult_neg_zero {NAN: Nans} f :
-Binary.is_finite (fprec t) (femax t) (BMULT neg_zero f) = true ->
-(BMULT neg_zero f) = neg_zero \/ (BMULT neg_zero f) = pos_zero.
-Proof. intros; destruct f; simpl; try discriminate;
-destruct s; simpl; auto.
+Lemma Bmult_0R {NAN: Nans} a f :
+Binary.is_finite (fprec t) (femax t) (BMULT a f) = true ->
+FT2R a = 0 -> 
+(BMULT a f) = neg_zero \/ (BMULT a f) = pos_zero.
+Proof. intros; destruct f; destruct a; simpl; try discriminate;
+destruct s; destruct s0; simpl; auto; 
+unfold FT2R, Binary.B2R in H0; simpl in H0;
+apply Float_prop.eq_0_F2R in H0;
+discriminate.
 Qed.
 
-Lemma Bmult_pos_zero {NAN: Nans} f :
-Binary.is_finite (fprec t) (femax t) (BMULT pos_zero f) = true ->
-(BMULT neg_zero f) = neg_zero \/ (BMULT neg_zero f) = pos_zero.
-Proof. intros; destruct f; simpl; try discriminate;
-destruct s; simpl; auto.
+Lemma Bplus_0R {NAN: Nans} a f :
+Binary.is_finite (fprec t) (femax t) (BPLUS a f) = true ->
+FT2R f = 0 -> 
+FT2R (BPLUS a f) = FT2R a.
+Proof.
+intros; destruct f; destruct a; simpl; try discriminate;
+destruct s; destruct s0; simpl; auto;
+unfold FT2R, Binary.B2R in H0; simpl in H0;
+apply Float_prop.eq_0_F2R in H0;
+discriminate.
 Qed.
 
-Lemma Bplus_neg_zero_r {NAN: Nans} f :
-Binary.is_finite (fprec t) (femax t) (BPLUS f neg_zero) = true ->
-(BPLUS f neg_zero) = f.
-Proof. intros; destruct f; simpl; try discriminate;
-destruct s; simpl; auto.
+Lemma Bfma_mult_0R {NAN: Nans} a f s :
+Binary.is_finite (fprec t) (femax t) (BFMA a f s) = true ->
+FT2R a = 0 -> 
+FT2R (BFMA a f s) = FT2R s.
+Proof. intros; destruct f; destruct a; destruct s; simpl; try discriminate;
+destruct s; destruct s0; destruct s1; simpl; auto; 
+unfold FT2R, Binary.B2R in H0; simpl in H0;
+apply Float_prop.eq_0_F2R in H0;
+discriminate.
 Qed.
 
-Lemma Bplus_neg_zero_l {NAN: Nans} f :
-Binary.is_finite (fprec t) (femax t) (BPLUS f neg_zero) = true ->
-(BPLUS neg_zero f) = f.
-Proof. intros; destruct f; simpl; try discriminate;
-destruct s; simpl; auto.
-Qed.
 
 Lemma neg_zero_is_finite:
 Binary.is_finite (fprec t) (femax t) neg_zero = true.

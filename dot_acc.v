@@ -33,7 +33,7 @@ Notation E := (@default_abs t).
 
 (* forward error bound *)
 Lemma dotprod_forward_error:
-  Rabs (FT2R fp - rp) <=  g (length vF) * Rabs rp_abs + g1 (length vF) (length vF - 1).
+  Rabs (FT2R fp - rp) <=  g (length vF) * rp_abs + g1 (length vF) (length vF - 1).
 Proof.
 revert Hfp Hrp Hra Hfin. revert fp rp rp_abs.
 induction vF.
@@ -64,8 +64,8 @@ rewrite (R_dot_prod_rel_single rp (FR2 a)); auto.
 inversion Hfp. inversion H2. subst.
 assert ( HFINa:
       (Binary.is_finite (fprec t) (femax t) (BMULT (fst a) (snd a)) = true /\
-      Binary.is_finite (fprec t) (femax t) neg_zero = true)).
-  { destruct (BMULT (fst a) (snd a)); unfold neg_zero; simpl; auto. }
+      Binary.is_finite (fprec t) (femax t) (Zconst t 0) = true)).
+  { destruct (BMULT (fst a) (snd a)); unfold pos_zero; simpl; auto. }
   destruct HFINa as (A & C).
 rewrite BPLUS_B2R_zero; auto.
 pose proof BMULT_accurate'  (fst a) (snd a) A as Hmula.
@@ -81,7 +81,8 @@ apply Rplus_le_compat. apply Rmult_le_compat; try apply Rabs_pos.
 apply Rle_refl. apply Hd'. apply He'.
 rewrite Rmult_comm.
 apply Rplus_le_compat; try nra.
-rewrite <- Rabs_mult, Rabs_Rabsolu; try nra.
+rewrite Rmult_assoc.
+rewrite <- Rabs_mult. try nra.
 }
 (* non-empty l *)
 intros; inversion Hfp;
@@ -115,24 +116,25 @@ eapply Rle_trans;
 apply Rplus_le_compat_l; rewrite Rabs_mult; rewrite Rmult_comm;
   apply Rmult_le_compat; [ apply Rabs_pos| apply Rabs_pos| apply Hd' | ].
 { apply Rabs_le_minus in IHl. assert (Hs: Rabs (FT2R s) <=
-      g (length l) * Rabs s1 + g1 (length l) (length l - 1) + Rabs s1).
+      g (length l) * s1 + g1 (length l) (length l - 1) + s1).
 { eapply Rle_trans. apply IHl. apply Rplus_le_compat_l.
+rewrite <- (R_dot_prod_rel_Rabs_eq (map FR2 l) s1); auto.
 apply (dot_prod_sum_rel_R_Rabs (map FR2 l)); auto. }
 apply Hs. }
 field_simplify.
 fold D E n.
 rewrite !Rplus_assoc. 
 replace (Rabs (F * d * d' + (F * d + F * d')) +
-(D * g n * Rabs s1 +
- (D * Rabs s1 +
+(D * g n *  s1 +
+ (D *  s1 +
   (D * g1 n (n - 1) +
-   (Rabs s1 * g n + (g1 n (n - 1) + Rabs (1 + d') * E)))))) with
-(Rabs (F * d * d' + (F * d + F * d')) + ((1+ D) * g n * Rabs s1 + D * Rabs s1) +
+   ( s1 * g n + (g1 n (n - 1) + Rabs (1 + d') * E)))))) with
+(Rabs (F * d * d' + (F * d + F * d')) + ((1+ D) * g n *  s1 + D *  s1) +
  (D * g1 n (n - 1) + (g1 n (n - 1) + Rabs (1 + d') * E))) by nra.
+replace (s1 * g (S n) + (g (S n) * Rabs (FT2R f) * Rabs (FT2R f0) + g1 (S n) (n - 0)))
+with (g (S n) * Rabs (FT2R f * FT2R f0) + s1 * g (S n) + g1 (S n) (n - 0)) by
+(rewrite Rmult_assoc, <- Rabs_mult; nra).
 apply Rplus_le_compat.
-replace (Rabs (Rabs (FT2R f) * Rabs (FT2R f0) + s1)) with
-(Rabs ( FT2R f *  FT2R f0) +  Rabs s1).
-rewrite !Rmult_plus_distr_l.
 apply Rplus_le_compat.
 eapply Rle_trans;
   [ apply Rabs_triang | ].
@@ -154,21 +156,18 @@ eapply Rle_trans with ((1 + D)^1); try nra.
 fold D; nra.
 apply Rle_pow; auto with commonDB.
 apply Req_le; rewrite one_plus_d_mul_g.
+rewrite Rmult_comm.
 repeat f_equal;  try lia.
-rewrite <- (R_dot_prod_rel_Rabs_eq (map FR2 l) s1) at 2; auto.
-symmetry.
-rewrite Rabs_pos_eq; rewrite <-  Rabs_mult; auto. 
-apply Rplus_le_le_0_compat; try apply Rabs_pos.
 rewrite <- Rplus_assoc.
 eapply Rle_trans; [apply Rplus_le_compat_l; 
   apply Rmult_le_compat_r; [ unfold E; apply default_abs_ge_0| eapply Rle_trans] | ].
 apply Rabs_triang. rewrite Rabs_R1. 
 apply  Rplus_le_compat_l; apply Hd'.
-rewrite !Rmult_plus_distr_r. rewrite Rmult_1_l; unfold E.
+rewrite !Rmult_plus_distr_r. rewrite Rmult_1_l.
 rewrite <- !Rplus_assoc.
 replace (D * g1 n (n - 1) + g1 n (n - 1)) with (g1 n (n-1) * (1+D)) by nra;
 rewrite one_plus_d_mul_g1; auto.
-rewrite Rplus_assoc; fold D E.
+rewrite Rplus_assoc.
 replace (E + D * E) with 
   ((1+D) * E) by nra.
 eapply Rle_trans; [apply plus_d_e_g1_le; auto| apply Req_le; f_equal;lia].
@@ -408,10 +407,10 @@ Hypothesis Hra : R_dot_prod_rel (map Rabsp (map FR2 (combine v1 v2))) rp_abs.
 
 Notation g := (@common.g t).
 Notation g1 := (@common.g1 t).
-Notation nnz := (nnz v1).
+Notation nnzR := (nnzR v1R).
 
 Lemma sparse_dotprod_forward_error:
-  Rabs (FT2R fp - rp) <=  g nnz * Rabs rp_abs + g1 nnz (nnz - 1).
+  Rabs (FT2R fp - rp) <=  g nnzR * rp_abs + g1 nnzR (nnzR - 1).
 Proof.
 revert Hlen Hfp Hfin Hrp Hra.
 revert rp rp_abs fp v2.
@@ -422,10 +421,11 @@ inversion Hfp; inversion Hrp; subst; simpl; field_simplify_Rabs.
   rewrite Rabs_R0. 
   apply Rplus_le_le_0_compat; auto with commonDB.
   apply Rmult_le_pos;  auto with commonDB.
+ rewrite <- (R_dot_prod_rel_Rabs_eq [] rp_abs); auto;
   apply Rabs_pos. }
 destruct v2; try discriminate.
 assert (Hlen1 : length l = length l0) by (simpl; auto).
-set (n2:= (length l - @count_occ (ftype t) Beq_dec_t l neg_zero)%nat) in *.
+set (n2:= (common.nnzR (map FT2R l))%nat) in *.
 inversion Hrp. inversion Hfp. inversion Hra; subst. 
 assert (HFIN: Binary.is_finite (fprec t) (femax t) s0 = true).
 { simpl in Hfin. destruct (BMULT a f); destruct s0;
@@ -433,117 +433,62 @@ assert (HFIN: Binary.is_finite (fprec t) (femax t) s0 = true).
   destruct s0; destruct s2; try discriminate; auto. }
 assert (HFIN2: Binary.is_finite (fprec t) (femax t) (BMULT a f) = true).
 { simpl in Hfin. destruct (BMULT a f); destruct s0;
-   try discriminate; simpl in *; auto. } 
-destruct (Beq_dec_t a neg_zero); subst. (* case on head of list *)
-(* head of list is zero *)
-{ simpl; fold n2. 
-replace (FT2R (BPLUS (BMULT neg_zero f) s0)) with (FT2R s0).
-field_simplify_Rabs. 
+   try discriminate; simpl in *; auto. } simpl. 
 specialize (IHl s s1 s0 l0 Hlen1 H6 HFIN H2 H10).
+(* reason by cases on the head of the list *) 
+destruct (Req_EM_T (FT2R a) 0%R). 
+(* start  head of list is zero *)
+{ rewrite e. unfold common.nnzR; rewrite nnz_cons.
+replace (FT2R (BPLUS (BMULT a f) s0)) with (FT2R s0).
+field_simplify_Rabs. 
 eapply Rle_trans; [apply IHl|]. 
-apply Req_le; f_equal; try nra.
-rewrite Rabs_R0, Rmult_0_l, Rplus_0_l; nra.
-pose proof Bmult_neg_zero f HFIN2 as H; destruct H; rewrite H;
+apply Req_le; f_equal; try nra. unfold n2, common.nnzR. 
+rewrite Rabs_R0, Rmult_0_l,  Rplus_0_l; nra.
+pose proof Bmult_0R a f HFIN2 as H; destruct H; auto; rewrite H;
 try rewrite Bplus_neg_zero; try rewrite Bplus_neg_zero; auto;
-repeat (destruct s0; simpl; auto). } 
-(* head of list is non-zero *)
-rewrite !count_occ_cons_neq; auto.
-set (n1:= (length (a :: l) - @count_occ (ftype t) Beq_dec_t l neg_zero)%nat).
+repeat (destruct s0; simpl; auto). } (* end head of list is zero *) 
+(* start head of list is non-zero *)
+unfold common.nnzR, nnz. rewrite !count_occ_cons_neq; auto.
+set (l1:= (map FT2R l)) in *.
+set (n1:= (length (FT2R a :: l1) - @count_occ R Req_EM_T l1 0%R)%nat).
 assert (n1 = S n2).
-{ unfold n1, n2. pose proof @count_occ_bound (ftype t) Beq_dec_t neg_zero l.
-simpl. destruct (@count_occ (ftype t) Beq_dec_t l neg_zero); try lia. }
-assert (H0: (n2 = 0)%nat \/ (1<=n2)%nat) by lia; destruct H0. (* case on nnz *)
-(* head is only nz *)
+{ unfold n1, n2. pose proof @count_occ_bound R Req_EM_T 0%R l1.
+  unfold common.nnzR, nnz.
+  destruct (count_occ Req_EM_T l1 0%R); unfold l1 in *; simpl; try lia. }
+(* start case on nnz = case on nnz in tail *)
+assert (H0: (n2 = 0)%nat \/ (1<=n2)%nat) by lia; destruct H0. 
+(* tail all zeros *)
 { rewrite H0 in *. rewrite H.
-pose proof R_dot_prod_rel_nnz l l0 Hlen1 s H2 H0; subst.
-pose proof dot_prod_rel_nnz' l l0 Hlen1 s0 H6 HFIN H0; subst.
-simpl; field_simplify_Rabs.
-
-
-
-
+pose proof R_dot_prod_rel_nnzR l l0 Hlen1 s H2 H0; subst.
+pose proof dot_prod_rel_nnzR l l0 Hlen1 s0 H6 HFIN H0.
+pose proof R_dot_prod_rel_nnzR_abs l l0 Hlen1 s1 H10 H0; subst.
+rewrite Bplus_0R; auto.
+destruct (@BMULT_accurate' t NAN a f HFIN2)
+  as (d' & e' & Hed' & Hd' & He' & Hacc).
+rewrite Hacc; clear Hacc.
+unfold g1, g.
+simpl; field_simplify; 
+field_simplify_Rabs. 
+eapply  Rle_trans; [apply Rabs_triang | ].
+apply Rplus_le_compat.
+rewrite Rabs_mult.
+rewrite Rmult_comm.
+rewrite Rabs_mult. rewrite Rmult_assoc.
+apply Rmult_le_compat_r; auto with commonDB.
+rewrite <- Rabs_mult; apply  Rabs_pos.
+eapply Rle_trans; [apply He'| ]; auto with commonDB; nra.
+}
+(* tail not all zeros *)
 destruct (@BPLUS_accurate' t NAN (BMULT a f) s0 Hfin)
   as (d' & Hd' & Hacc).
 rewrite Hacc; clear Hacc.
 destruct (@BMULT_accurate' t NAN a f HFIN2)
   as (d & e & Hed & Hd & He & Hacc).
 rewrite Hacc; clear Hacc. 
-rewrite H1; simpl; field_simplify_Rabs.
-replace (Rabs (Rabs (FT2R a) * Rabs (FT2R f) + s1)) with
-  (Rabs (FT2R a * FT2R f)).
-set (F:= FT2R a * FT2R f).
-rewrite Rplus_assoc.
-eapply  Rle_trans; [apply Rabs_triang | ].
-apply Rplus_le_compat.
-unfold g.
-unfold FR2, Rabsp, fst, snd. 
-assert (Hlen1:  length l = length l0) by (simpl; auto).
-assert (HFIN: Binary.is_finite (fprec t) (femax t) s = true).
-{ simpl in Hfin. destruct (BMULT a f); destruct s;
-   try discriminate; simpl in *; auto;
-  destruct s; destruct s2; try discriminate; auto. }
-assert (HFIN2: Binary.is_finite (fprec t) (femax t) (BMULT a f) = true).
-{ simpl in Hfin. destruct (BMULT a f); destruct s;
-   try discriminate; simpl in *; auto. } 
-
-
-specialize (IHl s0 s1 s l0 Hlen1 H4 HFIN H8 H12). 
-simpl in Hfin.
-destruct (Beq_dec_t a neg_zero); subst.
-
-pose proof Bmult_neg_zero f HFIN2 as HP; auto .
-destruct HP. rewrite H1 in *.
-{ simpl; rewrite Rabs_R0; rewrite !Rmult_0_l; rewrite !Rplus_0_l. 
-rewrite Bplus_neg_zero; auto.
-eapply Rle_trans. apply IHl.
-apply Rplus_le_compat.
-apply Rmult_le_compat; auto with commonDB.
-apply Rabs_pos.
-apply Rle_refl.
-simpl.
-apply Rmult_le_compat. simpl; nra. 
-auto with commonDB.
-apply Fourier_util.Rle_zero_pos_plus1; try nra; auto with commonDB.
-apply Rmult_le_compat. simpl; nra. auto with commonDB.
-simpl; nra.
-nra.
-nra. }
-{ simpl; rewrite Rabs_R0; rewrite !Rmult_0_l; rewrite !Rplus_0_l. 
-rewrite H1.
-rewrite Bplus_neg_zero; auto. 
-eapply Rle_trans. apply IHl.
-apply Rplus_le_compat.
-apply Rmult_le_compat; auto with commonDB.
-apply Rabs_pos.
-apply Rle_refl.
-simpl.
-apply Rmult_le_compat. simpl; nra. 
-auto with commonDB.
-apply Fourier_util.Rle_zero_pos_plus1; try nra; auto with commonDB.
-apply Rmult_le_compat. simpl; nra. auto with commonDB.
-simpl; nra.
-nra.
-nra.
-rewrite H1 in Hfin; auto.
-}
-
-unfold g1, g in IHl. simpl in IHl.
-field_simplify in IHl.
-(* in this case a is only nonzero element; use this fact *)
-pose proof R_dot_prod_rel_nnz.
-destruct (@BPLUS_accurate' t NAN (BMULT a f) s Hfin)
-  as (d' & Hd' & Hacc).
-rewrite Hacc; clear Hacc.
-destruct (@BMULT_accurate' t NAN a f HFIN2)
-  as (d & e & Hed & Hd & He & Hacc).
-rewrite Hacc; clear Hacc. 
-simpl.
-
-
 set (F:= FT2R a * FT2R f ).
 field_simplify_Rabs.
-replace (F * d * d' + F * d + F * d' + e * d' + e + FT2R s * d' + FT2R s - s0) with
-((F * d * d' + F * d + F * d' + FT2R s * d') + (FT2R s - s0) + (1 + d') * e) by nra.
+replace (F * d * d' + F * d + F * d' + e * d' + e + FT2R s0 * d' + FT2R s0 - s) with
+((F * d * d' + F * d + F * d' + FT2R s0 * d') + (FT2R s0 - s) + (1 + d') * e) by nra.
 eapply Rle_trans;
   [ apply Rabs_triang | ].
 eapply Rle_trans;
@@ -557,43 +502,34 @@ eapply Rle_trans;
 apply Rplus_le_compat_l; rewrite Rabs_mult; rewrite Rmult_comm;
   apply Rmult_le_compat; [ apply Rabs_pos| apply Rabs_pos| apply Hd' | ].
 { apply Rabs_le_minus in IHl. 
-assert (Hs: Rabs (FT2R s) <=
-      g n2 * Rabs s1 + g1 n2 (n2 - 1) + Rabs s1).
-{ eapply Rle_trans. apply IHl. 
-apply Rplus_le_compat.
-apply Rplus_le_compat.
-apply Rmult_le_compat; auto with commonDB.
-apply Rabs_pos. rewrite H0.
-apply Rle_refl.
-apply Rle_refl.
-rewrite H0.
-apply Rle_refl.
-
-apply (dot_prod_sum_rel_R_Rabs (map FR2 (combine l l0))); auto. }
+  assert (Hs: Rabs (FT2R s0) <=
+        g n2 * s1 + g1 n2 (n2 - 1) + s1).
+  { eapply Rle_trans. apply IHl. 
+  apply Rplus_le_compat.
+  apply Rplus_le_compat.
+  apply Rmult_le_compat; auto with commonDB; try apply Rle_refl.
+  rewrite <- (R_dot_prod_rel_Rabs_eq (map FR2 (combine l l0)) s1); auto;
+  apply Rabs_pos. 
+  apply Rle_refl.
+  rewrite <- (R_dot_prod_rel_Rabs_eq (map FR2 (combine l l0)) s1); auto;
+  apply (dot_prod_sum_rel_R_Rabs (map FR2 (combine l l0))); auto. }
 apply Hs. }
 field_simplify.
-unfold g1, g in IHl. simpl in IHl.
+unfold g1, g in IHl. 
 field_simplify in IHl.
 set (D:= default_rel).
 set (E:= default_abs).
-rewrite H0 .
-unfold g1, g. simpl .
-field_simplify.
-replace (Rabs (Rabs (FT2R a) * Rabs (FT2R f) + s1)) with
-(Rabs ( FT2R a *  FT2R f) +  Rabs s1).
-fold F.
 rewrite !Rplus_assoc.
+rewrite H.
 match goal with |-context[?A<= ?B] =>
-replace A with (Rabs (F * d * d' + (F * d + F * d')) + ((1+ D) * g 0 * Rabs s1 + D * Rabs s1) +
- (D * g1 0 (0 - 1) + (g1 0 (0 -1) + Rabs (1 + d') * E))) by (rewrite H0; nra)
+replace A with (Rabs (F * d * d' + (F * d + F * d')) + ((1+ D) * g n2 *  s1 + D *  s1) +
+ (D * g1 n2 (n2 - 1) + (g1 n2 (n2 -1) + Rabs (1 + d') * E))) by nra;
+replace B with 
+(g (S n2) * Rabs F + s1 * g (S n2) + g1 (S n2) (S n2 - 1) ) by
+(rewrite Rmult_assoc, <-Rabs_mult; fold F; nra)
 end.
-simpl. 
 apply Rplus_le_compat.
-replace (Rabs (Rabs (FT2R a) * Rabs (FT2R f) + s1)) with
-(Rabs ( FT2R a *  FT2R f) +  Rabs s1).
-rewrite !Rmult_plus_distr_l.
 apply Rplus_le_compat.
-fold F.
 unfold g.
 eapply Rle_trans;
   [ apply Rabs_triang | ].
@@ -604,38 +540,29 @@ apply Rmult_le_compat_l; [apply Rabs_pos  | apply Hd ].
 apply Rplus_le_compat; rewrite Rabs_mult.
 apply Rmult_le_compat_l; [apply Rabs_pos  | apply Hd ].
 apply Rmult_le_compat_l; [apply Rabs_pos  | apply Hd' ].
-fold D F. replace (Rabs F * D * D + (Rabs F * D + Rabs F * D)) with
+fold D. replace (Rabs F * D * D + (Rabs F * D + Rabs F * D)) with
   ( ((1 + D)*(1+D) - 1) * Rabs F ) by nra.
 apply Rmult_le_compat_r; try apply Rabs_pos; unfold D, g.
 apply Rplus_le_compat; try nra.
- rewrite H.
 rewrite <- tech_pow_Rmult.
 apply Rmult_le_compat_l; auto with commonDB.
 eapply Rle_trans with ((1 + D)^1); try nra.
 fold D; nra.
-apply Rle_pow; auto with commonDB. admit.
+apply Rle_pow; auto with commonDB. 
 apply Req_le. unfold D,E. rewrite one_plus_d_mul_g.
+rewrite Rmult_comm.
 repeat f_equal;  try lia.
-rewrite <- (R_dot_prod_rel_Rabs_eq (map FR2 (combine l l0)) s1) at 2; auto.
-symmetry.
-rewrite Rabs_pos_eq; rewrite <-  Rabs_mult; auto. 
-apply Rplus_le_le_0_compat; try apply Rabs_pos.
-rewrite <- Rplus_assoc.
-eapply Rle_trans; [apply Rplus_le_compat_l; 
-  apply Rmult_le_compat_r; [ unfold E; apply default_abs_ge_0| eapply Rle_trans] | ].
-apply Rabs_triang. rewrite Rabs_R1. 
-apply  Rplus_le_compat_l; apply Hd'.
-rewrite !Rmult_plus_distr_r. rewrite Rmult_1_l; unfold E.
 rewrite <- !Rplus_assoc.
 replace (D * g1 n2 (n2 - 1) + g1 n2 (n2 - 1)) with (g1 n2 (n2-1) * (1+D)) by nra.
 unfold D.
 rewrite one_plus_d_mul_g1; auto.
-rewrite Rplus_assoc; fold D E.
-replace (E + D * E) with 
-  ((1+D) * E) by nra.
+eapply Rle_trans; [apply Rplus_le_compat_l |].
+apply Rmult_le_compat_r; unfold E; auto with commonDB.
+assert (Rabs (1 + d') <= 1 + D).
+eapply Rle_trans; [apply Rabs_triang| rewrite Rabs_R1].
+apply Rplus_le_compat_l; apply Hd'.
+apply H1.
 eapply Rle_trans; [apply plus_d_e_g1_le; auto| apply Req_le; f_equal;lia].
-admit.
-admit.
-Admitted.
+Qed.
 
 End SparseError.

@@ -8,9 +8,9 @@ Definition rounded t r:=
 (Generic_fmt.round Zaux.radix2 (SpecFloat.fexp (fprec t) (femax t))
      (BinarySingleNaN.round_mode BinarySingleNaN.mode_NE) r).
 
-Definition neg_zero {t: type} := Binary.B754_zero (fprec t) (femax t) true.
-Definition pos_zero {t: type} := Binary.B754_zero (fprec t) (femax t) false.
-Definition Beq_dec_t {t: type}:= (@Beq_dec (fprec t) (femax t)).
+Definition neg_zero  {t: type} := Binary.B754_zero (fprec t) (femax t) true.
+Definition pos_zero  {t: type} := Binary.B754_zero (fprec t) (femax t) false.
+Definition Beq_dec_t {t: type} := (@Beq_dec (fprec t) (femax t)).
 
 Create HintDb commonDB discriminated.
 Global Hint Resolve 
@@ -19,14 +19,16 @@ Global Hint Resolve
 Section NonZeros.
 Context {NAN: Nans} {t : type}.
 
-Definition nnz l := (length l - @count_occ (ftype t) Beq_dec_t l neg_zero)%nat.
+Definition nnz A dec l zero := (length l - @count_occ A dec l zero)%nat.
+Definition nnzF l := nnz (ftype t) Beq_dec_t l pos_zero.
+Definition nnzR l := nnz R Req_EM_T l 0%R.
 
-Lemma nnz_zero l :
-nnz l = 0%nat ->
-(length l = @count_occ (ftype t) Beq_dec_t l neg_zero)%nat.
+Lemma nnz_zero A dec l zero :
+nnz A dec l zero = 0%nat ->
+(length l = @count_occ A dec l zero)%nat.
 Proof.
 unfold nnz. intros.
-assert (0 + @count_occ (ftype t) (@Beq_dec_t t) l (@neg_zero t)  = @length (ftype t) l)%nat.
+assert (0 + @count_occ A dec l zero = @length A l)%nat.
 { rewrite <- H.
 rewrite Nat.sub_add; try lia.
 apply count_occ_bound.
@@ -34,30 +36,30 @@ apply count_occ_bound.
 simpl; auto.
 Qed.
 
-
-Lemma nnz_lemma v1 : nnz v1 = 0%nat -> forall x, In x v1 -> x = neg_zero.
+Lemma nnz_lemma A dec l zero :
+ nnz A dec l zero = 0%nat -> forall x, In x l -> x = zero.
 Proof.
 unfold nnz; 
-induction v1;
+induction l;
 try contradiction.
 intros;
 destruct H0.
-{ subst. pose proof count_occ_unique Beq_dec_t neg_zero (x::v1).
-eapply (repeat_spec (length (x :: v1))).
+{ subst. pose proof count_occ_unique dec zero (x::l).
+eapply (repeat_spec (length (x :: l))).
 match goal with |- context [In x ?a] =>
-replace a with (x::v1)
+replace a with (x::l)
 end; simpl; auto.
 apply H0. symmetry.
 apply nnz_zero. simpl; auto. }
-apply IHv1; auto.
-assert (0 + count_occ Beq_dec_t (a :: v1) neg_zero  = length (a :: v1))%nat.
+apply IHl; auto.
+assert (0 + count_occ dec (a :: l) zero  = length (a :: l))%nat.
 {
 rewrite <- H.
 rewrite Nat.sub_add; try lia.
 apply count_occ_bound.
 }
-assert ( a::v1 = repeat neg_zero (length ((a::v1)))).
-eapply (count_occ_unique Beq_dec_t).
+assert ( a::l = repeat zero (length ((a::l)))).
+eapply (count_occ_unique dec).
 simpl in H1.
 simpl; auto.
 simpl in H2.
@@ -65,29 +67,24 @@ rewrite count_occ_cons_eq in H; auto.
 inversion H2. auto.
 Qed.
 
-Lemma nnz_lemma_R v1 : nnz v1 = 0%nat -> forall x, In x (map FT2R v1) -> x = 0.
-Proof.
-intros H x Hin.
-pose proof nnz_lemma v1 H.
-destruct (@Coqlib.list_in_map_inv (ftype t) R FT2R v1 x Hin) 
-  as (x' & Hx' &Hx'').
-specialize (H0 x' Hx'').
-rewrite H0 in Hx'.
-subst.
-simpl; nra.
-Qed.
-
-Lemma nnz_cons a l :  nnz (a::l) = 0%nat -> nnz l = 0%nat.
+Lemma nnz_is_zero_cons A a l dec zero : nnz A dec (a::l) zero = 0%nat -> nnz A dec l zero = 0%nat.
 Proof.
 intros H.
 apply nnz_zero in H; symmetry in H.
-pose proof  (@count_occ_unique (ftype t) Beq_dec_t) neg_zero (a::l) H.
+pose proof  (@count_occ_unique A dec) zero (a::l) H.
 unfold nnz. 
 simpl in H0.
 inversion H0.
 rewrite <- H3 at 1. 
 rewrite count_occ_repeat_eq; auto.
 lia.
+Qed.
+
+Lemma nnz_cons A l dec zero : 
+  nnz A dec (zero::l) zero = nnz A dec l zero.
+Proof.
+unfold nnz;  
+rewrite (count_occ_cons_eq dec l (eq_refl zero)); simpl; auto.
 Qed.
 
 End NonZeros.
