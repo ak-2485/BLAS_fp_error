@@ -22,8 +22,8 @@ Lemma mat_vec_mul_mixed_error:
   exists (E : matrix) (eta : vector),
   map FT2R (mvF A v) = vec_sumR (mvR (mat_sumR (map_mat FT2R A) E) (map (@FT2R t) v)) eta /\ 
   (forall i j, (i < length E)%nat -> (j < length v)%nat -> 
-  Rabs (matrix_index E i j 0%R) <= g t (length v) * Rabs (matrix_index (map_mat FT2R A) i j 0%R)) /\
-  (forall k, In k eta -> Rabs k <= g1 t (length v) (length v)).
+  Rabs (matrix_index E i j 0%R) <= @g t (length v) * Rabs (matrix_index (map_mat FT2R A) i j 0%R)) /\
+  (forall k, In k eta -> Rabs k <= @g1 t (length v) (length v)).
 Proof.
 intros ? ? ?.
 induction A.
@@ -39,7 +39,7 @@ assert (Hin2  : (forall row : list (ftype t), In row A -> length row = length v)
 destruct (IHA Hfin2 Hin2) as (E & eta & IH1 & IH2 & IH3); clear IHA; rewrite IH1; clear IH1.
 assert (Hlen': length a = length v).
 { apply Hlen; simpl; auto. }
-assert (Hfin' : Binary.is_finite (fprec t) (femax t) (dotprod t a v) = true).
+assert (Hfin' : Binary.is_finite (fprec t) (femax t) (dotprod a v) = true).
 { unfold is_finite_vec in *; apply Hfin; simpl; auto. }
 destruct (dotprod_mixed_error' a v Hlen' Hfin') as (u & ueta & X & Y & Z1 & Z2).
 set (A':= (map FT2R a :: map_mat FT2R A) : matrix).
@@ -47,7 +47,7 @@ assert (Ha: (length u = length (map FT2R a))).
 { rewrite X, map_length; auto. }
 exists (vec_sum u (map FT2R a) Rminus :: E) , (ueta::eta); repeat split.
 {
-assert (FT2R (dotprod t a v) = dotprodR u (map FT2R v) + ueta) by nra.
+assert (FT2R (dotprod a v) = dotprodR u (map FT2R v) + ueta) by nra.
 rewrite H; clear H. simpl.
 fold (vec_sum (map FT2R a) (vec_sum u (map FT2R a) Rminus) Rplus).
 fold (vec_sumR (map FT2R a) (vec_sum u (map FT2R a) Rminus)).

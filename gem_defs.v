@@ -66,7 +66,7 @@ Lemma map_nil {A B: Type} (f : A -> B) : map f [] = [].
 Proof. simpl; auto. Qed.
 
 Lemma dotprodF_nil {NAN : Nans} {t: type} row :
-dotprod t row [] = (Zconst t 0). 
+dotprod row [] = (Zconst t 0). 
 Proof. destruct row; simpl; auto. Qed. 
 
 Fixpoint zero_matrix {A: Type} (m n: nat) (zero : A) : matrix := 
@@ -81,7 +81,7 @@ Proof. induction m; unfold zero_matrix; simpl; auto. Qed.
 
 
 Definition mvF {NAN : Nans}  {t: type} (m: matrix ) (v: vector ) : vector  :=
-      map (fun row => dotprod t row v) m.
+      map (fun row => @dotprod NAN t row v) m.
 
 Lemma mvF_len {NAN : Nans} t m v:
   length (@mvF NAN t m v)  = length m.
@@ -90,7 +90,7 @@ Proof. induction m; simpl; auto. Qed.
 Lemma mvF_nil {NAN : Nans} {t: type} : forall m, @mvF NAN t m [] = zero_vector (length m) (Zconst t 0).
 Proof. 
 intros; unfold mvF.
-set (f:= (fun row : list (ftype t) => dotprod t row [])).
+set (f:= (fun row : list (ftype t) => dotprod row [])).
 replace (map f m) with  (map (fun _ => Zconst t 0) m).
 induction m; simpl; auto.
 { rewrite IHm; auto. }
