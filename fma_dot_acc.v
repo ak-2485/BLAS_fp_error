@@ -322,10 +322,12 @@ Hypothesis Hfp : fma_dot_prod_rel (combine v1 v2) fp.
 Hypothesis Hfin: Binary.is_finite (fprec t) (femax t) fp = true.
 
 Notation v1R := (map FT2R v1).
+Notation vR  := (map FR2 (combine v1 v2)).
+Notation vR' := (map Rabsp (map FR2 (combine v1 v2))).
 
 Variable (rp rp_abs : R).
-Hypothesis Hrp  : R_dot_prod_rel (map FR2 (combine v1 v2)) rp.
-Hypothesis Hra : R_dot_prod_rel (map Rabsp (map FR2 (combine v1 v2))) rp_abs.
+Hypothesis Hrp  : R_dot_prod_rel vR rp.
+Hypothesis Hra : R_dot_prod_rel vR' rp_abs.
 
 Notation g := (@common.g t).
 Notation g1 := (@common.g1 t).

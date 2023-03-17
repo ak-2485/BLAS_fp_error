@@ -348,10 +348,10 @@ assert (Datatypes.length (combine v1 v2) = length v1) by
  (rewrite combine_length; lia).
 assert (Hlenr : length (rev v1) = length (rev v2)) by (rewrite !rev_length; auto).
 rewrite <- rev_length in Hlen.
-pose proof fdot_prod_rel_fold_right v1 v2 as H1.
+pose proof dot_prod_rel_fold_right v1 v2 as H1.
 rewrite <- combine_rev in H1. 
 rewrite rev_length in Hlen.
-pose proof (dotprod_mixed_error (rev v1) (rev v2) Hlenr (dotprod v1 v2) H1 Hfin) as 
+pose proof (dotprod_mixed_error (zrev v1) (rev v2) Hlenr (dotprod v1 v2) H1 Hfin) as 
   (u & eta & H2 & H3 & H4 & H5).
 exists (rev u), eta; repeat split; auto.
 rewrite rev_length in H2; rewrite <- rev_length in H2; auto.

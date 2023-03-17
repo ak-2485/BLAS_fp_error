@@ -11,7 +11,7 @@ Import ListNotations.
 Section DotProd.
 Context {NAN : Nans} {t : type}.
 
-(* vanilla dot-product *)
+(* Standard floating-point dot-product *)
 Definition dotprod (v1 v2: list (ftype t)) : ftype t :=
   fold_left (fun s x12 => BPLUS (BMULT (fst x12) (snd x12)) s) 
                 (List.combine v1 v2) (Zconst t 0).
@@ -23,7 +23,7 @@ Inductive dot_prod_rel :
     dot_prod_rel  l s ->
     dot_prod_rel  (xy::l) (BPLUS (BMULT  (fst xy) (snd xy)) s).
 
-Lemma fdot_prod_rel_fold_right :
+Lemma dot_prod_rel_fold_right :
 forall (v1 v2: list (ftype t)), 
     dot_prod_rel (rev (List.combine v1 v2)) (dotprod v1 v2).
 Proof.
@@ -67,13 +67,9 @@ End FMADotProd.
 
 Section RealDotProd.
 
-Definition Rabsp p : R * R := (Rabs (fst p), Rabs (snd p)).
-
-Definition FR2 {t: type} (x12: ftype t * ftype t) := (FT2R (fst x12), FT2R (snd x12)).
-
-Lemma FT2R_FR2 t : 
-  (forall a a0 : ftype t, (FT2R a, FT2R a0) = FR2 (a, a0)) .
-Proof. intros. unfold FR2; simpl; auto. Qed.
+(* Dot-product over the reals *)
+Definition dotprodR l1 l2 : R := 
+  fold_left Rplus (map (uncurry Rmult) (List.combine l1 l2)) 0%R.
 
 Inductive R_dot_prod_rel : 
             list (R * R) -> R -> Prop :=
@@ -93,10 +89,15 @@ intros; inversion Ha; inversion Hb; subst; f_equal.
 apply IHl; auto.
 Qed.
 
-Definition sum_fold: list R -> R := fold_right Rplus 0%R.
+Definition Rabsp p : R * R := (Rabs (fst p), Rabs (snd p)).
 
-Definition dotprodR l1 l2 : R := 
-  fold_left Rplus (map (uncurry Rmult) (List.combine l1 l2)) 0%R.
+Definition FR2 {t: type} (x12: ftype t * ftype t) := (FT2R (fst x12), FT2R (snd x12)).
+
+Lemma FT2R_FR2 t : 
+  (forall a a0 : ftype t, (FT2R a, FT2R a0) = FR2 (a, a0)) .
+Proof. intros. unfold FR2; simpl; auto. Qed.
+
+Definition sum_fold: list R -> R := fold_right Rplus 0%R.
 
 Lemma dotprodR_nil_l u:
 dotprodR nil u = 0%R. 
@@ -140,7 +141,7 @@ replace (combine v1 (rev v2)) with
   (rev (combine (rev v1) v2)).
 rewrite <- fold_left_rev_right.
 replace (fun x y : R => y + x) with Rplus
- by (do 2 (apply FunctionalExtensionality.functional_extensionality; intro); lra).
+ by (do 2 (apply functional_extensionality; intro); lra).
 symmetry.
 induction (combine (rev v1) v2).
 simpl; auto.
@@ -150,7 +151,6 @@ end.
 simpl. subst y.
 rewrite fold_left_Rplus_Rplus.
 rewrite IHl.
-Search rev map.
 rewrite !map_rev, !rev_involutive.
 simpl; auto.
 rewrite <- combine_rev, rev_involutive; auto.
