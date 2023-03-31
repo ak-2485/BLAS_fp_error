@@ -1,0 +1,31 @@
+DIGEST ed2a95ec5461752891151adfff1b02ba
+Flib.accuracy_proofs.op_defs
+R15:29 vcfloat.VCFloat <> <> lib
+sec 41:43 <> NAN
+var 55:57 NAN NAN
+R60:63 vcfloat.FPCore <> Nans class
+def 78:81 <> BFMA
+R89:92 vcfloat.FPCore <> Nans class
+binder 84:86 <> NAN:2
+R99:102 vcfloat.FPCore <> type rec
+binder 96:96 <> t:3
+R122:126 vcfloat.FPCore <> ftype def
+R128:128 lib.accuracy_proofs.op_defs <> t:3 var
+binder 115:115 <> x:4
+binder 117:117 <> y:5
+binder 119:119 <> z:6
+R132:136 vcfloat.FPCore <> ftype def
+R138:138 lib.accuracy_proofs.op_defs <> t:3 var
+R147:157 Flocq.IEEE754.Binary <> Bfma def
+R220:226 vcfloat.FPCore <> fma_nan meth
+R228:228 lib.accuracy_proofs.op_defs <> t:3 var
+R231:253 Flocq.IEEE754.BinarySingleNaN <> mode_NE constr
+R201:214 vcfloat.FPCore <> fprec_lt_femax thm
+R216:216 lib.accuracy_proofs.op_defs <> t:3 var
+R180:189 vcfloat.FPCore <> fprec_gt_0 inst
+R191:191 lib.accuracy_proofs.op_defs <> t:3 var
+R170:174 vcfloat.FPCore <> femax proj
+R176:176 lib.accuracy_proofs.op_defs <> t:3 var
+R160:164 vcfloat.FPCore <> fprec proj
+R166:166 lib.accuracy_proofs.op_defs <> t:3 var
+R261:263 lib.accuracy_proofs.op_defs NAN <> sec

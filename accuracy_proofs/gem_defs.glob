@@ -1,0 +1,1135 @@
+DIGEST f171358da659d8b60abdcd8b71422613
+Flib.accuracy_proofs.gem_defs
+R15:29 vcfloat.VCFloat <> <> lib
+R47:50 Coq.Lists.List <> <> lib
+R60:72 Coq.Lists.List ListNotations <> mod
+R91:96 lib.accuracy_proofs.common <> <> lib
+R98:104 lib.accuracy_proofs.op_defs <> <> lib
+R106:118 lib.accuracy_proofs.dotprod_model <> <> lib
+R120:128 lib.accuracy_proofs.sum_model <> <> lib
+R146:152 lib.accuracy_proofs.dot_acc <> <> lib
+R154:167 lib.accuracy_proofs.float_acc_lems <> <> lib
+R169:179 lib.accuracy_proofs.list_lemmas <> <> lib
+sec 191:199 <> MVGenDefs
+def 215:220 <> matrix
+binder 223:223 <> A:1
+R236:239 Coq.Init.Datatypes <> list ind
+R242:245 Coq.Init.Datatypes <> list ind
+R247:247 lib.accuracy_proofs.gem_defs <> A:1 var
+def 263:268 <> vector
+binder 271:271 <> A:2
+R284:287 Coq.Init.Datatypes <> list ind
+R289:289 lib.accuracy_proofs.gem_defs <> A:2 var
+def 302:312 <> zero_vector
+binder 315:315 <> A:3
+R329:331 Coq.Init.Datatypes <> nat ind
+binder 325:325 <> m:4
+R342:342 lib.accuracy_proofs.gem_defs <> A:3 var
+binder 335:338 <> zero:5
+R347:352 lib.accuracy_proofs.gem_defs <> vector def
+R366:366 lib.accuracy_proofs.gem_defs <> m:4 var
+R378:378 Coq.Init.Datatypes <> S constr
+R389:392 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R385:388 lib.accuracy_proofs.gem_defs <> zero:5 var
+R393:403 lib.accuracy_proofs.gem_defs <> zero_vector:6 def
+R407:410 lib.accuracy_proofs.gem_defs <> zero:5 var
+R421:422 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+def 442:452 <> zero_matrix
+binder 455:455 <> A:8
+R470:472 Coq.Init.Datatypes <> nat ind
+binder 465:465 <> m:9
+binder 467:467 <> n:10
+R483:483 lib.accuracy_proofs.gem_defs <> A:8 var
+binder 476:479 <> zero:11
+R488:493 lib.accuracy_proofs.gem_defs <> matrix def
+R507:507 lib.accuracy_proofs.gem_defs <> m:9 var
+R519:519 Coq.Init.Datatypes <> S constr
+R545:548 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R527:537 lib.accuracy_proofs.gem_defs <> zero_vector def
+R541:544 lib.accuracy_proofs.gem_defs <> zero:11 var
+R539:539 lib.accuracy_proofs.gem_defs <> n:10 var
+R549:559 lib.accuracy_proofs.gem_defs <> zero_matrix:12 def
+R566:569 lib.accuracy_proofs.gem_defs <> zero:11 var
+R564:564 lib.accuracy_proofs.gem_defs <> n:10 var
+R580:581 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+def 603:615 <> is_finite_vec
+R622:625 vcfloat.FPCore <> type rec
+binder 618:618 <> t:14
+R632:637 lib.accuracy_proofs.gem_defs <> vector def
+binder 629:629 <> v:15
+binder 660:660 <> x:16
+R669:672 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R663:664 Coq.Lists.List <> In def
+R668:668 lib.accuracy_proofs.gem_defs <> v:15 var
+R666:666 lib.accuracy_proofs.gem_defs <> x:16 var
+R711:713 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R673:688 Flocq.IEEE754.Binary <> is_finite def
+R710:710 lib.accuracy_proofs.gem_defs <> x:16 var
+R701:705 vcfloat.FPCore <> femax proj
+R707:707 lib.accuracy_proofs.gem_defs <> t:14 var
+R691:695 vcfloat.FPCore <> fprec proj
+R697:697 lib.accuracy_proofs.gem_defs <> t:14 var
+R714:717 Coq.Init.Datatypes <> true constr
+def 732:745 <> is_zero_vector
+binder 748:748 <> A:17
+binder 757:757 <> v:18
+R767:767 lib.accuracy_proofs.gem_defs <> A:17 var
+binder 760:763 <> zero:19
+binder 787:787 <> x:20
+R796:799 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R790:791 Coq.Lists.List <> In def
+R795:795 lib.accuracy_proofs.gem_defs <> v:18 var
+R793:793 lib.accuracy_proofs.gem_defs <> x:20 var
+R801:803 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R800:800 lib.accuracy_proofs.gem_defs <> x:20 var
+R804:807 lib.accuracy_proofs.gem_defs <> zero:19 var
+def 822:828 <> map_mat
+binder 831:831 <> A:21
+binder 833:833 <> B:22
+R848:851 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R847:847 lib.accuracy_proofs.gem_defs <> A:21 var
+R852:852 lib.accuracy_proofs.gem_defs <> B:22 var
+binder 843:843 <> f:23
+R860:865 lib.accuracy_proofs.gem_defs <> matrix def
+binder 856:856 <> M:24
+R870:875 lib.accuracy_proofs.gem_defs <> matrix def
+R882:884 Coq.Lists.List <> map def
+R894:894 lib.accuracy_proofs.gem_defs <> M:24 var
+R887:889 Coq.Lists.List <> map def
+R891:891 lib.accuracy_proofs.gem_defs <> f:23 var
+def 911:914 <> map2
+binder 917:917 <> A:25
+binder 919:919 <> B:26
+binder 921:921 <> C:27
+R935:938 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R934:934 lib.accuracy_proofs.gem_defs <> A:25 var
+R940:943 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R939:939 lib.accuracy_proofs.gem_defs <> B:26 var
+R944:944 lib.accuracy_proofs.gem_defs <> C:27 var
+binder 931:931 <> f:28
+binder 947:948 <> al:29
+binder 950:951 <> bl:30
+R958:960 Coq.Lists.List <> map def
+R975:986 Coq.Lists.List <> combine def
+R991:992 lib.accuracy_proofs.gem_defs <> bl:30 var
+R988:989 lib.accuracy_proofs.gem_defs <> al:29 var
+R963:969 Coq.Init.Datatypes <> uncurry def
+R971:971 lib.accuracy_proofs.gem_defs <> f:28 var
+def 1006:1017 <> zero_map_vec
+binder 1020:1020 <> A:31
+binder 1022:1022 <> B:32
+R1040:1040 lib.accuracy_proofs.gem_defs <> B:32 var
+binder 1033:1036 <> zero:33
+R1049:1054 lib.accuracy_proofs.gem_defs <> vector def
+R1056:1056 lib.accuracy_proofs.gem_defs <> A:31 var
+binder 1044:1044 <> v:34
+R1062:1067 lib.accuracy_proofs.gem_defs <> vector def
+R1069:1069 lib.accuracy_proofs.gem_defs <> B:32 var
+R1082:1082 lib.accuracy_proofs.gem_defs <> v:34 var
+R1094:1095 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R1100:1101 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R1108:1111 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R1121:1124 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R1117:1120 lib.accuracy_proofs.gem_defs <> zero:33 var
+R1125:1136 lib.accuracy_proofs.gem_defs <> zero_map_vec:35 def
+R1138:1141 lib.accuracy_proofs.gem_defs <> zero:33 var
+def 1161:1172 <> zero_map_mat
+binder 1175:1175 <> A:37
+binder 1177:1177 <> B:38
+R1195:1195 lib.accuracy_proofs.gem_defs <> B:38 var
+binder 1188:1191 <> zero:39
+R1204:1209 lib.accuracy_proofs.gem_defs <> matrix def
+R1211:1211 lib.accuracy_proofs.gem_defs <> A:37 var
+binder 1199:1199 <> M:40
+R1217:1222 lib.accuracy_proofs.gem_defs <> matrix def
+R1224:1224 lib.accuracy_proofs.gem_defs <> B:38 var
+R1237:1237 lib.accuracy_proofs.gem_defs <> M:40 var
+R1249:1250 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R1255:1256 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R1264:1267 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R1294:1297 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R1274:1285 lib.accuracy_proofs.gem_defs <> zero_map_vec def
+R1287:1290 lib.accuracy_proofs.gem_defs <> zero:39 var
+R1298:1309 lib.accuracy_proofs.gem_defs <> zero_map_mat:41 def
+R1311:1314 lib.accuracy_proofs.gem_defs <> zero:39 var
+def 1337:1345 <> in_matrix
+binder 1348:1348 <> T:43
+R1363:1366 Coq.Init.Datatypes <> list ind
+R1369:1372 Coq.Init.Datatypes <> list ind
+R1374:1374 lib.accuracy_proofs.gem_defs <> T:43 var
+binder 1359:1359 <> A:44
+R1383:1383 lib.accuracy_proofs.gem_defs <> T:43 var
+binder 1379:1379 <> a:45
+R1402:1409 Coq.Lists.List <> flat_map def
+R1424:1424 lib.accuracy_proofs.gem_defs <> A:44 var
+binder 1416:1416 <> x:46
+R1421:1421 lib.accuracy_proofs.gem_defs <> x:46 var
+binder 1396:1397 <> A':47
+R1429:1430 Coq.Lists.List <> In def
+R1434:1435 lib.accuracy_proofs.gem_defs <> A':47 var
+R1432:1432 lib.accuracy_proofs.gem_defs <> a:45 var
+def 1450:1461 <> matrix_index
+binder 1464:1464 <> A:48
+R1471:1476 lib.accuracy_proofs.gem_defs <> matrix def
+binder 1468:1468 <> m:49
+R1485:1487 Coq.Init.Datatypes <> nat ind
+binder 1480:1480 <> i:50
+binder 1482:1482 <> j:51
+R1497:1497 lib.accuracy_proofs.gem_defs <> A:48 var
+binder 1491:1494 <> zero:52
+R1502:1502 lib.accuracy_proofs.gem_defs <> A:48 var
+R1508:1510 Coq.Lists.List <> nth def
+R1528:1531 lib.accuracy_proofs.gem_defs <> zero:52 var
+R1515:1517 Coq.Lists.List <> nth def
+R1523:1525 Coq.Init.Datatypes <> nil constr
+R1521:1521 lib.accuracy_proofs.gem_defs <> m:49 var
+R1519:1519 lib.accuracy_proofs.gem_defs <> i:50 var
+R1512:1512 lib.accuracy_proofs.gem_defs <> j:51 var
+def 1546:1552 <> eq_size
+binder 1555:1556 <> T1:53
+binder 1558:1559 <> T2:54
+R1570:1573 Coq.Init.Datatypes <> list ind
+R1576:1579 Coq.Init.Datatypes <> list ind
+R1581:1582 lib.accuracy_proofs.gem_defs <> T1:53 var
+binder 1566:1566 <> A:55
+R1591:1594 Coq.Init.Datatypes <> list ind
+R1597:1600 Coq.Init.Datatypes <> list ind
+R1602:1603 lib.accuracy_proofs.gem_defs <> T2:54 var
+binder 1587:1587 <> B:56
+R1629:1634 Coq.Init.Logic <> ::type_scope:x_'/\'_x not
+R1618:1620 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R1610:1615 Coq.Init.Datatypes <> length def
+R1617:1617 lib.accuracy_proofs.gem_defs <> A:55 var
+R1621:1626 Coq.Init.Datatypes <> length def
+R1628:1628 lib.accuracy_proofs.gem_defs <> B:56 var
+binder 1642:1642 <> x:57
+binder 1644:1644 <> y:58
+R1653:1656 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R1647:1648 Coq.Lists.List <> In def
+R1652:1652 lib.accuracy_proofs.gem_defs <> A:55 var
+R1650:1650 lib.accuracy_proofs.gem_defs <> x:57 var
+R1663:1666 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R1657:1658 Coq.Lists.List <> In def
+R1662:1662 lib.accuracy_proofs.gem_defs <> B:56 var
+R1660:1660 lib.accuracy_proofs.gem_defs <> y:58 var
+R1675:1677 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R1667:1672 Coq.Init.Datatypes <> length def
+R1674:1674 lib.accuracy_proofs.gem_defs <> x:57 var
+R1678:1683 Coq.Init.Datatypes <> length def
+R1685:1685 lib.accuracy_proofs.gem_defs <> y:58 var
+R1693:1701 lib.accuracy_proofs.gem_defs MVGenDefs <> sec
+sec 1713:1720 <> MVOpDefs
+def 1760:1766 <> vec_sum
+binder 1769:1769 <> A:59
+R1785:1790 lib.accuracy_proofs.gem_defs <> vector def
+binder 1779:1779 <> u:60
+binder 1781:1781 <> v:61
+R1801:1804 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R1800:1800 lib.accuracy_proofs.gem_defs <> A:59 var
+R1806:1809 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R1805:1805 lib.accuracy_proofs.gem_defs <> A:59 var
+R1810:1810 lib.accuracy_proofs.gem_defs <> A:59 var
+binder 1794:1796 <> sum:62
+R1817:1822 lib.accuracy_proofs.gem_defs <> vector def
+R1824:1824 lib.accuracy_proofs.gem_defs <> A:59 var
+R1832:1835 lib.accuracy_proofs.gem_defs <> map2 def
+R1843:1843 lib.accuracy_proofs.gem_defs <> v:61 var
+R1841:1841 lib.accuracy_proofs.gem_defs <> u:60 var
+R1837:1839 lib.accuracy_proofs.gem_defs <> sum:62 var
+def 1885:1892 <> vec_sumR
+binder 1894:1894 <> u:63
+binder 1896:1896 <> v:64
+R1902:1908 lib.accuracy_proofs.gem_defs <> vec_sum def
+R1914:1918 Coq.Reals.Rdefinitions RbaseSymbolsImpl Rplus defax
+R1912:1912 lib.accuracy_proofs.gem_defs <> v:64 var
+R1910:1910 lib.accuracy_proofs.gem_defs <> u:63 var
+def 1958:1964 <> mat_sum
+binder 1967:1967 <> T:65
+R1983:1988 lib.accuracy_proofs.gem_defs <> matrix def
+binder 1977:1977 <> A:66
+binder 1979:1979 <> B:67
+R1999:2002 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R1998:1998 lib.accuracy_proofs.gem_defs <> T:65 var
+R2004:2007 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R2003:2003 lib.accuracy_proofs.gem_defs <> T:65 var
+R2008:2008 lib.accuracy_proofs.gem_defs <> T:65 var
+binder 1992:1994 <> sum:68
+R2014:2019 lib.accuracy_proofs.gem_defs <> matrix def
+R2021:2021 lib.accuracy_proofs.gem_defs <> T:65 var
+R2029:2032 lib.accuracy_proofs.gem_defs <> map2 def
+R2047:2047 lib.accuracy_proofs.gem_defs <> B:67 var
+R2045:2045 lib.accuracy_proofs.gem_defs <> A:66 var
+R2035:2038 lib.accuracy_proofs.gem_defs <> map2 def
+R2040:2042 lib.accuracy_proofs.gem_defs <> sum:68 var
+def 2090:2097 <> mat_sumR
+binder 2099:2099 <> A:69
+binder 2101:2101 <> B:70
+R2107:2113 lib.accuracy_proofs.gem_defs <> mat_sum def
+R2119:2123 Coq.Reals.Rdefinitions RbaseSymbolsImpl Rplus defax
+R2117:2117 lib.accuracy_proofs.gem_defs <> B:70 var
+R2115:2115 lib.accuracy_proofs.gem_defs <> A:69 var
+def 2188:2190 <> mvF
+R2199:2202 vcfloat.FPCore <> Nans class
+binder 2193:2195 <> NAN:71
+R2210:2213 vcfloat.FPCore <> type rec
+binder 2207:2207 <> t:72
+R2220:2225 lib.accuracy_proofs.gem_defs <> matrix def
+binder 2217:2217 <> m:73
+R2233:2238 lib.accuracy_proofs.gem_defs <> vector def
+binder 2230:2230 <> v:74
+R2244:2249 lib.accuracy_proofs.gem_defs <> vector def
+R2261:2263 Coq.Lists.List <> map def
+R2299:2299 lib.accuracy_proofs.gem_defs <> m:73 var
+binder 2270:2272 <> row:75
+R2278:2284 lib.accuracy_proofs.dotprod_model <> dotprod def
+R2286:2288 lib.accuracy_proofs.gem_defs <> NAN:71 var
+R2290:2290 lib.accuracy_proofs.gem_defs <> t:72 var
+R2292:2294 lib.accuracy_proofs.gem_defs <> row:75 var
+R2296:2296 lib.accuracy_proofs.gem_defs <> v:74 var
+def 2361:2363 <> mvR
+R2370:2375 lib.accuracy_proofs.gem_defs <> matrix def
+binder 2367:2367 <> m:76
+R2382:2387 lib.accuracy_proofs.gem_defs <> vector def
+binder 2379:2379 <> v:77
+R2392:2397 lib.accuracy_proofs.gem_defs <> vector def
+R2408:2410 Coq.Lists.List <> map def
+R2440:2440 lib.accuracy_proofs.gem_defs <> m:76 var
+binder 2417:2419 <> row:78
+R2424:2431 lib.accuracy_proofs.dotprod_model <> dotprodR def
+R2433:2435 lib.accuracy_proofs.gem_defs <> row:78 var
+R2437:2437 lib.accuracy_proofs.gem_defs <> v:77 var
+R2448:2455 lib.accuracy_proofs.gem_defs MVOpDefs <> sec
+R2481:2483 lib.accuracy_proofs.gem_defs <> mvF def
+not 2468:2468 <> :::x_'*f'_x
+R2528:2530 lib.accuracy_proofs.gem_defs <> mvR def
+not 2514:2514 <> :::x_'*r'_x
+R2575:2577 Coq.Lists.List <> map def
+R2585:2587 lib.accuracy_proofs.gem_defs <> mvF def
+R2579:2582 vcfloat.FPCore <> FT2R def
+not 2561:2561 <> :::x_'*fr'_x
+R2633:2639 lib.accuracy_proofs.gem_defs <> vec_sum def
+R2645:2650 Coq.Reals.Rdefinitions <> Rminus def
+not 2620:2620 <> :::x_'-v'_x
+R2690:2697 lib.accuracy_proofs.gem_defs <> vec_sumR def
+not 2677:2677 <> :::x_'+v'_x
+R2742:2749 lib.accuracy_proofs.gem_defs <> mat_sumR def
+R2754:2760 lib.accuracy_proofs.gem_defs <> map_mat def
+R2762:2765 Coq.Reals.Rdefinitions RbaseSymbolsImpl Ropp defax
+not 2729:2729 <> :::x_'-m'_x
+R2808:2815 lib.accuracy_proofs.gem_defs <> mat_sumR def
+not 2795:2795 <> :::x_'+m'_x
+R2869:2880 lib.accuracy_proofs.gem_defs <> matrix_index def
+not 2847:2847 <> :::x_'_('_x_','_x_')'
+sec 2917:2922 <> MVLems
+prf 2932:2942 <> map2_length
+binder 2945:2945 <> A:79
+binder 2947:2947 <> B:80
+binder 2949:2949 <> C:81
+R2963:2966 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R2962:2962 lib.accuracy_proofs.gem_defs <> A:79 var
+R2968:2971 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R2967:2967 lib.accuracy_proofs.gem_defs <> B:80 var
+R2972:2972 lib.accuracy_proofs.gem_defs <> C:81 var
+binder 2959:2959 <> f:82
+binder 2975:2976 <> al:83
+binder 2978:2979 <> bl:84
+R3007:3013 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R2995:2997 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R2986:2991 Coq.Init.Datatypes <> length def
+R2993:2994 lib.accuracy_proofs.gem_defs <> al:83 var
+R2998:3003 Coq.Init.Datatypes <> length def
+R3005:3006 lib.accuracy_proofs.gem_defs <> bl:84 var
+R3035:3037 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R3014:3019 Coq.Init.Datatypes <> length def
+R3022:3025 lib.accuracy_proofs.gem_defs <> map2 def
+R3032:3033 lib.accuracy_proofs.gem_defs <> bl:84 var
+R3029:3030 lib.accuracy_proofs.gem_defs <> al:83 var
+R3027:3027 lib.accuracy_proofs.gem_defs <> f:82 var
+R3038:3043 Coq.Init.Datatypes <> length def
+R3045:3046 lib.accuracy_proofs.gem_defs <> al:83 var
+R3071:3074 lib.accuracy_proofs.gem_defs <> map2 def
+R3085:3094 Coq.Lists.List <> map_length thm
+R3097:3110 Coq.Lists.List <> combine_length thm
+R3116:3125 Coq.Arith.PeanoNat Nat min_id thm
+R3085:3094 Coq.Lists.List <> map_length thm
+R3085:3094 Coq.Lists.List <> map_length thm
+R3097:3110 Coq.Lists.List <> combine_length thm
+R3097:3110 Coq.Lists.List <> combine_length thm
+R3116:3125 Coq.Arith.PeanoNat Nat min_id thm
+R3116:3125 Coq.Arith.PeanoNat Nat min_id thm
+prf 3146:3159 <> map_mat_length
+binder 3162:3162 <> A:85
+binder 3164:3164 <> B:86
+R3190:3193 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R3189:3189 lib.accuracy_proofs.gem_defs <> A:85 var
+R3194:3194 lib.accuracy_proofs.gem_defs <> B:86 var
+binder 3185:3185 <> f:87
+R3203:3208 lib.accuracy_proofs.gem_defs <> matrix def
+R3210:3210 lib.accuracy_proofs.gem_defs <> A:85 var
+binder 3198:3198 <> M:88
+R3237:3239 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R3217:3222 Coq.Init.Datatypes <> length def
+R3225:3231 lib.accuracy_proofs.gem_defs <> map_mat def
+R3235:3235 lib.accuracy_proofs.gem_defs <> M:88 var
+R3233:3233 lib.accuracy_proofs.gem_defs <> f:87 var
+R3240:3245 Coq.Init.Datatypes <> length def
+R3247:3247 lib.accuracy_proofs.gem_defs <> M:88 var
+prf 3333:3350 <> zero_matrix_length
+binder 3353:3353 <> A:89
+R3368:3370 Coq.Init.Datatypes <> nat ind
+binder 3363:3363 <> m:90
+binder 3365:3365 <> n:91
+R3381:3381 lib.accuracy_proofs.gem_defs <> A:89 var
+binder 3374:3377 <> zero:92
+R3417:3419 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R3388:3393 Coq.Init.Datatypes <> length def
+R3396:3406 lib.accuracy_proofs.gem_defs <> zero_matrix def
+R3412:3415 lib.accuracy_proofs.gem_defs <> zero:92 var
+R3410:3410 lib.accuracy_proofs.gem_defs <> n:91 var
+R3408:3408 lib.accuracy_proofs.gem_defs <> m:90 var
+R3420:3420 lib.accuracy_proofs.gem_defs <> m:90 var
+R3451:3461 lib.accuracy_proofs.gem_defs <> zero_matrix def
+prf 3490:3496 <> mvF_len
+R3505:3508 vcfloat.FPCore <> Nans class
+binder 3499:3501 <> NAN:93
+binder 3511:3511 <> t:94
+binder 3513:3513 <> m:95
+binder 3515:3515 <> v:96
+R3543:3546 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R3520:3525 Coq.Init.Datatypes <> length def
+R3529:3531 lib.accuracy_proofs.gem_defs <> mvF def
+R3533:3535 lib.accuracy_proofs.gem_defs <> NAN:93 var
+R3537:3537 lib.accuracy_proofs.gem_defs <> t:94 var
+R3539:3539 lib.accuracy_proofs.gem_defs <> m:95 var
+R3541:3541 lib.accuracy_proofs.gem_defs <> v:96 var
+R3547:3552 Coq.Init.Datatypes <> length def
+R3554:3554 lib.accuracy_proofs.gem_defs <> m:95 var
+prf 3602:3613 <> dotprodF_nil
+R3622:3625 vcfloat.FPCore <> Nans class
+binder 3616:3618 <> NAN:97
+R3632:3635 vcfloat.FPCore <> type rec
+binder 3629:3629 <> t:98
+binder 3638:3640 <> row:99
+R3658:3661 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R3672:3672 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R3644:3650 lib.accuracy_proofs.dotprod_model <> dotprod def
+R3652:3654 lib.accuracy_proofs.gem_defs <> row:99 var
+R3656:3657 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R3662:3667 vcfloat.FPCore <> Zconst def
+R3669:3669 lib.accuracy_proofs.gem_defs <> t:98 var
+prf 3723:3729 <> mvF_nil
+R3738:3741 vcfloat.FPCore <> Nans class
+binder 3732:3734 <> NAN:100
+R3748:3751 vcfloat.FPCore <> type rec
+binder 3745:3745 <> t:101
+binder 3763:3763 <> m:102
+R3781:3783 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R3767:3769 lib.accuracy_proofs.gem_defs <> mvF def
+R3771:3773 lib.accuracy_proofs.gem_defs <> NAN:100 var
+R3775:3775 lib.accuracy_proofs.gem_defs <> t:101 var
+R3777:3777 lib.accuracy_proofs.gem_defs <> m:102 var
+R3779:3780 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R3784:3794 lib.accuracy_proofs.gem_defs <> zero_vector def
+R3808:3813 vcfloat.FPCore <> Zconst def
+R3815:3815 lib.accuracy_proofs.gem_defs <> t:101 var
+R3797:3802 Coq.Init.Datatypes <> length def
+R3804:3804 lib.accuracy_proofs.gem_defs <> m:102 var
+R3844:3846 lib.accuracy_proofs.gem_defs <> mvF def
+R3869:3872 Coq.Init.Datatypes <> list ind
+R3875:3879 vcfloat.FPCore <> ftype def
+binder 3863:3865 <> row:103
+R3887:3893 lib.accuracy_proofs.dotprod_model <> dotprod def
+R3895:3897 lib.accuracy_proofs.gem_defs <> row:103 var
+R3899:3900 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R3869:3872 Coq.Init.Datatypes <> list ind
+R3875:3879 vcfloat.FPCore <> ftype def
+binder 3863:3865 <> row:104
+R3887:3893 lib.accuracy_proofs.dotprod_model <> dotprod def
+R3895:3897 lib.accuracy_proofs.gem_defs <> row:104 var
+R3899:3900 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R3914:3916 Coq.Lists.List <> map def
+R3930:3932 Coq.Lists.List <> map def
+R3944:3949 vcfloat.FPCore <> Zconst def
+R3914:3916 Coq.Lists.List <> map def
+R3930:3932 Coq.Lists.List <> map def
+R3944:3949 vcfloat.FPCore <> Zconst def
+R4015:4024 Coq.Lists.List <> map_ext_in thm
+R4015:4024 Coq.Lists.List <> map_ext_in thm
+R4059:4070 lib.accuracy_proofs.gem_defs <> dotprodF_nil thm
+R4059:4070 lib.accuracy_proofs.gem_defs <> dotprodF_nil thm
+R4059:4070 lib.accuracy_proofs.gem_defs <> dotprodF_nil thm
+prf 4091:4097 <> mvR_nil
+binder 4108:4108 <> m:105
+R4119:4121 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R4111:4113 lib.accuracy_proofs.gem_defs <> mvR def
+R4115:4115 lib.accuracy_proofs.gem_defs <> m:105 var
+R4117:4118 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R4122:4132 lib.accuracy_proofs.gem_defs <> zero_vector def
+R4135:4140 Coq.Init.Datatypes <> length def
+R4142:4142 lib.accuracy_proofs.gem_defs <> m:105 var
+R4173:4175 lib.accuracy_proofs.gem_defs <> mvR def
+R4198:4201 Coq.Init.Datatypes <> list ind
+R4203:4203 Coq.Reals.Rdefinitions RbaseSymbolsImpl R defax
+binder 4192:4194 <> row:106
+R4208:4215 lib.accuracy_proofs.dotprod_model <> dotprodR def
+R4217:4219 lib.accuracy_proofs.gem_defs <> row:106 var
+R4221:4222 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R4198:4201 Coq.Init.Datatypes <> list ind
+R4203:4203 Coq.Reals.Rdefinitions RbaseSymbolsImpl R defax
+binder 4192:4194 <> row:107
+R4208:4215 lib.accuracy_proofs.dotprod_model <> dotprodR def
+R4217:4219 lib.accuracy_proofs.gem_defs <> row:107 var
+R4221:4222 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R4236:4238 Coq.Lists.List <> map def
+R4252:4254 Coq.Lists.List <> map def
+R4236:4238 Coq.Lists.List <> map def
+R4252:4254 Coq.Lists.List <> map def
+R4330:4339 Coq.Lists.List <> map_ext_in thm
+R4330:4339 Coq.Lists.List <> map_ext_in thm
+R4374:4387 lib.accuracy_proofs.dotprod_model <> dotprodR_nil_r thm
+R4374:4387 lib.accuracy_proofs.dotprod_model <> dotprodR_nil_r thm
+R4374:4387 lib.accuracy_proofs.dotprod_model <> dotprodR_nil_r thm
+prf 4408:4421 <> mat_sum_length
+binder 4424:4424 <> T:108
+R4440:4443 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R4439:4439 lib.accuracy_proofs.gem_defs <> T:108 var
+R4445:4448 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R4444:4444 lib.accuracy_proofs.gem_defs <> T:108 var
+R4449:4449 lib.accuracy_proofs.gem_defs <> T:108 var
+binder 4434:4436 <> sum:109
+R4471:4476 lib.accuracy_proofs.gem_defs <> matrix def
+binder 4466:4466 <> A:110
+binder 4468:4468 <> B:111
+R4505:4507 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R4497:4502 Coq.Init.Datatypes <> length def
+R4504:4504 lib.accuracy_proofs.gem_defs <> A:110 var
+R4508:4513 Coq.Init.Datatypes <> length def
+R4515:4515 lib.accuracy_proofs.gem_defs <> B:111 var
+binder 4490:4493 <> Hlen:112
+R4545:4547 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R4521:4526 Coq.Init.Datatypes <> length def
+R4529:4535 lib.accuracy_proofs.gem_defs <> mat_sum def
+R4541:4543 lib.accuracy_proofs.gem_defs <> sum:109 var
+R4539:4539 lib.accuracy_proofs.gem_defs <> B:111 var
+R4537:4537 lib.accuracy_proofs.gem_defs <> A:110 var
+R4548:4553 Coq.Init.Datatypes <> length def
+R4555:4555 lib.accuracy_proofs.gem_defs <> A:110 var
+R4580:4586 lib.accuracy_proofs.gem_defs <> mat_sum def
+R4597:4607 lib.accuracy_proofs.gem_defs <> map2_length thm
+R4597:4607 lib.accuracy_proofs.gem_defs <> map2_length thm
+R4597:4607 lib.accuracy_proofs.gem_defs <> map2_length thm
+R4597:4607 lib.accuracy_proofs.gem_defs <> map2_length thm
+prf 4628:4645 <> zero_vector_length
+binder 4648:4648 <> A:113
+R4663:4665 Coq.Init.Datatypes <> nat ind
+binder 4659:4659 <> m:114
+R4676:4676 lib.accuracy_proofs.gem_defs <> A:113 var
+binder 4669:4672 <> zero:115
+R4710:4713 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R4683:4688 Coq.Init.Datatypes <> length def
+R4691:4701 lib.accuracy_proofs.gem_defs <> zero_vector def
+R4705:4708 lib.accuracy_proofs.gem_defs <> zero:115 var
+R4703:4703 lib.accuracy_proofs.gem_defs <> m:114 var
+R4714:4714 lib.accuracy_proofs.gem_defs <> m:114 var
+prf 4762:4774 <> vec_sumR_cons
+R4793:4798 lib.accuracy_proofs.gem_defs <> vector def
+binder 4787:4787 <> u:116
+binder 4789:4789 <> v:117
+binder 4801:4802 <> u0:118
+binder 4804:4805 <> v0:119
+R4841:4843 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R4808:4814 lib.accuracy_proofs.gem_defs <> vec_sum def
+R4836:4840 Coq.Reals.Rdefinitions RbaseSymbolsImpl Rplus defax
+R4829:4832 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4827:4828 lib.accuracy_proofs.gem_defs <> v0:119 var
+R4833:4833 lib.accuracy_proofs.gem_defs <> v:117 var
+R4819:4822 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4817:4818 lib.accuracy_proofs.gem_defs <> u0:118 var
+R4823:4823 lib.accuracy_proofs.gem_defs <> u:116 var
+R4844:4844 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4852:4856 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4847:4849 Coq.Reals.Rdefinitions <> ::R_scope:x_'+'_x not
+R4845:4846 lib.accuracy_proofs.gem_defs <> u0:118 var
+R4850:4851 lib.accuracy_proofs.gem_defs <> v0:119 var
+R4857:4863 lib.accuracy_proofs.gem_defs <> vec_sum def
+R4869:4873 Coq.Reals.Rdefinitions RbaseSymbolsImpl Rplus defax
+R4867:4867 lib.accuracy_proofs.gem_defs <> v:117 var
+R4865:4865 lib.accuracy_proofs.gem_defs <> u:116 var
+R4924:4930 lib.accuracy_proofs.gem_defs <> vec_sum def
+R4933:4936 lib.accuracy_proofs.gem_defs <> map2 def
+prf 4965:4977 <> vec_sum_zeroR
+R4994:4999 lib.accuracy_proofs.gem_defs <> vector def
+binder 4990:4990 <> v:120
+R5049:5051 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R5005:5011 lib.accuracy_proofs.gem_defs <> vec_sum def
+R5044:5048 Coq.Reals.Rdefinitions RbaseSymbolsImpl Rplus defax
+R5016:5026 lib.accuracy_proofs.gem_defs <> zero_vector def
+R5029:5034 Coq.Init.Datatypes <> length def
+R5036:5036 lib.accuracy_proofs.gem_defs <> v:120 var
+R5013:5013 lib.accuracy_proofs.gem_defs <> v:120 var
+R5052:5052 lib.accuracy_proofs.gem_defs <> v:120 var
+R5104:5116 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R5124:5132 Coq.Reals.RIneq <> Rplus_0_r thm
+R5104:5116 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R5104:5116 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R5124:5132 Coq.Reals.RIneq <> Rplus_0_r thm
+R5124:5132 Coq.Reals.RIneq <> Rplus_0_r thm
+prf 5153:5159 <> map_nil
+binder 5162:5162 <> A:121
+binder 5164:5164 <> B:122
+R5179:5182 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R5178:5178 lib.accuracy_proofs.gem_defs <> A:121 var
+R5183:5183 lib.accuracy_proofs.gem_defs <> B:122 var
+binder 5174:5174 <> f:123
+R5196:5198 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R5188:5190 Coq.Lists.List <> map def
+R5194:5195 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R5192:5192 lib.accuracy_proofs.gem_defs <> f:123 var
+R5199:5200 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+prf 5237:5249 <> mat_sumR_cons
+R5269:5274 lib.accuracy_proofs.gem_defs <> matrix def
+binder 5264:5264 <> A:124
+binder 5266:5266 <> B:125
+binder 5277:5278 <> av:126
+binder 5280:5281 <> bv:127
+R5309:5311 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R5301:5306 Coq.Init.Datatypes <> length def
+R5308:5308 lib.accuracy_proofs.gem_defs <> A:124 var
+R5312:5317 Coq.Init.Datatypes <> length def
+R5319:5319 lib.accuracy_proofs.gem_defs <> B:125 var
+binder 5294:5297 <> Hlen:128
+R5353:5355 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R5325:5332 lib.accuracy_proofs.gem_defs <> mat_sumR def
+R5337:5340 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R5335:5336 lib.accuracy_proofs.gem_defs <> av:126 var
+R5341:5341 lib.accuracy_proofs.gem_defs <> A:124 var
+R5347:5350 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R5345:5346 lib.accuracy_proofs.gem_defs <> bv:127 var
+R5351:5351 lib.accuracy_proofs.gem_defs <> B:125 var
+R5370:5373 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R5356:5363 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R5365:5366 lib.accuracy_proofs.gem_defs <> av:126 var
+R5368:5369 lib.accuracy_proofs.gem_defs <> bv:127 var
+R5374:5381 lib.accuracy_proofs.gem_defs <> mat_sumR def
+R5383:5383 lib.accuracy_proofs.gem_defs <> A:124 var
+R5385:5385 lib.accuracy_proofs.gem_defs <> B:125 var
+R5436:5442 lib.accuracy_proofs.gem_defs <> mat_sum def
+R5445:5451 lib.accuracy_proofs.gem_defs <> vec_sum def
+R5454:5457 lib.accuracy_proofs.gem_defs <> map2 def
+prf 5486:5498 <> mat_sumR_zero
+R5515:5520 lib.accuracy_proofs.gem_defs <> matrix def
+binder 5511:5511 <> B:129
+R5528:5530 Coq.Init.Datatypes <> nat ind
+binder 5524:5524 <> n:130
+binder 5549:5551 <> row:131
+R5562:5565 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R5554:5555 Coq.Lists.List <> In def
+R5561:5561 lib.accuracy_proofs.gem_defs <> B:129 var
+R5557:5559 lib.accuracy_proofs.gem_defs <> row:131 var
+R5576:5579 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R5566:5571 Coq.Init.Datatypes <> length def
+R5573:5575 lib.accuracy_proofs.gem_defs <> row:131 var
+R5580:5580 lib.accuracy_proofs.gem_defs <> n:130 var
+binder 5536:5538 <> Hin:132
+R5633:5635 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R5587:5593 lib.accuracy_proofs.gem_defs <> mat_sum def
+R5628:5632 Coq.Reals.Rdefinitions RbaseSymbolsImpl Rplus defax
+R5598:5608 lib.accuracy_proofs.gem_defs <> zero_matrix def
+R5621:5621 lib.accuracy_proofs.gem_defs <> n:130 var
+R5611:5616 Coq.Init.Datatypes <> length def
+R5618:5618 lib.accuracy_proofs.gem_defs <> B:129 var
+R5595:5595 lib.accuracy_proofs.gem_defs <> B:129 var
+R5636:5636 lib.accuracy_proofs.gem_defs <> B:129 var
+R5685:5692 lib.accuracy_proofs.gem_defs <> mat_sumR def
+R5696:5699 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R5704:5714 lib.accuracy_proofs.gem_defs <> zero_matrix def
+R5717:5722 Coq.Init.Datatypes <> length def
+R5726:5729 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R5685:5692 lib.accuracy_proofs.gem_defs <> mat_sumR def
+R5696:5699 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R5704:5714 lib.accuracy_proofs.gem_defs <> zero_matrix def
+R5717:5722 Coq.Init.Datatypes <> length def
+R5726:5729 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R5747:5754 lib.accuracy_proofs.gem_defs <> mat_sumR def
+R5759:5769 lib.accuracy_proofs.gem_defs <> zero_matrix def
+R5772:5777 Coq.Init.Datatypes <> length def
+R5747:5754 lib.accuracy_proofs.gem_defs <> mat_sumR def
+R5759:5769 lib.accuracy_proofs.gem_defs <> zero_matrix def
+R5772:5777 Coq.Init.Datatypes <> length def
+R5811:5823 lib.accuracy_proofs.gem_defs <> mat_sumR_cons thm
+R5811:5823 lib.accuracy_proofs.gem_defs <> mat_sumR_cons thm
+R5811:5823 lib.accuracy_proofs.gem_defs <> mat_sumR_cons thm
+R5811:5823 lib.accuracy_proofs.gem_defs <> mat_sumR_cons thm
+R5898:5910 lib.accuracy_proofs.gem_defs <> vec_sum_zeroR thm
+R5920:5927 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R5898:5910 lib.accuracy_proofs.gem_defs <> vec_sum_zeroR thm
+R5898:5910 lib.accuracy_proofs.gem_defs <> vec_sum_zeroR thm
+R6047:6064 lib.accuracy_proofs.gem_defs <> zero_matrix_length thm
+R6047:6064 lib.accuracy_proofs.gem_defs <> zero_matrix_length thm
+R6047:6064 lib.accuracy_proofs.gem_defs <> zero_matrix_length thm
+prf 6085:6095 <> mat_sum_nil
+binder 6098:6098 <> A:133
+binder 6108:6108 <> M:134
+R6115:6118 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R6114:6114 lib.accuracy_proofs.gem_defs <> A:133 var
+R6120:6123 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R6119:6119 lib.accuracy_proofs.gem_defs <> A:133 var
+R6124:6124 lib.accuracy_proofs.gem_defs <> A:133 var
+binder 6111:6111 <> f:135
+R6145:6147 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R6131:6137 lib.accuracy_proofs.gem_defs <> mat_sum def
+R6144:6144 lib.accuracy_proofs.gem_defs <> f:135 var
+R6141:6142 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R6139:6139 lib.accuracy_proofs.gem_defs <> M:134 var
+R6148:6149 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+prf 6189:6207 <> zero_map_mat_length
+binder 6210:6210 <> A:136
+binder 6212:6212 <> B:137
+R6238:6243 lib.accuracy_proofs.gem_defs <> matrix def
+R6245:6245 lib.accuracy_proofs.gem_defs <> A:136 var
+binder 6233:6233 <> M:138
+R6253:6253 lib.accuracy_proofs.gem_defs <> B:137 var
+binder 6249:6249 <> z:139
+R6282:6284 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R6257:6262 Coq.Init.Datatypes <> length def
+R6265:6276 lib.accuracy_proofs.gem_defs <> zero_map_mat def
+R6280:6280 lib.accuracy_proofs.gem_defs <> M:138 var
+R6278:6278 lib.accuracy_proofs.gem_defs <> z:139 var
+R6285:6290 Coq.Init.Datatypes <> length def
+R6292:6292 lib.accuracy_proofs.gem_defs <> M:138 var
+prf 6380:6394 <> vec_sumR_bounds
+binder 6396:6396 <> a:140
+binder 6398:6398 <> b:141
+binder 6400:6401 <> a':142
+binder 6403:6404 <> b':143
+R6430:6433 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R6414:6417 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R6409:6411 Coq.Reals.Rdefinitions <> ::R_scope:x_'+'_x not
+R6407:6408 lib.accuracy_proofs.gem_defs <> a':142 var
+R6412:6413 lib.accuracy_proofs.gem_defs <> b':143 var
+R6418:6425 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R6427:6427 lib.accuracy_proofs.gem_defs <> a:140 var
+R6429:6429 lib.accuracy_proofs.gem_defs <> b:141 var
+R6434:6441 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R6446:6449 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R6444:6445 lib.accuracy_proofs.gem_defs <> a':142 var
+R6450:6450 lib.accuracy_proofs.gem_defs <> a:140 var
+R6456:6459 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R6454:6455 lib.accuracy_proofs.gem_defs <> b':143 var
+R6460:6460 lib.accuracy_proofs.gem_defs <> b:141 var
+R6478:6485 lib.accuracy_proofs.gem_defs <> vec_sumR def
+prf 6513:6524 <> vec_sumR_opp
+binder 6535:6535 <> u:144
+binder 6537:6537 <> v:145
+R6560:6564 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R6549:6551 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R6541:6546 Coq.Init.Datatypes <> length def
+R6548:6548 lib.accuracy_proofs.gem_defs <> u:144 var
+R6552:6557 Coq.Init.Datatypes <> length def
+R6559:6559 lib.accuracy_proofs.gem_defs <> v:145 var
+R6583:6585 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R6565:6571 lib.accuracy_proofs.gem_defs <> vec_sum def
+R6577:6582 Coq.Reals.Rdefinitions <> Rminus def
+R6575:6575 lib.accuracy_proofs.gem_defs <> v:145 var
+R6573:6573 lib.accuracy_proofs.gem_defs <> u:144 var
+R6586:6592 lib.accuracy_proofs.gem_defs <> vec_sum def
+R6609:6613 Coq.Reals.Rdefinitions RbaseSymbolsImpl Rplus defax
+R6597:6599 Coq.Lists.List <> map def
+R6606:6606 lib.accuracy_proofs.gem_defs <> v:145 var
+R6601:6604 Coq.Reals.Rdefinitions RbaseSymbolsImpl Ropp defax
+R6594:6594 lib.accuracy_proofs.gem_defs <> u:144 var
+R6712:6724 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R6712:6724 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R6712:6724 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+prf 6761:6773 <> vec_sumR_comm
+binder 6784:6784 <> u:146
+binder 6786:6786 <> v:147
+R6810:6813 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R6799:6801 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R6791:6796 Coq.Init.Datatypes <> length def
+R6798:6798 lib.accuracy_proofs.gem_defs <> u:146 var
+R6802:6807 Coq.Init.Datatypes <> length def
+R6809:6809 lib.accuracy_proofs.gem_defs <> v:147 var
+R6826:6828 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R6814:6821 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R6823:6823 lib.accuracy_proofs.gem_defs <> u:146 var
+R6825:6825 lib.accuracy_proofs.gem_defs <> v:147 var
+R6829:6836 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R6838:6838 lib.accuracy_proofs.gem_defs <> v:147 var
+R6840:6840 lib.accuracy_proofs.gem_defs <> u:146 var
+R6916:6934 Coq.Lists.List <> length_zero_iff_nil thm
+R6916:6934 Coq.Lists.List <> length_zero_iff_nil thm
+R6998:7005 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7017:7029 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7017:7029 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7017:7029 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7017:7029 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7017:7029 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7038:7045 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7059:7066 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7038:7045 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7059:7066 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7098:7107 Coq.Reals.Raxioms <> Rplus_comm thm
+R7098:7107 Coq.Reals.Raxioms <> Rplus_comm thm
+R7098:7107 Coq.Reals.Raxioms <> Rplus_comm thm
+prf 7146:7159 <> vec_sumR_assoc
+binder 7170:7170 <> u:148
+binder 7172:7172 <> v:149
+binder 7174:7174 <> w:150
+R7197:7200 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R7186:7188 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R7178:7183 Coq.Init.Datatypes <> length def
+R7185:7185 lib.accuracy_proofs.gem_defs <> u:148 var
+R7189:7194 Coq.Init.Datatypes <> length def
+R7196:7196 lib.accuracy_proofs.gem_defs <> v:149 var
+R7220:7223 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R7209:7211 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R7201:7206 Coq.Init.Datatypes <> length def
+R7208:7208 lib.accuracy_proofs.gem_defs <> w:150 var
+R7212:7217 Coq.Init.Datatypes <> length def
+R7219:7219 lib.accuracy_proofs.gem_defs <> v:149 var
+R7249:7251 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R7224:7231 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7234:7241 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7243:7243 lib.accuracy_proofs.gem_defs <> u:148 var
+R7245:7245 lib.accuracy_proofs.gem_defs <> v:149 var
+R7248:7248 lib.accuracy_proofs.gem_defs <> w:150 var
+R7252:7259 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7261:7261 lib.accuracy_proofs.gem_defs <> u:148 var
+R7264:7271 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7273:7273 lib.accuracy_proofs.gem_defs <> v:149 var
+R7275:7275 lib.accuracy_proofs.gem_defs <> w:150 var
+R7352:7370 Coq.Lists.List <> length_zero_iff_nil thm
+R7352:7370 Coq.Lists.List <> length_zero_iff_nil thm
+R7452:7459 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7482:7489 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7501:7513 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7501:7513 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7501:7513 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7501:7513 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7501:7513 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7501:7513 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7501:7513 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7522:7529 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7522:7529 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7544:7551 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7544:7551 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7582:7589 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7592:7599 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7633:7643 Coq.Reals.Raxioms <> Rplus_assoc thm
+R7582:7589 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7592:7599 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7633:7643 Coq.Reals.Raxioms <> Rplus_assoc thm
+R7633:7643 Coq.Reals.Raxioms <> Rplus_assoc thm
+prf 7679:7692 <> vec_sumR_minus
+binder 7703:7703 <> u:151
+R7731:7734 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R7761:7761 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R7708:7715 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7718:7720 Coq.Lists.List <> map def
+R7727:7727 lib.accuracy_proofs.gem_defs <> u:151 var
+R7722:7725 Coq.Reals.Rdefinitions RbaseSymbolsImpl Ropp defax
+R7730:7730 lib.accuracy_proofs.gem_defs <> u:151 var
+R7735:7745 lib.accuracy_proofs.gem_defs <> zero_vector def
+R7748:7753 Coq.Init.Datatypes <> length def
+R7755:7755 lib.accuracy_proofs.gem_defs <> u:151 var
+R7816:7823 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7842:7854 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7842:7854 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7842:7854 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7842:7854 lib.accuracy_proofs.gem_defs <> vec_sumR_cons thm
+R7863:7870 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7873:7875 Coq.Lists.List <> map def
+R7877:7880 Coq.Reals.Rdefinitions RbaseSymbolsImpl Ropp defax
+R7863:7870 lib.accuracy_proofs.gem_defs <> vec_sumR def
+R7873:7875 Coq.Lists.List <> map def
+R7877:7880 Coq.Reals.Rdefinitions RbaseSymbolsImpl Ropp defax
+prf 7929:7942 <> vec_sum_length
+binder 7945:7945 <> A:152
+binder 7964:7964 <> u:153
+binder 7966:7966 <> v:154
+R7974:7977 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R7973:7973 lib.accuracy_proofs.gem_defs <> A:152 var
+R7979:7982 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R7978:7978 lib.accuracy_proofs.gem_defs <> A:152 var
+R7983:7983 lib.accuracy_proofs.gem_defs <> A:152 var
+binder 7969:7969 <> f:155
+R8008:8012 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R7997:7999 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R7989:7994 Coq.Init.Datatypes <> length def
+R7996:7996 lib.accuracy_proofs.gem_defs <> u:153 var
+R8000:8005 Coq.Init.Datatypes <> length def
+R8007:8007 lib.accuracy_proofs.gem_defs <> v:154 var
+R8021:8023 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R8013:8018 Coq.Init.Datatypes <> length def
+R8020:8020 lib.accuracy_proofs.gem_defs <> u:153 var
+R8024:8029 Coq.Init.Datatypes <> length def
+R8032:8038 lib.accuracy_proofs.gem_defs <> vec_sum def
+R8044:8044 lib.accuracy_proofs.gem_defs <> f:155 var
+R8042:8042 lib.accuracy_proofs.gem_defs <> v:154 var
+R8040:8040 lib.accuracy_proofs.gem_defs <> u:153 var
+R8170:8176 lib.accuracy_proofs.gem_defs <> vec_sum def
+prf 8216:8230 <> vec_sum_length2
+binder 8234:8234 <> A:156
+binder 8236:8236 <> B:157
+R8251:8254 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R8250:8250 lib.accuracy_proofs.gem_defs <> B:157 var
+R8256:8258 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R8255:8255 lib.accuracy_proofs.gem_defs <> B:157 var
+R8259:8259 lib.accuracy_proofs.gem_defs <> B:157 var
+binder 8246:8246 <> f:158
+R8276:8279 Coq.Init.Datatypes <> list ind
+R8281:8281 lib.accuracy_proofs.gem_defs <> A:156 var
+binder 8272:8272 <> u:159
+binder 8284:8284 <> v:160
+binder 8286:8286 <> w:161
+R8309:8313 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R8298:8300 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R8290:8295 Coq.Init.Datatypes <> length def
+R8297:8297 lib.accuracy_proofs.gem_defs <> u:159 var
+R8301:8306 Coq.Init.Datatypes <> length def
+R8308:8308 lib.accuracy_proofs.gem_defs <> v:160 var
+R8333:8337 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R8322:8324 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R8314:8319 Coq.Init.Datatypes <> length def
+R8321:8321 lib.accuracy_proofs.gem_defs <> v:160 var
+R8325:8330 Coq.Init.Datatypes <> length def
+R8332:8332 lib.accuracy_proofs.gem_defs <> w:161 var
+R8346:8348 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R8338:8343 Coq.Init.Datatypes <> length def
+R8345:8345 lib.accuracy_proofs.gem_defs <> u:159 var
+R8349:8354 Coq.Init.Datatypes <> length def
+R8357:8363 lib.accuracy_proofs.gem_defs <> vec_sum def
+R8369:8369 lib.accuracy_proofs.gem_defs <> f:158 var
+R8367:8367 lib.accuracy_proofs.gem_defs <> w:161 var
+R8365:8365 lib.accuracy_proofs.gem_defs <> v:160 var
+R8446:8464 Coq.Lists.List <> length_zero_iff_nil thm
+R8446:8464 Coq.Lists.List <> length_zero_iff_nil thm
+R8626:8632 lib.accuracy_proofs.gem_defs <> vec_sum def
+prf 8690:8698 <> nth_app_0
+binder 8701:8701 <> T:162
+R8728:8731 Coq.Init.Datatypes <> list ind
+R8733:8733 lib.accuracy_proofs.gem_defs <> T:162 var
+binder 8721:8722 <> l0:163
+binder 8724:8724 <> l:164
+R8745:8748 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R8739:8742 Coq.Init.Logic <> ::type_scope:x_'<>'_x not
+R8737:8738 lib.accuracy_proofs.gem_defs <> l0:163 var
+R8743:8744 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R8764:8766 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R8749:8751 Coq.Lists.List <> nth def
+R8758:8761 Coq.Init.Datatypes <> ::list_scope:x_'++'_x not
+R8756:8757 lib.accuracy_proofs.gem_defs <> l0:163 var
+R8762:8762 lib.accuracy_proofs.gem_defs <> l:164 var
+R8767:8769 Coq.Lists.List <> nth def
+R8773:8774 lib.accuracy_proofs.gem_defs <> l0:163 var
+R8826:8830 Coq.Init.Logic <> False ind
+R8826:8830 Coq.Init.Logic <> False ind
+prf 8868:8883 <> matrix_index_nil
+binder 8886:8886 <> A:165
+R8895:8897 Coq.Init.Datatypes <> nat ind
+binder 8890:8890 <> i:166
+binder 8892:8892 <> j:167
+R8907:8907 lib.accuracy_proofs.gem_defs <> A:165 var
+binder 8901:8904 <> zero:168
+R8940:8942 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R8916:8927 lib.accuracy_proofs.gem_defs <> matrix_index def
+R8936:8939 lib.accuracy_proofs.gem_defs <> zero:168 var
+R8934:8934 lib.accuracy_proofs.gem_defs <> j:167 var
+R8932:8932 lib.accuracy_proofs.gem_defs <> i:166 var
+R8929:8930 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R8943:8946 lib.accuracy_proofs.gem_defs <> zero:168 var
+R8963:8974 lib.accuracy_proofs.gem_defs <> matrix_index def
+prf 9026:9037 <> vec_sumR_nth
+binder 9048:9048 <> j:169
+binder 9050:9050 <> u:170
+binder 9052:9052 <> a:171
+R9069:9071 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R9061:9066 Coq.Init.Datatypes <> length def
+R9068:9068 lib.accuracy_proofs.gem_defs <> a:171 var
+R9072:9077 Coq.Init.Datatypes <> length def
+R9079:9079 lib.accuracy_proofs.gem_defs <> u:170 var
+binder 9055:9058 <> Hlen:172
+R9109:9111 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R9095:9097 Coq.Reals.Rdefinitions <> ::R_scope:x_'-'_x not
+R9084:9086 Coq.Lists.List <> nth def
+R9090:9090 lib.accuracy_proofs.gem_defs <> u:170 var
+R9088:9088 lib.accuracy_proofs.gem_defs <> j:169 var
+R9098:9100 Coq.Lists.List <> nth def
+R9104:9104 lib.accuracy_proofs.gem_defs <> a:171 var
+R9102:9102 lib.accuracy_proofs.gem_defs <> j:169 var
+R9112:9114 Coq.Lists.List <> nth def
+R9119:9125 lib.accuracy_proofs.gem_defs <> vec_sum def
+R9131:9136 Coq.Reals.Rdefinitions <> Rminus def
+R9129:9129 lib.accuracy_proofs.gem_defs <> a:171 var
+R9127:9127 lib.accuracy_proofs.gem_defs <> u:170 var
+R9116:9116 lib.accuracy_proofs.gem_defs <> j:169 var
+R9199:9217 Coq.Lists.List <> length_zero_iff_nil thm
+R9199:9217 Coq.Lists.List <> length_zero_iff_nil thm
+R9398:9400 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R9390:9395 Coq.Init.Datatypes <> length def
+R9401:9406 Coq.Init.Datatypes <> length def
+R9398:9400 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R9390:9395 Coq.Init.Datatypes <> length def
+R9401:9406 Coq.Init.Datatypes <> length def
+prf 9485:9501 <> nth_cons_vec_sumR
+binder 9503:9503 <> a:173
+binder 9505:9505 <> l:174
+binder 9507:9507 <> r:175
+binder 9509:9510 <> u2:176
+binder 9521:9521 <> i:177
+R9577:9582 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R9547:9549 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R9526:9528 Coq.Lists.List <> nth def
+R9533:9533 lib.accuracy_proofs.gem_defs <> :::x_'+v'_x not
+R9535:9540 lib.accuracy_proofs.gem_defs <> :::x_'+v'_x not
+R9543:9543 lib.accuracy_proofs.gem_defs <> :::x_'+v'_x not
+R9534:9534 lib.accuracy_proofs.gem_defs <> l:174 var
+R9541:9542 lib.accuracy_proofs.gem_defs <> u2:176 var
+R9530:9530 lib.accuracy_proofs.gem_defs <> i:177 var
+R9561:9563 Coq.Reals.Rdefinitions <> ::R_scope:x_'+'_x not
+R9550:9552 Coq.Lists.List <> nth def
+R9557:9557 lib.accuracy_proofs.gem_defs <> l:174 var
+R9554:9554 lib.accuracy_proofs.gem_defs <> i:177 var
+R9564:9566 Coq.Lists.List <> nth def
+R9572:9573 lib.accuracy_proofs.gem_defs <> u2:176 var
+R9568:9568 lib.accuracy_proofs.gem_defs <> i:177 var
+R9618:9620 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R9583:9585 Coq.Lists.List <> nth def
+R9594:9594 lib.accuracy_proofs.gem_defs <> :::x_'+v'_x not
+R9601:9606 lib.accuracy_proofs.gem_defs <> :::x_'+v'_x not
+R9614:9614 lib.accuracy_proofs.gem_defs <> :::x_'+v'_x not
+R9596:9599 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R9595:9595 lib.accuracy_proofs.gem_defs <> a:173 var
+R9600:9600 lib.accuracy_proofs.gem_defs <> l:174 var
+R9608:9611 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R9607:9607 lib.accuracy_proofs.gem_defs <> r:175 var
+R9612:9613 lib.accuracy_proofs.gem_defs <> u2:176 var
+R9588:9588 Coq.Init.Datatypes <> S constr
+R9590:9590 lib.accuracy_proofs.gem_defs <> i:177 var
+R9641:9643 Coq.Reals.Rdefinitions <> ::R_scope:x_'+'_x not
+R9621:9623 Coq.Lists.List <> nth def
+R9633:9636 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R9632:9632 lib.accuracy_proofs.gem_defs <> a:173 var
+R9637:9637 lib.accuracy_proofs.gem_defs <> l:174 var
+R9626:9626 Coq.Init.Datatypes <> S constr
+R9628:9628 lib.accuracy_proofs.gem_defs <> i:177 var
+R9644:9646 Coq.Lists.List <> nth def
+R9656:9659 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R9655:9655 lib.accuracy_proofs.gem_defs <> r:175 var
+R9660:9661 lib.accuracy_proofs.gem_defs <> u2:176 var
+R9649:9649 Coq.Init.Datatypes <> S constr
+R9651:9651 lib.accuracy_proofs.gem_defs <> i:177 var
+prf 9707:9718 <> nth_cons_mvR
+binder 9720:9720 <> b:178
+binder 9722:9722 <> B:179
+binder 9724:9724 <> u:180
+binder 9735:9735 <> i:181
+R9764:9766 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R9740:9742 Coq.Lists.List <> nth def
+R9752:9752 lib.accuracy_proofs.gem_defs <> :::x_'*r'_x not
+R9757:9761 lib.accuracy_proofs.gem_defs <> :::x_'*r'_x not
+R9754:9755 Coq.Init.Datatypes <> ::list_scope:x_'::'_x not
+R9753:9753 lib.accuracy_proofs.gem_defs <> b:178 var
+R9756:9756 lib.accuracy_proofs.gem_defs <> B:179 var
+R9762:9762 lib.accuracy_proofs.gem_defs <> u:180 var
+R9745:9745 Coq.Init.Datatypes <> S constr
+R9747:9747 lib.accuracy_proofs.gem_defs <> i:181 var
+R9767:9769 Coq.Lists.List <> nth def
+R9775:9778 lib.accuracy_proofs.gem_defs <> :::x_'*r'_x not
+R9774:9774 lib.accuracy_proofs.gem_defs <> B:179 var
+R9779:9779 lib.accuracy_proofs.gem_defs <> u:180 var
+R9771:9771 lib.accuracy_proofs.gem_defs <> i:181 var
+prf 9823:9836 <> length_mvR_mvF
+R9846:9849 vcfloat.FPCore <> Nans class
+binder 9839:9842 <> NANS:182
+R9857:9860 vcfloat.FPCore <> type rec
+binder 9853:9853 <> t:183
+R9878:9883 lib.accuracy_proofs.gem_defs <> matrix def
+R9886:9890 vcfloat.FPCore <> ftype def
+R9892:9892 lib.accuracy_proofs.gem_defs <> t:183 var
+binder 9873:9873 <> m:184
+binder 9896:9896 <> v:185
+R9941:9943 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R9900:9905 Coq.Init.Datatypes <> length def
+R9908:9908 lib.accuracy_proofs.gem_defs <> :::x_'*r'_x not
+R9923:9928 lib.accuracy_proofs.gem_defs <> :::x_'*r'_x not
+R9939:9939 lib.accuracy_proofs.gem_defs <> :::x_'*r'_x not
+R9909:9915 lib.accuracy_proofs.gem_defs <> map_mat def
+R9922:9922 lib.accuracy_proofs.gem_defs <> m:184 var
+R9917:9920 vcfloat.FPCore <> FT2R def
+R9929:9931 Coq.Lists.List <> map def
+R9938:9938 lib.accuracy_proofs.gem_defs <> v:185 var
+R9933:9936 vcfloat.FPCore <> FT2R def
+R9944:9949 Coq.Init.Datatypes <> length def
+R9953:9957 lib.accuracy_proofs.gem_defs <> :::x_'*fr'_x not
+R9952:9952 lib.accuracy_proofs.gem_defs <> m:184 var
+R9958:9958 lib.accuracy_proofs.gem_defs <> v:185 var
+R9989:9991 lib.accuracy_proofs.gem_defs <> mvR def
+R9994:9996 lib.accuracy_proofs.gem_defs <> mvF def
+R9999:10005 lib.accuracy_proofs.gem_defs <> map_mat def
+R10017:10026 Coq.Lists.List <> map_length thm
+R10017:10026 Coq.Lists.List <> map_length thm
+R10017:10026 Coq.Lists.List <> map_length thm
+R10017:10026 Coq.Lists.List <> map_length thm
+R10017:10026 Coq.Lists.List <> map_length thm
+R10017:10026 Coq.Lists.List <> map_length thm
+R10017:10026 Coq.Lists.List <> map_length thm
+prf 10047:10057 <> nth_vec_sum
+binder 10059:10060 <> op:186
+binder 10071:10072 <> u1:187
+binder 10074:10075 <> u2:188
+R10096:10098 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R10087:10092 Coq.Init.Datatypes <> length def
+R10094:10095 lib.accuracy_proofs.gem_defs <> u2:188 var
+R10099:10104 Coq.Init.Datatypes <> length def
+R10106:10107 lib.accuracy_proofs.gem_defs <> u1:187 var
+binder 10081:10084 <> Hlen:189
+binder 10110:10110 <> i:190
+R10127:10129 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R10121:10122 lib.accuracy_proofs.gem_defs <> op:186 var
+binder 10115:10117 <> Hop:191
+R10162:10164 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R10136:10138 Coq.Lists.List <> nth def
+R10143:10149 lib.accuracy_proofs.gem_defs <> vec_sum def
+R10157:10158 lib.accuracy_proofs.gem_defs <> op:186 var
+R10154:10155 lib.accuracy_proofs.gem_defs <> u2:188 var
+R10151:10152 lib.accuracy_proofs.gem_defs <> u1:187 var
+R10140:10140 lib.accuracy_proofs.gem_defs <> i:190 var
+R10165:10166 lib.accuracy_proofs.gem_defs <> op:186 var
+R10169:10171 Coq.Lists.List <> nth def
+R10175:10176 lib.accuracy_proofs.gem_defs <> u1:187 var
+R10173:10173 lib.accuracy_proofs.gem_defs <> i:190 var
+R10182:10184 Coq.Lists.List <> nth def
+R10188:10189 lib.accuracy_proofs.gem_defs <> u2:188 var
+R10186:10186 lib.accuracy_proofs.gem_defs <> i:190 var
+R10232:10250 Coq.Lists.List <> length_zero_iff_nil thm
+R10232:10250 Coq.Lists.List <> length_zero_iff_nil thm
+R10232:10250 Coq.Lists.List <> length_zero_iff_nil thm
+prf 10392:10407 <> vec_sum_nth_plus
+binder 10418:10419 <> u1:192
+binder 10421:10422 <> u2:193
+R10441:10443 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R10432:10437 Coq.Init.Datatypes <> length def
+R10439:10440 lib.accuracy_proofs.gem_defs <> u2:193 var
+R10444:10449 Coq.Init.Datatypes <> length def
+R10451:10452 lib.accuracy_proofs.gem_defs <> u1:192 var
+binder 10426:10429 <> Hlen:194
+binder 10455:10455 <> i:195
+R10476:10478 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R10458:10460 Coq.Lists.List <> nth def
+R10467:10470 lib.accuracy_proofs.gem_defs <> :::x_'+v'_x not
+R10465:10466 lib.accuracy_proofs.gem_defs <> u1:192 var
+R10471:10472 lib.accuracy_proofs.gem_defs <> u2:193 var
+R10462:10462 lib.accuracy_proofs.gem_defs <> i:195 var
+R10489:10491 Coq.Reals.Rdefinitions <> ::R_scope:x_'+'_x not
+R10479:10481 Coq.Lists.List <> nth def
+R10485:10486 lib.accuracy_proofs.gem_defs <> u1:192 var
+R10483:10483 lib.accuracy_proofs.gem_defs <> i:195 var
+R10492:10494 Coq.Lists.List <> nth def
+R10498:10499 lib.accuracy_proofs.gem_defs <> u2:193 var
+R10496:10496 lib.accuracy_proofs.gem_defs <> i:195 var
+R10542:10560 Coq.Lists.List <> length_zero_iff_nil thm
+R10542:10560 Coq.Lists.List <> length_zero_iff_nil thm
+R10542:10560 Coq.Lists.List <> length_zero_iff_nil thm
+R10725:10730 lib.accuracy_proofs.gem_defs MVLems <> sec
