@@ -23,6 +23,7 @@ Inductive sum_rel {A : Type} (default: A) (sum_op : A -> A -> A) : list A -> A -
 
 Definition sum_rel_R := @sum_rel R 0%R Rplus.
 
+
 Lemma sum_rel_R_abs :
 forall l s1 s2,
 sum_rel_R l s1 -> sum_rel_R (map Rabs l) s2 -> s1 <= s2.
@@ -215,6 +216,56 @@ apply sum_rel_R_permute with (map FT2R l); auto.
 apply Permutation_map; auto.
 Qed.
 
+Definition sumR := fold_right Rplus 0.
+
+Lemma sumRabs_pos x :
+0 <= sumR (map Rabs x).
+Proof.
+induction x; simpl; try nra.
+apply Rplus_le_le_0_compat; [apply Rabs_pos | nra].
+Qed.
+
+Lemma sumRabs_Rabs x :
+Rabs (sumR (map Rabs x)) = sumR (map Rabs x).
+Proof. rewrite Rabs_pos_eq; auto. apply sumRabs_pos. Qed.
+
+Lemma sumR_mult x a :
+sumR x * a = sumR (map (Rmult a) x).
+Proof. induction x; simpl; nra. Qed.
+
+Lemma sumR_le_sumRabs x :
+Rabs (sumR x) <= Rabs (sumR (map Rabs x)).
+Proof.
+induction x; simpl; [nra | ].
+rewrite sumRabs_Rabs in IHx.
+eapply Rle_trans.
+2: rewrite Rabs_pos_eq.
+apply Rabs_triang.
+apply Rplus_le_compat_l; auto.
+apply Rplus_le_le_0_compat; 
+[apply Rabs_pos|  apply sumRabs_pos].
+Qed.
+
+Lemma sumR_app_cons l' l'' a: 
+a + sumR (l' ++ l'') = sumR (l' ++ a :: l'').
+Proof. induction l'; simpl; [nra | rewrite <- IHl'; nra]. Qed.
+
+Lemma sumR_permute :
+  forall x x0 (Hper: Permutation x x0) ,
+  sumR x = sumR x0.
+Proof.
+intros ?.
+induction x; intros.
+{ apply Permutation_nil in Hper; subst; simpl; auto. }
+apply Permutation_sym in Hper.
+pose proof Permutation_vs_cons_inv Hper as H.
+destruct H as (l' & l'' & H); subst.
+apply Permutation_sym in Hper.
+pose proof (@Permutation_cons_app_inv R x l' l'' a Hper).
+specialize (IHx (l' ++ l'') H ).
+simpl. rewrite IHx, sumR_app_cons; auto.
+Qed.
+
 Section NAN.
 
 
@@ -266,7 +317,7 @@ Qed.
 
 
 Lemma sum_rel_R_fold : forall l rs, 
-   sum_rel_R l rs -> rs = fold_right Rplus 0 l.
+   sum_rel_R l rs -> rs = sumR l.
 Proof. 
 induction l.
 intros; inversion H; simpl; auto.
@@ -363,10 +414,10 @@ specialize (IHl s H5 H6).
 apply IHl; auto.
 Qed.
 
-
+Definition sumF {NAN: Nans} {t: type} := fold_right (@BPLUS NAN t) neg_zero.
 
 Lemma sum_rel_Ft_fold {NAN: Nans} : forall t l fs, 
-   sum_rel_Ft t l fs -> fs = fold_right (BPLUS ) neg_zero l.
+   sum_rel_Ft t l fs -> fs = sumF l.
 Proof. 
 induction l.
 intros; inversion H; simpl; auto.
@@ -376,6 +427,7 @@ specialize (IHl s H3).
 subst; simpl.
 unfold sum; auto.
 Qed.
+
 
 
 
