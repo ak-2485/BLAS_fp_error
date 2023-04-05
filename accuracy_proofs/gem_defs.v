@@ -3,7 +3,7 @@ Require Import List.
 Import ListNotations.
 
 Require Import common op_defs dotprod_model sum_model.
-Require Import dot_acc float_acc_lems list_lemmas.
+Require Import float_acc_lems list_lemmas.
 
 Section MVGenDefs. 
 
