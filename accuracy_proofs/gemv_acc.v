@@ -53,16 +53,16 @@ have Hin2  : (forall row : list (ftype t), In row l -> length row = length v) by
 destruct (IH Hfin2 Hin2) as (E & eta & IH1 & IH2 & IH3 & IH4 & IH5); 
   clear IH; rewrite IH1; clear IH1.
 have Hlen': length a = n by apply Hlen; left => //. 
-have Hfin1 : Binary.is_finite (fprec t) (femax t) (dotprod a v) = true by 
+have Hfin1 : Binary.is_finite (fprec t) (femax t) (dotprodF a v) = true by 
   revert Hfin'; rewrite /is_finite_vec => Hfin'; apply Hfin'; left => /= //.
-destruct (dotprod_mixed_error' a v Hlen' Hfin1) as (u & ueta & X & Y & Z1 & Z2).
+destruct (dotprod_mixed_error a v Hlen' Hfin1) as (u & ueta & X & Y & Z1 & Z2).
 set (A':= (map FT2R a :: map_mat FT2R l) : matrix).
 have Ha: (length u = length (map FT2R a)) by rewrite map_length; lia.
 have : (length l = 0)%nat \/ (0 < length l)%nat by lia. move => [Hl | Hl].
 {  apply length_zero_iff_nil in Hl; subst => /=.
 exists (vec_sum u (map FT2R a) Rminus :: []) , ([ueta]); repeat split.
 {
-have Hav: (FT2R (dotprod a v) = dotprodR u (map FT2R v) + ueta)%R by
+have Hav: (FT2R (dotprodF a v) = dotprodR u (map FT2R v) + ueta)%R by
   rewrite Y; nra. rewrite Hav; clear Hav => /=. 
 rewrite !CommonSSR.map_map_equiv.
 rewrite CommonSSR.map_map_equiv map_length in Ha.
@@ -98,7 +98,7 @@ rewrite /vec_sum/map2 map_length combine_length Ha
 exists (vec_sum u (map FT2R a) Rminus :: E) , (ueta::eta); repeat split.
 {
 rewrite CommonSSR.map_map_equiv map_length in Ha.
-have Hav: (FT2R (dotprod a v) = dotprodR u (map FT2R v) + ueta)%R by
+have Hav: (FT2R (dotprodF a v) = dotprodR u (map FT2R v) + ueta)%R by
   rewrite Y; nra. rewrite Hav; clear Hav => /=.
 rewrite !CommonSSR.map_map_equiv => /=.
 suff: map2 Rplus (List.map FT2R a) (u -v List.map FT2R a) =  u.

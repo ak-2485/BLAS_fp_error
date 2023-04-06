@@ -10,6 +10,7 @@ accuracy_proofs/dotprod_model.v
 accuracy_proofs/sum_model.v
 accuracy_proofs/gem_defs.v
 accuracy_proofs/sum_acc.v
+accuracy_proofs/dot_acc_lemmas.v
 accuracy_proofs/dot_acc.v
 accuracy_proofs/vecnorm.v
 accuracy_proofs/fma_dot_acc.v

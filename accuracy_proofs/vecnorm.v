@@ -11,13 +11,13 @@ Open Scope R.
 Section TwoNorm. 
 Context {NAN: Nans} {t : type}.
 
-Definition two_normF (x: list (ftype t)) : R := sqrt (FT2R (dotprod x x)).
+Definition two_normF (x: list (ftype t)) : R := sqrt (FT2R (dotprodF x x)).
 Definition two_normR (x: list R) : R := sqrt (dotprodR x x).
 
 Variable (x : list (ftype t)).
 Notation xR := (map FT2R x).
 Notation n:= (length x). 
-Hypothesis Hfin: Binary.is_finite (fprec t) (femax t) (dotprod x x) = true.
+Hypothesis Hfin: Binary.is_finite (fprec t) (femax t) (dotprodF x x) = true.
 
 Notation g := (@g t).
 Notation g1 := (@g1 t).
@@ -30,7 +30,7 @@ Lemma bfVNRM2:
       nth m x' 0 = FT2R (nth m x neg_zero) * (1 + delta) /\ Rabs delta <= g n)  /\
     Rabs eta <= g1 n n.
 Proof.
-destruct (@dotprod_mixed_error' _ _ x x eq_refl Hfin) 
+destruct (@dotprod_mixed_error _ _ x x eq_refl Hfin) 
   as (x' & eta & Hlen & Hrel & H1 & H2).
 exists x', eta; repeat split; auto.
 unfold two_normF, two_normR.

@@ -76,7 +76,7 @@ Definition mat_sumR A B :=  mat_sum A B Rplus.
 
 (* floating-point matrix vector multiplication *)
 Definition mvF {NAN : Nans}  {t: type} (m: matrix ) (v: vector ) : vector  :=
-      map (fun row => @dotprod NAN t row v) m.
+      map (fun row => @dotprodF NAN t row v) m.
 
 (* real valued matrix vector multiplication *)
 Definition mvR  (m: matrix) (v: vector) : vector :=
@@ -118,13 +118,13 @@ Lemma mvF_len {NAN : Nans} t m v:
 Proof. induction m; simpl; auto. Qed.
 
 Lemma dotprodF_nil {NAN : Nans} {t: type} row :
-dotprod row [] = (Zconst t 0). 
+dotprodF row [] = (Zconst t 0). 
 Proof. destruct row; simpl; auto. Qed. 
 
 Lemma mvF_nil {NAN : Nans} {t: type} : forall m, @mvF NAN t m [] = zero_vector (length m) (Zconst t 0).
 Proof. 
 intros; unfold mvF.
-set (f:= (fun row : list (ftype t) => dotprod row [])).
+set (f:= (fun row : list (ftype t) => dotprodF row [])).
 replace (map f m) with  (map (fun _ => Zconst t 0) m).
 induction m; simpl; auto.
 { rewrite IHm; auto. }

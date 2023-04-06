@@ -270,13 +270,37 @@ destruct a; unfold neg_zero; simpl; try discriminate; auto.
 destruct s; auto.
 Qed.
 
-Lemma BPLUS_B2R_zero {NAN: Nans}  (a : ftype t) :
+Lemma BPLUS_B2R_zero_r {NAN: Nans}  (a : ftype t) :
   Binary.is_finite _ _ a = true ->
   FT2R (BPLUS a (Zconst t 0)) = FT2R a.
 Proof.
 destruct a; unfold neg_zero; simpl; try discriminate; auto.
 destruct s; auto.
 Qed.
+
+Lemma BPLUS_B2R_zero_l {NAN: Nans}  (a : ftype t) :
+  Binary.is_finite _ _ a = true ->
+  FT2R (BPLUS (Zconst t 0) a) = FT2R a.
+Proof.
+destruct a; unfold neg_zero; simpl; try discriminate; auto.
+destruct s; auto.
+Qed.
+
+Lemma BPLUS_pzero_assoc_r {NAN: Nans}  (a b : ftype t) :
+  Binary.is_finite _ _ a = true ->
+  Binary.is_finite _ _ b = true ->
+  BPLUS (BPLUS a (Zconst t 0)) b = BPLUS a (BPLUS (Zconst t 0) b).
+Proof. intros;
+destruct a; destruct b; destruct s; destruct s0; simpl; try discriminate; auto.
+Qed.
+
+Lemma BPLUS_pzero_symm {NAN: Nans}  (a : ftype t) :
+  Binary.is_finite _ _ a = true ->
+  BPLUS a (Zconst t 0) = BPLUS (Zconst t 0) a.
+Proof. intros;
+destruct a;  destruct s; simpl; try discriminate; auto.
+Qed.
+
 
 Lemma BPLUS_accurate {NAN: Nans} :
  forall      x (FINx: Binary.is_finite (fprec t) (femax t) x = true) 
