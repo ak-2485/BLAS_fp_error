@@ -8,13 +8,41 @@ Open Scope R.
 
 Import ListNotations.
 
-Section DotProd.
+Section DotProdGeneric.
+
+Definition dotprod {A} (mult plus: A -> A -> A) (zero : A) (v1 v2: list A):=
+  fold_left (fun s x12 => plus (mult (fst x12) (snd x12)) s) 
+                (combine v1 v2) zero.
+
+Lemma dotprod_nil_l :
+  forall A (l : list A)
+  (mult plus : A -> A -> A) (zero : A), dotprod mult plus zero nil l = zero.
+Proof. intros; induction l; simpl; auto. Qed.
+
+Lemma dotprod_nil_r :
+  forall A (l : list A)
+  (mult plus : A -> A -> A) (zero : A), dotprod mult plus zero l nil = zero.
+Proof. intros; induction l; simpl; auto. Qed.
+
+Lemma dotprod_single :
+  forall A (l : list A) 
+  (mult plus : A -> A -> A) (zero a2: A) 
+  (Hpz : forall y, plus y zero = y)
+  (Hmz : forall y, mult zero y = zero), 
+let a1 := nth 0 l zero in 
+dotprod mult plus zero l [a2] = mult a1 a2.
+Proof. intros; simpl; destruct l.
+rewrite dotprod_nil_l. subst a1. simpl; auto.
+unfold dotprod. rewrite combine_firstn_r. simpl; auto.
+Qed.
+
+End DotProdGeneric.
+
+Section DotProdFloat.
 Context {NAN : Nans} {t : type}.
 
-(* Standard floating-point dot-product *)
-Definition dotprod (v1 v2: list (ftype t)) : ftype t :=
-  fold_left (fun s x12 => BPLUS (BMULT (fst x12) (snd x12)) s) 
-                (List.combine v1 v2) (Zconst t 0).
+Definition dotprodF : list (ftype t) -> list (ftype t) -> ftype t := 
+  dotprod BMULT BPLUS (Zconst t 0).
 
 Inductive dot_prod_rel : 
             list (ftype t * ftype t) -> ftype t -> Prop :=
@@ -23,20 +51,19 @@ Inductive dot_prod_rel :
     dot_prod_rel  l s ->
     dot_prod_rel  (xy::l) (BPLUS (BMULT  (fst xy) (snd xy)) s).
 
-Lemma dot_prod_rel_fold_right :
+Lemma dotprodF_rel_fold_right :
 forall (v1 v2: list (ftype t)), 
-    dot_prod_rel (rev (List.combine v1 v2)) (dotprod v1 v2).
+    dot_prod_rel (rev (List.combine v1 v2)) (dotprodF v1 v2).
 Proof.
-intros v1 v2. 
- unfold dotprod; rewrite <- fold_left_rev_right. 
+intros v1 v2. unfold dotprodF, dotprod; rewrite <- fold_left_rev_right. 
 induction (rev (List.combine v1 v2)).
 { simpl; auto. apply dot_prod_rel_nil. }
 simpl. apply dot_prod_rel_cons. auto.
 Qed.
 
-End DotProd.
+End DotProdFloat.
 
-Section FMADotProd.
+Section DotProdFMA.
 Context {NAN : Nans} {t : type}.
 
 (* FMA dot-product *)
@@ -63,11 +90,10 @@ induction (rev (List.combine v1 v2)).
 simpl. apply fma_dot_prod_rel_cons. auto.
 Qed.
 
-End FMADotProd.
+End DotProdFMA.
 
 Section RealDotProd.
 
-(* Dot-product over the reals *)
 Definition dotprodR l1 l2 : R := 
   fold_left Rplus (map (uncurry Rmult) (List.combine l1 l2)) 0%R.
 
@@ -105,7 +131,9 @@ Proof. simpl; auto. Qed.
 
 Lemma dotprodR_nil_r u:
 dotprodR u nil = 0%R. 
-Proof. unfold dotprodR; rewrite combine_nil; simpl; auto. Qed.
+Proof. 
+unfold dotprodR, dotprod; rewrite combine_nil; simpl; auto. 
+Qed.
 
 Lemma sum_rev l:
 sum_fold l = sum_fold (rev l).
@@ -117,6 +145,11 @@ replace (fun x y : R => y + x) with Rplus
 induction l; simpl; auto.
 rewrite IHl.
 rewrite <- fold_left_Rplus_0; f_equal; nra.
+Qed.
+
+Lemma Rplus_rewrite :
+(fun x y  => x + y) = Rplus.
+Proof. (do 2 (apply functional_extensionality; intro); lra).
 Qed.
 
 Lemma dotprodR_rel :
