@@ -187,31 +187,38 @@ Notation g1 := (@common.g1 t).
 Variable (A: @gem_defs.matrix (ftype t)).
 Variable (v: @gem_defs.vector (ftype t)).
 
-Let m := (length A).
-Let n := (length v).
+Hypothesis Hlenv : ( 0 < length v)%nat.
+Hypothesis HlenA : ( 0 < length A)%nat.
+Let m := (length A - 1)%nat.
+Let n := (length v - 1)%nat.
 
-Notation Ar := (matrix_to_mx m n (map_mat FT2R A)).
-Notation vr := (vector_to_vc n (map FT2R v)).
+Notation Ar := (matrix_to_mx (m.+1) (n.+1) (map_mat FT2R A)).
+Notation vr := (vector_to_vc (n.+1) (map FT2R v)).
 
 Hypothesis Hfin : is_finite_vec (A *f v).
-Hypothesis Hlen : forall x, In x A -> length x = n.
+Hypothesis Hlen : forall x, In x A -> length x = n.+1.
 
 Notation " i ' " := (Ordinal i) (at level 40).
 
 From mathcomp.algebra_tactics Require Import ring.
 
+Notation Av := (vector_to_vc (m.+1) (A *fr v)).
+
 Lemma mat_vec_mul_mixed_error':
-  exists (E : 'M[R]_(m,n)) (eta : 'cV[R]_m),
-    A *fr' v =  (Ar + E) *m vr + eta 
-    /\ (forall i j (Hi : (i < m)%nat) (Hj : (j < n)%nat), 
-      Rabs (E  (Hi ') (Hj ')) <= g n * Rabs (Ar  (Hi ') (Hj ')))
-    /\ forall i (Hi: (i < m)%nat), Rabs (eta (Hi ')  0) <= g1 n n .
+  exists (E : 'M[R]_(m.+1,n.+1)) (eta : 'cV[R]_m.+1),
+    Av =  (Ar + E) *m vr + eta 
+    /\ (forall i j (Hi : (i < m.+1)%nat) (Hj : (j < n.+1)%nat), 
+      Rabs (E  (Hi ') (Hj ')) <= g n.+1 * Rabs (Ar  (Hi ') (Hj ')))
+    /\ forall i (Hi: (i < m.+1)%nat), Rabs (eta (Hi ')  0) <= g1 n.+1 n.+1 .
 Proof.
-destruct (mat_vec_mul_mixed_error A v Hfin Hlen) as 
+have Hlen' : forall x : seq.seq (ftype t), In x A -> Datatypes.length x = length v.
+  move => x Hin. rewrite Hlen => //. lia. 
+destruct (mat_vec_mul_mixed_error A v Hfin Hlen') as 
   (E & eta & H1 & H2 & H3 & H4 & H5).
-exists (matrix_to_mx m n E), (vector_to_vc m eta); 
+exists (matrix_to_mx m.+1 n.+1 E), (vector_to_vc m.+1 eta); 
   split. rewrite H1.
-pose proof @vector_to_vc_plus ((map_mat FT2R A +m E) *r map FT2R v) eta.
+have He : (m.+1 = Datatypes.length eta) by lia.
+pose proof @vector_to_vc_plus' ((map_mat FT2R A +m E) *r map FT2R v) eta (m.+1) He.
   rewrite H5 in H. rewrite H. clear H.
 f_equal.
 have Hlen2: length (map_mat FT2R A +m E) = length A.
@@ -223,37 +230,37 @@ have Hin1 :
 apply matrix_sum_preserves_length'.
 destruct H4. intros.
 rewrite map_length.
-assert ((length A = 0)%nat \/ (0 < length A)%nat) by lia.
-destruct H6. 
-apply length_zero_iff_nil in H6; subst.
-simpl in H. apply length_zero_iff_nil in H; subst.
-simpl in H4; auto.
 set (y := nth 0 A []).
 have Hy : In y A. subst y; apply nth_In; lia.
 specialize (H0 x y H4 Hy); rewrite H0.
-apply Hlen; auto.
+apply Hlen'; auto.
 move => x Hx. 
 apply list_in_map_inv in Hx.
 destruct Hx as (x0 & Hx0 & Hx0').
 subst.
 rewrite !map_length.
-apply Hlen; auto.
-pose proof vector_to_vc_mulmx Hin1.
-rewrite Hlen2 in H. rewrite H. clear H.
-rewrite map_length.
+apply Hlen'; auto.
+have HlenA1 : m.+1 = length (map_mat FT2R A +m E) by (subst m; lia).
+have Hlen1 : n.+1 = length (map FT2R v) by 
+  (subst n; rewrite !map_length; lia).
+rewrite -Hlen1 in Hin1.
+pose proof vector_to_vc_mulmx_m HlenA1 Hlen1 Hin1.
+rewrite H. clear H.
 f_equal.
-pose proof @matrix_to_mx_plus' (map_mat FT2R A) E (length v).
+have HlenA2 : m.+1 = Datatypes.length (map_mat FT2R A) by 
+  (subst m;rewrite !map_length; lia).
+pose proof @matrix_to_mx_plus_m (map_mat FT2R A) E (m.+1) (n.+1) HlenA2.
 unfold map_mat in H. rewrite map_length in H.
 rewrite H. clear H. f_equal.
 destruct H4; lia.
-move => a e Ha He; split. 
+move => a e Ha Hep; split. 
 apply list_in_map_inv in Ha.
 destruct Ha as (x0 & Hx0 & Hx0').
 subst. rewrite map_length. apply Hlen; auto.
 destruct H4.
 apply list_in_map_inv in Ha.
 destruct Ha as (x0 & Hx0 & Hx0').
-subst. pose proof (H4 e x0 He Hx0').
+subst. pose proof (H4 e x0 Hep Hx0').
 rewrite H6. apply Hlen; auto.
 destruct H4.
 rewrite /map_mat/mat_sumR/mat_sum/map2 !map_length combine_length
@@ -262,11 +269,84 @@ split.
 { move => i j Hi Hj.
  rewrite -(matrix_to_mx_index E Hi Hj).
  rewrite -(matrix_to_mx_index (map_mat FT2R A) Hi Hj).
+have HA : (length A = m.+1) by (subst m; lia).
+have Hv : (length v = n.+1) by (subst m; lia).
+rewrite HA Hv in H2. 
 specialize (H2 i j Hi Hj).
 subst n => /= //. }
 move => i Hi.
 rewrite vector_to_vc_index => /= //.
+have Hv : (length v = n.+1) by (subst m; lia).
+rewrite Hv in H3.
 apply H3. apply nth_In. lia.
 Qed.
 
 End MixedErrorMath.
+
+Section ForwardErrorMath.
+
+Require Import VST.floyd.functional_base.
+
+From mathcomp Require Import matrix all_algebra bigop.
+From mathcomp Require Import all_ssreflect ssralg ssrint ssrnum finmap matrix.
+From mathcomp Require Import rat interval zmodp vector fieldext falgebra.
+From mathcomp Require Import boolp classical_sets functions.
+From mathcomp Require Import cardinality set_interval mathcomp_extra.
+From mathcomp Require Import ereal reals signed prodnormedzmodule. 
+From mathcomp Require Import normedtype sequences mxalgebra vector.
+
+
+Import Order.Theory GRing.Theory Num.Def Num.Theory.
+Import numFieldNormedType.Exports.
+Import normedtype.NbhsNorm.
+
+Import topology.numFieldTopology.Exports.
+Import CompleteNormedModule.Exports.
+
+Local Open Scope ring_scope.
+
+Context {NAN: Nans} {t : type}.
+
+Notation g := (@common.g t).
+Notation g1 := (@common.g1 t).
+
+Variable (A: @gem_defs.matrix (ftype t)).
+Variable (v: @gem_defs.vector (ftype t)).
+
+Hypothesis Hlenv : ( 0 < length v)%nat.
+Hypothesis HlenA : ( 0 < length A)%nat.
+Let m := (length A - 1)%nat.
+Let n := (length v - 1)%nat.
+
+Notation Ar := (matrix_to_mx m.+1 n.+1 (map_mat FT2R A)).
+Notation vr := (vector_to_vc n.+1 (map FT2R v)).
+
+Hypothesis Hfin : is_finite_vec (A *f v).
+Hypothesis Hlen : forall x, In x A -> length x = n.+1.
+
+Notation " i ' " := (Ordinal i) (at level 40).
+
+Notation Av' := (vector_to_vc m.+1 (map FT2R (mvF A v))).
+
+From mathcomp.algebra_tactics Require Import ring.
+Theorem forward_error :
+  `|Av' - (Ar *m vr) | <= g n.+1 * `|Ar| * `|vr| + g1 n.+1 n.+1.
+Proof.
+destruct (mat_vec_mul_mixed_error' A v) as (E & eta & HE & H1 & H2) => //.
+rewrite HE mulmxDl. fold n m. clear HE.  
+have Hvr : vector_to_vc n.+1 (List.map FT2R v) = vr => //. 
+rewrite Hvr. 
+have H0 : Ar *m vr + E *m vr + eta - Ar *m vr = E *m vr + eta. 
+remember (Ar *m vr) as y. remember (E *m vr) as x. subst m. 
+apply /matrixP => i j; do ![rewrite mxE | ] => /=.
+  destruct i; destruct j => /= //; ring.
+rewrite H0. clear H0. fold m n in H1, H2.
+eapply le_trans. apply ler_norm_add.
+eapply le_trans.
+Search (`| _ * _ |).
+Search ( _ + _ <= _ + _).
+apply ler_norm_add.
+
+Qed.
+
+End ForwardErrorMath. 

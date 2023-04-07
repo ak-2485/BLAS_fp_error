@@ -55,8 +55,6 @@ Definition matrix_to_mx (m' n': nat) (mx: @gem_defs.matrix R) : 'M[R]_(m',n') :=
 
 End MVtoMC_Defs.
 
-Notation "A *fr' v" := (vector_to_vc (length A) (A *fr v)) (at level 40).
-
 Section MVtoMC_Lems.
 
 Lemma matrix_to_mx_nil n': 
@@ -140,6 +138,43 @@ destruct i => /= ; lia.
 by destruct Hlen3; etransitivity; [apply H | ].
 Qed.
 
+Lemma matrix_to_mx_plus_m : forall A E m n
+  (Hm   : m = length A)
+  (Hlen1: length A = length E)
+  (Hlen2: forall a e, In a A -> In e E -> length a =  n 
+    /\ length e = n),
+  matrix_to_mx m n (A +m E) = 
+  matrix_to_mx m n A + matrix_to_mx m n E.
+Proof.
+move => A E m n Hm Hlen1 Hlen2.
+rewrite /matrix_to_mx/getm => /=.
+apply /matrixP => i j; do ![rewrite mxE | ].
+rewrite -(vec_sum_nth_plus).
+f_equal. clear j. revert Hlen1 Hlen2 Hm i. revert m. revert E.
+elim : A  => [ |  a l IH E m Hlen1 Hin Hm i]. 
+by (destruct m => //; destruct i).
+destruct E => //. 
+(destruct m => //; destruct i).
+destruct m0 => /= //.
+have Hlen3 : length l = length E. simpl in Hlen1 . lia.
+have Hin1 : (forall a e : seq.seq R,
+     In a l ->
+     In e E -> length a = n /\ length e = n).
+  move => a0 e Ha He. 
+specialize (Hin a0 e). apply Hin; simpl; auto.
+have Hm0 : (m0 < length E)%nat. simpl in i. 
+rewrite -Hlen3. simpl in Hm. lia. rewrite -Hlen3 in Hm0.
+have Hm' : m = Datatypes.length l by (simpl in Hm; lia).
+rewrite -Hm' in Hm0.
+have Hnord : (nat_of_ord (Ordinal Hm0) = m0) => //.
+specialize (IH E m Hlen3 Hin1 Hm'(Ordinal Hm0)). 
+rewrite -IH. f_equal. symmetry.
+have Hlen3 : (length (nth i A []) = n /\ length (nth i E []) = n).
+apply (Hlen2  (nth i A []) (nth i E [])); apply nth_In;
+destruct i => /= ; lia.
+by destruct Hlen3; etransitivity; [apply H | ].
+Qed.
+
 Lemma vector_to_vc_plus u1 u2
   (Hlen: length u1 = length u2) : 
   vector_to_vc (length u2) (u1 +v u2) = 
@@ -149,6 +184,18 @@ rewrite /vector_to_vc/getv => /=.
 apply /matrixP => i j; do ![rewrite mxE | ].
 by destruct i; apply vec_sum_nth_plus.
 Qed.
+
+Lemma vector_to_vc_plus' u1 u2 m 
+  (Hm: m = length u2) 
+  (Hlen: length u1 = length u2) : 
+  vector_to_vc m (u1 +v u2) = 
+      (vector_to_vc m u1) + (vector_to_vc m u2).
+Proof.
+rewrite /vector_to_vc/getv => /=.
+apply /matrixP => i j; do ![rewrite mxE | ].
+by destruct i; apply vec_sum_nth_plus.
+Qed.
+
 
 Lemma vector_to_vc_mulmx' B u2 i:
 nth i (B *r u2) 0%R = dotprodR (nth i B []) u2.
@@ -245,6 +292,30 @@ rewrite Hord; lia. }
 rewrite H => //.
 rewrite mxE /getv/matrix_to_mx/vector_to_vc/getm/getv /= .
 rewrite Hlen'.
+apply: eq_bigr => k _; rewrite !mxE => //.
+Qed.
+
+Lemma vector_to_vc_mulmx_m : forall B u2 m n
+  (Hm : m = length B)
+  (Hn : n = length u2)
+  (Hlen: forall x, In x B -> length x = n),
+  vector_to_vc m (B *r u2) = 
+  matrix_to_mx m n B *m  (vector_to_vc n u2).
+Proof.
+move => B u2 m n Hm Hn Hin.
+apply /matrixP => i j; do ![rewrite mxE /getv].
+rewrite vector_to_vc_mulmx' => //.
+pose proof vec_to_vc_dotproR (@nth (seq.seq R) i B []) u2 j j.
+rewrite H ; clear H.
+pose proof @vector_to_vc_mulmxp (@nth (seq.seq R) i B []) u2.
+have Hlen': (@Datatypes.length R (@nth (seq.seq R) i B []) = 
+ length u2).  
+{ rewrite Hin => //.  apply nth_In. destruct i.  
+have Hord : (nat_of_ord (Ordinal i) = m0) => //. 
+rewrite Hord; lia. }
+rewrite H => //.
+rewrite mxE /getv/matrix_to_mx/vector_to_vc/getm/getv /= .
+rewrite Hlen'. subst n.
 apply: eq_bigr => k _; rewrite !mxE => //.
 Qed.
 
