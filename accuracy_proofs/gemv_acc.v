@@ -1,18 +1,26 @@
-(*This file contains two main theorems: forward and mixed error bounds for 
-  the fused muliply add dot product of two floating point lists; 
-  the functional model for the fma dot product is defined in dotprod_model.v.*)
-
 Require Import vcfloat.VCFloat.
 Require Import List.
 Import ListNotations.
 Require Import common op_defs dotprod_model sum_model.
 Require Import dot_acc float_acc_lems list_lemmas.
 Require Import gem_defs mv_mathcomp.
+
 From mathcomp.analysis Require Import Rstruct.
 From mathcomp Require Import all_ssreflect ssralg ssrnum.
+Require Import mc_extra2.
 
 From Coq Require Import ZArith Reals Psatz.
 From Coq Require Import Arith.Arith.
+
+Open Scope R_scope.
+Open Scope ring_scope.
+
+Delimit Scope ring_scope with Ri.
+Delimit Scope R_scope with Re.
+
+Import Order.TTheory GRing.Theory Num.Def Num.Theory.
+
+From mathcomp.algebra_tactics Require Import ring.
 
 Section MixedErrorList. 
 (* mixed error bounds over lists *)
@@ -283,27 +291,8 @@ Qed.
 
 End MixedErrorMath.
 
-Section ForwardErrorMath.
-
-Require Import VST.floyd.functional_base.
-
-From mathcomp Require Import matrix all_algebra bigop.
-From mathcomp Require Import all_ssreflect ssralg ssrint ssrnum finmap matrix.
-From mathcomp Require Import rat interval zmodp vector fieldext falgebra.
-From mathcomp Require Import boolp classical_sets functions.
-From mathcomp Require Import cardinality set_interval mathcomp_extra.
-From mathcomp Require Import ereal reals signed prodnormedzmodule. 
-From mathcomp Require Import normedtype sequences mxalgebra vector.
-
-
-Import Order.Theory GRing.Theory Num.Def Num.Theory.
-Import numFieldNormedType.Exports.
-Import normedtype.NbhsNorm.
-
-Import topology.numFieldTopology.Exports.
-Import CompleteNormedModule.Exports.
-
-Local Open Scope ring_scope.
+Section ForwardError.
+From mathcomp Require Import matrix .
 
 Context {NAN: Nans} {t : type}.
 
@@ -316,37 +305,53 @@ Variable (v: @gem_defs.vector (ftype t)).
 Hypothesis Hlenv : ( 0 < length v)%nat.
 Hypothesis HlenA : ( 0 < length A)%nat.
 Let m := (length A - 1)%nat.
-Let n := (length v - 1)%nat.
+Hypothesis Hlenv1: (length v - 1)%nat = m.
 
-Notation Ar := (matrix_to_mx m.+1 n.+1 (map_mat FT2R A)).
-Notation vr := (vector_to_vc n.+1 (map FT2R v)).
+Notation Ar := (matrix_to_mx m.+1 m.+1 (map_mat FT2R A)).
+Notation vr := (vector_to_vc m.+1 (map FT2R v)).
 
 Hypothesis Hfin : is_finite_vec (A *f v).
-Hypothesis Hlen : forall x, In x A -> length x = n.+1.
+Hypothesis Hlen : forall x, In x A -> length x = m.+1.
 
 Notation " i ' " := (Ordinal i) (at level 40).
 
 Notation Av' := (vector_to_vc m.+1 (map FT2R (mvF A v))).
 
-From mathcomp.algebra_tactics Require Import ring.
+Notation "| u |" := (normv u) (at level 40).
+
 Theorem forward_error :
-  `|Av' - (Ar *m vr) | <= g n.+1 * `|Ar| * `|vr| + g1 n.+1 n.+1.
+ |Av' - (Ar *m vr)| <= (g m.+1 * normM Ar * |vr|) + g1 m.+1 m.+1.
 Proof.
 destruct (mat_vec_mul_mixed_error' A v) as (E & eta & HE & H1 & H2) => //.
-rewrite HE mulmxDl. fold n m. clear HE.  
-have Hvr : vector_to_vc n.+1 (List.map FT2R v) = vr => //. 
-rewrite Hvr. 
+rewrite Hlenv1 => //.
+rewrite HE mulmxDl. fold m. clear HE.  
+have Hvr : vector_to_vc m.+1 (List.map FT2R v) = vr => //=.
+move: H1. move: E. rewrite Hlenv1 Hvr. move => E H1.
 have H0 : Ar *m vr + E *m vr + eta - Ar *m vr = E *m vr + eta. 
 remember (Ar *m vr) as y. remember (E *m vr) as x. subst m. 
-apply /matrixP => i j; do ![rewrite mxE | ] => /=.
-  destruct i; destruct j => /= //; ring.
-rewrite H0. clear H0. fold m n in H1, H2.
-eapply le_trans. apply ler_norm_add.
-eapply le_trans.
-Search (`| _ * _ |).
-Search ( _ + _ <= _ + _).
-apply ler_norm_add.
-
+apply /matrixP => i j; do ![rewrite mxE | ] => /=; ring.
+rewrite H0. clear H0. fold m in H1, H2.
+eapply (le_trans (normv_triang _ _ )). 
+apply ler_add.
+eapply (le_trans (subMultNorm _ _ )).
+apply ler_pmul => //. 
+apply normM_pos.
+apply normv_pos.
+rewrite /normM mulrC big_max_mul.
+apply le_bigmax2 => i0 _. 
+rewrite /sum_abs.
+rewrite big_mul =>  [ | i b | ]; try ring.
+apply ler_sum => i _.
+rewrite mulrC.
+  destruct i0. destruct i. apply H1.
+apply /RleP; auto with commonDB.
+apply /RleP; auto with commonDB.
+rewrite /normv.
+apply bigmax_le => [|i _].  
+apply /RleP; auto with commonDB.
+destruct i. 
+rewrite Hlenv1 in H2.
+apply H2.
 Qed.
 
-End ForwardErrorMath. 
+End ForwardError. 

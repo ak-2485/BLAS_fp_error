@@ -1,6 +1,5 @@
-(*This file contains two main theorems: forward and mixed error bounds for 
-  the fused muliply add dot product of two floating point lists; 
-  the functional model for the fma dot product is defined in dotprod_model.v.*)
+(* This file contains theorems connecting MathComp operations on 
+  matrices and vectors to operations on lists. *)
 
 Require Import vcfloat.VCFloat.
 Require Import List Reals.
@@ -14,6 +13,7 @@ From Coq Require Import Arith.Arith.
 From Coquelicot Require Import Coquelicot.
 From mathcomp.analysis Require Import Rstruct.
 From mathcomp Require Import matrix all_ssreflect all_algebra ssralg ssrnum bigop.
+Require Import mc_extra2.
 
 Set Bullet Behavior "Strict Subproofs". 
 
@@ -255,7 +255,7 @@ rewrite (@ordinal_enum (Datatypes.length l).+1
   (Ordinal Hord)) /= /getv /= //.
 assert (((Datatypes.length l).+1 - 1)%nat =
   Datatypes.length l) by lia. 
-rewrite H. clear H.
+rewrite H. clear H. 
 have Hord1: ( 0 < (Datatypes.length l))%nat by lia.
 rewrite big_nat_cond. 
 rewrite (@big_nth R _ Rplus _ (Ordinal Hord1) )
@@ -352,3 +352,112 @@ by rewrite !mxE; rewrite /getv/matrix_index.
 Qed.
 
 End MVtoMC_Lems.
+
+Section Norms.
+
+Definition sum_abs {m} (A: 'M[R]_m) i : R:= \sum_j (Rabs (A i j)).
+Definition normv   {m} (v: 'cV[R]_m)  : R:= \big[maxr/0]_(i < m) Rabs (v i 0).
+Definition normM   {m} (A: 'M[R]_m)   : R:= \big[maxr/0]_i (sum_abs A i).
+
+(* generally useful lemmmas for max operator *)
+Lemma maxrC : @commutative R R maxr. 
+  Proof. rewrite /commutative => x y.
+  rewrite -!RmaxE. apply Rmax_comm. Qed.
+
+Lemma maxrA : @associative R  maxr. 
+  Proof. rewrite /associative => x y z.
+  rewrite -!RmaxE. apply Rmax_assoc. Qed. 
+
+Lemma big_mul {n:nat} (F : ordinal (n.+1) -> R) op a:
+(forall i b, op (F i) b * a = op (F i * a) (b * a)) -> 
+0 <= a -> \big[op/0]_(i0 < n.+1) (F i0) * a = \big[op/0]_(i0 < n.+1) (F i0 * a).
+Proof. 
+revert F a. elim: n => /= // [F a Hc Ha| n0 IH F a Hc Ha].
+rewrite !big_ord_recl !big_ord0/= //.
+rewrite (Hc ord0 0) mul0r //. 
+rewrite big_ord_recl => /= //. 
+etransitivity.
+2 : rewrite big_ord_recl => /= //.
+rewrite Hc.
+rewrite IH => //.
+Qed.
+
+Lemma big_max_mul {n:nat} (F : ordinal (n.+1) -> R) a:
+0 <= a -> \big[maxr/0]_(i0 < n.+1) (F i0) * a = \big[maxr/0]_(i0 < n.+1) (F i0 * a).
+Proof. 
+move => Ha.
+apply big_mul => //.
+move => i  b.
+rewrite maxr_pmull // mul0r //.
+Qed.
+
+(* Lemmas about norm defs *)
+
+Lemma normv_pos {m} (v: 'cV[R]_m.+1) : 0 <= normv v.
+Proof.
+rewrite /normr/normv. 
+elim/big_ind: _ => //[x y Hx Hy| i _].
+rewrite  -RmaxE. eapply le_trans; [apply Hy|].
+apply /RleP; apply Rmax_r.
+apply /RleP; apply Rabs_pos.
+Qed.
+
+Lemma normM_pos {m} (A: 'M[R]_m.+1) : 0 <= normM A.
+Proof.
+rewrite /normr/normM . 
+elim/big_ind: _ => //[x y Hx Hy| i _].
+rewrite  -RmaxE/Rmax. destruct Rle_dec => //.
+rewrite /sum_abs. 
+elim/big_ind: _ => //[x y Hx Hy| j _].
+apply addr_ge0 => //.
+apply /RleP; apply Rabs_pos.
+Qed.
+
+Lemma Rabs_sum (n:nat) : forall (F : ordinal (n.+1) -> R),
+Rabs (\sum_j F j) <= \sum_j Rabs (F j).
+Proof.
+elim : n => [F | n IH F]. 
+rewrite !big_ord_recr!big_ord0/=. 
+  eapply le_trans ; [apply Rleb_norm_add| rewrite Rabs_R0; apply ler_add => /= //].
+eapply le_trans.
+1, 2: rewrite big_ord_recr /=. apply Rleb_norm_add.
+apply ler_add => /= //.
+Qed.
+
+
+Lemma subMultNorm m (A: 'M[R]_m.+1)  (u : 'cV_m.+1) : 
+  normv ( A *m u ) <= normM A * normv u.
+Proof.
+remember (normv u) as umax.
+rewrite /normr /normM /normv /sum_abs /= big_max_mul.
+apply le_bigmax2 => i0 _. 
+rewrite mxE => /=.
+eapply le_trans.
+apply Rabs_sum .
+elim/big_rec2: _ =>  // [ |i1 y1 y2 _ Hy].
+apply mulr_ge0 => //. 
+rewrite Hequmax; apply normv_pos.
+rewrite mulrDl.
+apply ler_add => //.
+rewrite Rabs_mult.
+apply ler_pmul => //.
+1,2: apply /RleP; apply Rabs_pos.
+rewrite Hequmax/normv.
+by apply /le_bigmax.
+rewrite Hequmax; apply normv_pos.
+Qed.
+
+Lemma normv_triang m  (u v: 'cV_m.+1) : 
+  normv ( u + v ) <= normv u + normv v.
+Proof.
+rewrite {1}/normv.
+apply: bigmax_le => [ | i _]. 
+apply addr_ge0; apply normv_pos.
+rewrite mxE => /=.
+eapply le_trans.
+apply Rleb_norm_add. apply ler_add;
+apply: le_bigmax => [ | i _]. 
+Qed.
+
+
+End Norms. 

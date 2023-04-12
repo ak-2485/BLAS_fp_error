@@ -80,6 +80,10 @@ rewrite H0 in H1. destruct a.
 simpl in H1. inversion H1; simpl; split; auto.
 Qed.
 
+Lemma combine_single' A u (a u0 d : A) :
+ combine (u0 :: u) [a] = [(u0, a)].
+Proof. simpl; rewrite combine_nil; auto. Qed.
+
 From Coq Require Import ZArith Reals Psatz.
 From Coquelicot Require Import Coquelicot.
 
