@@ -84,6 +84,7 @@ Definition mvR  (m: matrix) (v: vector) : vector :=
 
 End MVOpDefs.
 
+
 Notation "A *f v" := (mvF A v) (at level 40).
 Notation "A *r v"  := (mvR A v) (at level 40).
 Notation "A *fr v" := (map FT2R (mvF A v)) (at level 40).
@@ -98,6 +99,27 @@ Notation "E _( i , j )"  :=
   (matrix_index E i j 0%R) (at level 15).
 
 Section MVLems.
+
+Lemma dotprod_diff u1 u2 v:
+length u1 = length u2 ->
+dotprodR u1 v - dotprodR u2 v = dotprodR (u1 -v u2) v.
+Proof.  revert  u1 u2.
+induction v. intros. rewrite !dotprodR_nil_r. nra.
+intros.
+destruct u1. 
+ simpl in H. symmetry in H. apply length_zero_iff_nil in H. subst.
+ rewrite !dotprodR_nil_l. nra.
+destruct u2; try discriminate. 
+unfold dotprodR. simpl.
+rewrite !fold_left_Rplus_Rplus.
+fold (@dotprodR u1 v).
+fold (@dotprodR u2 v).
+field_simplify.
+replace (r * a - a * r0 + dotprodR u1 v - dotprodR u2 v) with
+  (r * a - a * r0 + (dotprodR u1 v - dotprodR u2 v)) by nra.
+apply Rplus_eq_compat_l.
+rewrite IHv; auto.
+Qed.
 
 Lemma map2_length {A B C: Type} (f: A -> B -> C) al bl : 
   length al = length bl -> 

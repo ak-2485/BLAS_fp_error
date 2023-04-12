@@ -3,7 +3,7 @@ From mathcomp Require Import rat interval zmodp vector fieldext falgebra.
 From mathcomp Require Import boolp classical_sets functions.
 From mathcomp Require Import cardinality set_interval mathcomp_extra.
 From mathcomp Require Import ereal reals signed topology prodnormedzmodule. 
-From mathcomp Require Import normedtype sequences mxalgebra.
+From mathcomp Require Import normedtype sequences mxalgebra Rstruct.
 
 Import Order.Theory GRing.Theory Num.Def Num.Theory.
 Import numFieldTopology.Exports.
@@ -21,6 +21,35 @@ Section Examples.
 
 Variables (R: realType) (m n : nat).
 (* test examples of sharing using norm properties from ssrnum*)
+
+Lemma chasd  (A: 'M[R]_m.+1)  (u : 'cV_m.+1) :
+\big[maxr/0]_ij `|(A *m u) ij.1 ij.2| / \big[maxr/0]_ij `|u ij.1 ij.2| <= 
+\big[maxr/0]_ij  (`|(A *m u) ij.1 ij.2| / `|u ij.1 ij.2|)
+.
+Proof. Admitted.
+
+Lemma subMultNorm (A: 'M[R]_m.+1) (u : 'cV_m.+1) : 
+  `| A *m u | <= `|A| * `|u|.
+Proof.
+rewrite /normr /= !mx_normE.
+rewrite -ler_pdivr_mulr.
+eapply le_trans.
+2: apply bigmax_geP.
+apply chasd. 2: admit.  
+apply bigmax_le. admit.
+intros.
+rewrite ler_pdivr_mulr.
+rewrite mxE.
+eapply le_trans.
+apply checks.
+rewrite -ler_pdivr_mulr.
+assert (
+(\sum_j `|A i.1 j * u j i.2|) / `|u i.1 i.2| <= (\sum_j `|A i.1 j * u j i.2 / u i.1 i.2|)
+). admit.
+eapply le_trans.
+apply H0.
+Admitted.
+
 
 Example matrix_triangle  (M N : 'M[R]_(m.+1, n.+1)) :
   `|M + N| <= `|M| + `|N|.

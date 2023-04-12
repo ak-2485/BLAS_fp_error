@@ -67,7 +67,8 @@ rewrite count_occ_cons_eq in H; auto.
 inversion H2. auto.
 Qed.
 
-Lemma nnz_is_zero_cons A a l dec zero : nnz A dec (a::l) zero = 0%nat -> nnz A dec l zero = 0%nat.
+Lemma nnz_is_zero_cons A a l dec zero : 
+  nnz A dec (a::l) zero = 0%nat -> nnz A dec l zero = 0%nat.
 Proof.
 intros H.
 apply nnz_zero in H; symmetry in H.

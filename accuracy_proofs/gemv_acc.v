@@ -69,9 +69,7 @@ have Ha: (length u = length (map FT2R a)) by rewrite map_length; lia.
 have : (length l = 0)%nat \/ (0 < length l)%nat by lia. move => [Hl | Hl].
 {  apply length_zero_iff_nil in Hl; subst => /=.
 exists (vec_sum u (map FT2R a) Rminus :: []) , ([ueta]); repeat split.
-{
-have Hav: (FT2R (dotprodF a v) = dotprodR u (map FT2R v) + ueta)%R by
-  rewrite Y; nra. rewrite Hav; clear Hav => /=. 
+{ rewrite Y => /=. 
 rewrite !CommonSSR.map_map_equiv.
 rewrite CommonSSR.map_map_equiv map_length in Ha.
 suff Hs: map2 Rplus (List.map FT2R a)
@@ -106,8 +104,7 @@ rewrite /vec_sum/map2 map_length combine_length Ha
 exists (vec_sum u (map FT2R a) Rminus :: E) , (ueta::eta); repeat split.
 {
 rewrite CommonSSR.map_map_equiv map_length in Ha.
-have Hav: (FT2R (dotprodF a v) = dotprodR u (map FT2R v) + ueta)%R by
-  rewrite Y; nra. rewrite Hav; clear Hav => /=.
+ rewrite Y; clear Y => /=.
 rewrite !CommonSSR.map_map_equiv => /=.
 suff: map2 Rplus (List.map FT2R a) (u -v List.map FT2R a) =  u.
 move => Hs. rewrite Hs vec_sumR_bounds => //.

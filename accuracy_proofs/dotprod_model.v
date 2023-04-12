@@ -136,6 +136,7 @@ Proof.
 unfold dotprodR, dotprod; rewrite combine_nil; simpl; auto. 
 Qed.
 
+
 Lemma sum_rev l:
 sum_fold l = sum_fold (rev l).
 Proof.
@@ -202,6 +203,21 @@ induction (map FR2 (rev (combine v1 v2))).
 destruct a; simpl. apply R_dot_prod_rel_cons; auto.
 Qed.
 
+Lemma R_dot_prod_rel_fold_right' t :
+forall (v1 v2: list (ftype t)) , 
+   let prods := map (uncurry Rmult) (map FR2 (List.combine v1 v2)) in
+    R_dot_prod_rel (rev (map FR2 (List.combine v1 v2))) (dotprodR (map FT2R v1) (map FT2R v2)).
+Proof.
+intros. subst prods. unfold dotprodR. rewrite <- !map_rev.
+rewrite (combine_map _ _ _ FR2); auto. 
+rewrite <- (rev_involutive (combine v1 v2)) at 2.
+rewrite <- fold_left_rev_right.
+rewrite (rev_involutive (combine v1 v2)) .
+rewrite <- !map_rev. 
+induction (map FR2 (rev (combine v1 v2))).
+{ simpl. apply R_dot_prod_rel_nil. }
+destruct a; simpl. rewrite Rplus_comm. apply R_dot_prod_rel_cons; auto.
+Qed.
 
 Lemma R_dot_prod_rel_fold_right_Rabs t :
 forall (v1 v2: list (ftype t)) , 
@@ -212,6 +228,23 @@ intros. subst prods. rewrite sum_rev. rewrite <- !map_rev.
 induction (map Rabsp (map FR2 (rev (combine v1 v2)))).
 { simpl. apply R_dot_prod_rel_nil. }
 destruct a; simpl. apply R_dot_prod_rel_cons; auto.
+Qed.
+
+Lemma R_dot_prod_rel_fold_right_Rabs' t :
+forall (v1 v2: list (ftype t)) , 
+   let prods := map (uncurry Rmult) (map Rabsp (map FR2 (List.combine v1 v2))) in
+   R_dot_prod_rel (rev (map Rabsp (map FR2 (List.combine v1 v2)))) (dotprodR (map Rabs (map FT2R v1)) (map Rabs (map FT2R v2))).
+Proof.
+intros. subst prods. unfold dotprodR. rewrite <- !map_rev.
+rewrite (combine_map _ _ _ Rabsp); auto. 
+rewrite (combine_map _ _ _ FR2); auto. 
+rewrite <- (rev_involutive (combine v1 v2)) at 2.
+rewrite <- fold_left_rev_right.
+rewrite (rev_involutive (combine v1 v2)) .
+rewrite <- !map_rev. 
+induction (map Rabsp (map FR2 (rev (combine v1 v2)))).
+{ simpl. apply R_dot_prod_rel_nil. }
+destruct a; simpl. rewrite Rplus_comm. apply R_dot_prod_rel_cons; auto.
 Qed.
 
 Lemma R_dot_prod_rel_single rs a:

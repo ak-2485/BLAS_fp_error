@@ -3,7 +3,7 @@ Require Import List.
 Import ListNotations.
 Require Import common op_defs dotprod_model sum_model.
 Require Import float_acc_lems list_lemmas.
-Require Import fma_dot_acc sum_acc.
+Require Import dot_acc_lemmas sum_acc.
 
 Require Import Reals.
 Open Scope R.
@@ -302,7 +302,7 @@ destruct (@generic_round_property t (FT2R (fst a) * FT2R (snd a) + FT2R s)) as
 rewrite Hrn; clear Hrn.
 destruct (dotprod_rel_R_exists_fma t l s H3) as (rs & Hrs).
 destruct (sum_rel_R_abs_exists_fma t l s H3) as (rs_abs & Habs).
-pose proof fma_dotprod_forward_error l
+pose proof fma_dotprod_forward_error_rel l
    s H3 IHl rs rs_abs Hrs Habs as Hacc. 
 apply Rabs_le_minus in Hacc.
 set (n:=(length l)) in *.
